@@ -1,24 +1,37 @@
-export function snapToGrid(value: number, gridSize: number, offset = 0): number {
-  if (gridSize <= 0) return value;
-  return Math.round((value - offset) / gridSize) * gridSize + offset;
+import { clamp } from "./number";
+
+/**
+ * If boundary size isn't a perfect multiple of grid size, we inset the grid by (remainder/2)
+ * so the leftover space is split evenly on both sides.
+ */
+export function gridCenterOffset(sizeIn: number, gridIn: number): number {
+  if (gridIn <= 0) return 0;
+  // safer remainder for floats
+  const rem = sizeIn - Math.floor(sizeIn / gridIn) * gridIn;
+  return rem / 2;
 }
 
-export function snapAndClampPoint(
-  x: number,
-  y: number,
-  gridSize: number,
-  minX: number,
-  minY: number,
-  maxX: number,
-  maxY: number,
-  offsetX = 0,
-  offsetY = 0
-) {
-  const sx = snapToGrid(x, gridSize, offsetX);
-  const sy = snapToGrid(y, gridSize, offsetY);
+export function snapToGridWithOffset(valueIn: number, gridIn: number, offsetIn: number): number {
+  if (gridIn <= 0) return valueIn;
+  const t = (valueIn - offsetIn) / gridIn;
+  const snapped = Math.round(t) * gridIn + offsetIn;
+  return snapped;
+}
 
+export function clampToBoundary(
+  xIn: number,
+  yIn: number,
+  widthIn: number,
+  heightIn: number,
+  offsetXIn: number,
+  offsetYIn: number,
+): { xIn: number; yIn: number } {
+  const minX = offsetXIn;
+  const maxX = Math.max(minX, widthIn - offsetXIn);
+  const minY = offsetYIn;
+  const maxY = Math.max(minY, heightIn - offsetYIn);
   return {
-    x: clamp(sx, minX, maxX),
-    y: clamp(sy, minY, maxY),
+    xIn: clamp(xIn, minX, maxX),
+    yIn: clamp(yIn, minY, maxY),
   };
 }
