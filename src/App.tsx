@@ -615,6 +615,7 @@ export default function App() {
               onAddGuide={s.addGuide}
               onToggleShowGuides={() => s.setShowGuides(!s.showGuides)}
               onToggleGuidesLocked={() => s.setGuidesLocked(!s.guidesLocked)}
+              onTogglePolarGuides={() => s.setProjectSpecs({ showPolarGuides: !s.projectSpecs.showPolarGuides })}
               showLabels={s.showLabels}
               onToggleShowLabels={() => s.setShowLabels(!s.showLabels)}
               onCursorMove={(xIn, yIn, inside) => s.setPlanCursor({ xIn, yIn, inside })}

@@ -60,6 +60,7 @@ export type PlanViewPanelProps = {
   onAddGuide?: (orientation: "v" | "h", posIn: number) => void;
   onToggleShowGuides?: () => void;
   onToggleGuidesLocked?: () => void;
+  onTogglePolarGuides?: () => void;
 
   showLabels: boolean;
   onToggleShowLabels: () => void;
@@ -106,6 +107,12 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
 
   const ox = useMemo(() => gridCenterOffset(specs.boundaryWidthIn, specs.gridSpacingIn), [specs.boundaryWidthIn, specs.gridSpacingIn]);
   const oy = useMemo(() => gridCenterOffset(specs.boundaryHeightIn, specs.gridSpacingIn), [specs.boundaryHeightIn, specs.gridSpacingIn]);
+  const boundaryShape = specs.boundaryShape ?? "rect";
+  const boundaryCx = specs.boundaryWidthIn / 2;
+  const boundaryCy = specs.boundaryHeightIn / 2;
+  const boundaryRx = boundaryShape === "circle" ? Math.min(specs.boundaryWidthIn, specs.boundaryHeightIn) / 2 : specs.boundaryWidthIn / 2;
+  const boundaryRy = boundaryShape === "circle" ? Math.min(specs.boundaryWidthIn, specs.boundaryHeightIn) / 2 : specs.boundaryHeightIn / 2;
+  const minBoundaryR = Math.min(boundaryRx, boundaryRy);
 
   const bounds = useMemo(() => {
     const pad = 1.5;
@@ -155,6 +162,31 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
     for (let y = oy; y <= specs.boundaryHeightIn + 1e-6; y += g) ys.push(round(y, 3));
     return { xs, ys };
   }, [ox, oy, specs.boundaryHeightIn, specs.boundaryWidthIn, specs.gridSpacingIn]);
+
+  const showPolar = !!specs.showPolarGuides && boundaryShape !== "rect";
+  const polarAngles = useMemo(() => {
+    if (!showPolar) return [] as number[];
+    const step = 15;
+    const list: number[] = [];
+    for (let a = 0; a < 360; a += step) list.push(a);
+    return list;
+  }, [showPolar]);
+
+  const polarRings = useMemo(() => {
+    if (!showPolar) return [] as number[];
+    const spacing = Math.max(0.1, specs.gridSpacingIn);
+    const list: number[] = [];
+    for (let r = spacing; r <= minBoundaryR + 1e-6; r += spacing) list.push(round(r, 3));
+    return list;
+  }, [showPolar, specs.gridSpacingIn, minBoundaryR]);
+
+  const isInsideBoundary = (x: number, y: number) => {
+    if (boundaryShape === "rect") return x >= 0 && x <= specs.boundaryWidthIn && y >= 0 && y <= specs.boundaryHeightIn;
+    if (boundaryRx <= 0 || boundaryRy <= 0) return false;
+    const dx = x - boundaryCx;
+    const dy = y - boundaryCy;
+    return (dx * dx) / (boundaryRx * boundaryRx) + (dy * dy) / (boundaryRy * boundaryRy) <= 1;
+  };
 
   const left = (
     <>
@@ -219,6 +251,19 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
         />
         <span className="smallLabel">Lock</span>
       </label>
+
+      <label
+        style={{ display: "flex", alignItems: "center", gap: 6, userSelect: "none", opacity: boundaryShape === "rect" ? 0.5 : 1 }}
+        title={boundaryShape === "rect" ? "Polar guides are available for circle/oval boundaries" : "Toggle polar guides"}
+      >
+        <input
+          type="checkbox"
+          checked={!!specs.showPolarGuides}
+          onChange={() => props.onTogglePolarGuides?.()}
+          disabled={!props.onTogglePolarGuides || boundaryShape === "rect"}
+        />
+        <span className="smallLabel">Polar</span>
+      </label>
     </div>
   );
 
@@ -229,7 +274,7 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
       center={guideCenter}
       headerHint={
         <span className="muted">
-          Boundary: {specs.boundaryWidthIn}" × {specs.boundaryHeightIn}"  •  Grid {specs.gridSpacingIn}"  •  Holes {specs.strandHoleDiameterIn}"/{specs.fastenerHoleDiameterIn}"
+          Boundary: {specs.boundaryWidthIn}" × {specs.boundaryHeightIn}" {boundaryShape !== "rect" ? `(${boundaryShape})` : ""}  •  Grid {specs.gridSpacingIn}"  •  Holes {specs.strandHoleDiameterIn}"/{specs.fastenerHoleDiameterIn}"
         </span>
       }
       left={left}
@@ -255,7 +300,7 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
             const svg = svgRef.current;
             if (!svg) return;
             const p = clientToSvgCoords(svg, ev.clientX, ev.clientY);
-            const inside = p.x >= 0 && p.x <= specs.boundaryWidthIn && p.y >= 0 && p.y <= specs.boundaryHeightIn;
+            const inside = isInsideBoundary(p.x, p.y);
             props.onCursorMove(p.x, p.y, inside);
           }}
           onPointerLeave={() => props.onCursorLeave()}
@@ -385,8 +430,60 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
           ))}
         </g>
 
+        {/* Polar guides */}
+        {showPolar ? (
+          <g>
+            {polarRings.map((r) => {
+              const t = minBoundaryR > 0 ? r / minBoundaryR : 0;
+              return (
+                <ellipse
+                  key={`ring-${r}`}
+                  cx={boundaryCx}
+                  cy={boundaryCy}
+                  rx={boundaryRx * t}
+                  ry={boundaryRy * t}
+                  fill="none"
+                  stroke="#ddd"
+                  strokeWidth={0.03}
+                  strokeDasharray="0.3 0.3"
+                  opacity={0.8}
+                />
+              );
+            })}
+            {polarAngles.map((deg) => {
+              const rad = (deg * Math.PI) / 180;
+              const x = boundaryCx + boundaryRx * Math.cos(rad);
+              const y = boundaryCy + boundaryRy * Math.sin(rad);
+              return (
+                <line
+                  key={`ang-${deg}`}
+                  x1={boundaryCx}
+                  y1={boundaryCy}
+                  x2={x}
+                  y2={y}
+                  stroke="#d0d0d0"
+                  strokeWidth={0.03}
+                  strokeDasharray="0.3 0.4"
+                />
+              );
+            })}
+          </g>
+        ) : null}
+
         {/* Boundary */}
-        <rect x={0} y={0} width={specs.boundaryWidthIn} height={specs.boundaryHeightIn} fill="none" stroke="#111" strokeWidth={0.08} />
+        {boundaryShape === "rect" ? (
+          <rect x={0} y={0} width={specs.boundaryWidthIn} height={specs.boundaryHeightIn} fill="none" stroke="#111" strokeWidth={0.08} />
+        ) : (
+          <ellipse
+            cx={boundaryCx}
+            cy={boundaryCy}
+            rx={boundaryRx}
+            ry={boundaryRy}
+            fill="none"
+            stroke="#111"
+            strokeWidth={0.08}
+          />
+        )}
 
         {/* Guides */}
         {props.showGuides ? (

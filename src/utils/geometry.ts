@@ -1,4 +1,5 @@
 import { clamp } from "./number";
+import type { BoundaryShape } from "../types/appTypes";
 
 /**
  * If boundary size isn't a perfect multiple of grid size, we inset the grid by (remainder/2)
@@ -34,4 +35,26 @@ export function clampToBoundary(
     xIn: clamp(xIn, minX, maxX),
     yIn: clamp(yIn, minY, maxY),
   };
+}
+
+export function clampToBoundaryShape(
+  xIn: number,
+  yIn: number,
+  widthIn: number,
+  heightIn: number,
+  shape: BoundaryShape = "rect",
+): { xIn: number; yIn: number } {
+  if (shape === "rect") return { xIn, yIn };
+  const cx = widthIn / 2;
+  const cy = heightIn / 2;
+  const rx = shape === "circle" ? Math.min(widthIn, heightIn) / 2 : widthIn / 2;
+  const ry = shape === "circle" ? Math.min(widthIn, heightIn) / 2 : heightIn / 2;
+  if (rx <= 0 || ry <= 0) return { xIn: cx, yIn: cy };
+
+  const dx = xIn - cx;
+  const dy = yIn - cy;
+  const t = (dx * dx) / (rx * rx) + (dy * dy) / (ry * ry);
+  if (t <= 1) return { xIn, yIn };
+  const scale = 1 / Math.sqrt(t);
+  return { xIn: cx + dx * scale, yIn: cy + dy * scale };
 }

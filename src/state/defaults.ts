@@ -36,10 +36,12 @@ export const DEFAULT_SPECS: ProjectSpecs = {
   ceilingHeightIn: 110,
   boundaryWidthIn: 24,
   boundaryHeightIn: 12,
+  boundaryShape: "rect",
   gridSpacingIn: 4.5,
   strandHoleDiameterIn: 0.28,
   fastenerHoleDiameterIn: 0.5,
   dueDate: "2026-10-12",
+  showPolarGuides: false,
   previewDepth: {
     depthSpreadIn: 3,
     layerSpreadIn: 1,

@@ -101,6 +101,18 @@ export default function ProjectSpecsBar({ specs, onChange, dueDate, onDueDateCha
         </div>
 
         <div className="field">
+          <span className="smallLabel">Shape</span>
+          <select
+            value={specs.boundaryShape ?? "rect"}
+            onChange={(e) => onChange({ boundaryShape: e.target.value as any })}
+          >
+            <option value="rect">Rect</option>
+            <option value="oval">Oval</option>
+            <option value="circle">Circle</option>
+          </select>
+        </div>
+
+        <div className="field">
           <span className="smallLabel">Strand Hole Ø</span>
           <input
             type="number"

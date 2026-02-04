@@ -14,16 +14,20 @@ export type DepthLayer = "front" | "mid" | "back";
 
 export type MoundPreset = "none" | "small" | "medium" | "large" | "6" | "12" | "18" | "24" | "36";
 
+export type BoundaryShape = "rect" | "circle" | "oval";
+
 export type ProjectSpecs = {
   projectName: string;
   clientViewerUrl?: string;
   ceilingHeightIn: number;
   boundaryWidthIn: number;
   boundaryHeightIn: number;
+  boundaryShape?: BoundaryShape;
   gridSpacingIn: number;
   strandHoleDiameterIn: number;
   fastenerHoleDiameterIn: number;
   dueDate: string; // ISO date string (YYYY-MM-DD)
+  showPolarGuides?: boolean;
   previewDepth?: {
     depthSpreadIn: number;
     layerSpreadIn: number;
