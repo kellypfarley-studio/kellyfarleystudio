@@ -290,10 +290,65 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
     return { x: x * k, y: y * k };
   };
 
-	  const settlePilePhysics = (
-	    spheresIn: PileSphereSpec[],
-	    args: {
-	      radiusIn: number;
+  const addPileSphereAt = (xIn: number, yIn: number) => {
+    const live = pileLiveRef.current;
+    const cl = clampXYToRadius(xIn, yIn, live.radiusIn);
+    const base = live.spheres.map((s) => ({ ...s }));
+    const nextIndex = base.length;
+
+    let next: PileSphereSpec[] = [
+      ...base,
+      {
+        offsetXIn: cl.x,
+        offsetYIn: cl.y,
+        zIn: 0,
+        colorId: props.pileBuilder.colorId,
+      },
+    ];
+
+    if (live.auto) {
+      // Pin XY and allow Z to settle so the new sphere "lands" on the pile.
+      next = settlePilePhysics(next, {
+        radiusIn: live.radiusIn,
+        pinnedIndex: nextIndex,
+        pinnedXY: cl,
+        pinnedZ: null,
+        iterations: 160,
+      });
+    }
+
+    props.onPileBuilderPatch({ spheres: next, selectedIndex: nextIndex, showPreview: true });
+  };
+
+  const shakeAndSettlePile = () => {
+    const live = pileLiveRef.current;
+    const base = live.spheres.map((s) => ({ ...s }));
+    if (!base.length) return;
+
+    const D = Math.max(0.0001, props.sphereDiameterIn);
+    const jitterXY = Math.min(D * 0.08, 0.35);
+    const jitterZ = Math.min(D * 0.06, 0.25);
+
+    const jittered = base.map((s) => {
+      const dx = (Math.random() - 0.5) * 2 * jitterXY;
+      const dy = (Math.random() - 0.5) * 2 * jitterXY;
+      const dz = (Math.random() - 0.5) * 2 * jitterZ;
+      const x = (s.offsetXIn ?? 0) + dx;
+      const y = (s.offsetYIn ?? 0) + dy;
+      const cl = clampXYToRadius(x, y, live.radiusIn);
+      return { ...s, offsetXIn: cl.x, offsetYIn: cl.y, zIn: Math.max(0, (s.zIn ?? 0) + dz) };
+    });
+
+    const settled = live.auto
+      ? settlePilePhysics(jittered, { radiusIn: live.radiusIn, iterations: 800, gravityIn: D * 0.10 })
+      : settlePilePhysics(jittered, { radiusIn: live.radiusIn, iterations: 600, gravityIn: D * 0.10 });
+    props.onPileBuilderPatch({ spheres: settled });
+  };
+
+  const settlePilePhysics = (
+    spheresIn: PileSphereSpec[],
+    args: {
+      radiusIn: number;
 	      pinnedIndex?: number | null;
 	      pinnedXY?: { x: number; y: number } | null;
 	      pinnedZ?: number | null;
@@ -1146,15 +1201,30 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
       ) : null}
 
       {tools.mode === "place_pile" ? (
-      <div className="pvToolsRow pvToolsRow--pile">
-        <div className="field" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div style={{ border: "1px solid #ddd", borderRadius: 6, padding: 6, background: "#fff" }}>
-            <div className="smallLabel" style={{ marginBottom: 6 }}>Pile Builder (Top)</div>
-            <svg width={160} height={160} viewBox="-80 -80 160 160" style={{ display: "block", touchAction: "none" }}>
-              <circle cx={0} cy={0} r={60} fill="none" stroke="#ddd" strokeWidth={1} strokeDasharray="4 3" />
-              {pileSpheres.map((sp, idx) => {
-                const sel = pileSelectedIndex === idx;
-                const x = (sp.offsetXIn ?? 0) * pileScale;
+	      <div className="pvToolsRow pvToolsRow--pile">
+	        <div className="field" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+	          <div style={{ border: "1px solid #ddd", borderRadius: 6, padding: 6, background: "#fff" }}>
+	            <div className="smallLabel" style={{ marginBottom: 6 }}>Pile Builder (Top)</div>
+	            <svg
+                width={160}
+                height={160}
+                viewBox="-80 -80 160 160"
+                style={{ display: "block", touchAction: "none" }}
+                onPointerDown={(ev) => {
+                  // Clicking empty space drops a new sphere at that position.
+                  if (ev.target && (ev.target as Element).tagName?.toLowerCase() === "circle") return;
+                  const svgEl = ev.currentTarget as SVGSVGElement;
+                  const rr = svgEl.getBoundingClientRect();
+                  const mx = ev.clientX - rr.left - rr.width / 2;
+                  const my = ev.clientY - rr.top - rr.height / 2;
+                  addPileSphereAt(mx / pileScale, my / pileScale);
+                }}
+              >
+	              <rect x={-80} y={-80} width={160} height={160} fill="transparent" />
+	              <circle cx={0} cy={0} r={60} fill="none" stroke="#ddd" strokeWidth={1} strokeDasharray="4 3" />
+	              {pileSpheres.map((sp, idx) => {
+	                const sel = pileSelectedIndex === idx;
+	                const x = (sp.offsetXIn ?? 0) * pileScale;
                 const y = (sp.offsetYIn ?? 0) * pileScale;
                 return (
                   <circle
@@ -1224,10 +1294,11 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
             </svg>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <div className="smallLabel muted">
-              {pileSpheres.length ? `${pileSpheres.length} sphere(s) in pile.` : "No pile spheres yet."}
-            </div>
+	          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+	            <div className="smallLabel muted">
+	              {pileSpheres.length ? `${pileSpheres.length} sphere(s) in pile.` : "No pile spheres yet."}{" "}
+                <span className="muted">(Tip: click inside the circle to drop a new sphere.)</span>
+	            </div>
 
             <div className="field">
               <span className="smallLabel">Selected</span>
@@ -1299,26 +1370,32 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
               <span className="smallLabel">"</span>
             </div>
 
-            <div className="field">
-              <button
-                className="btn"
-                onClick={() => {
-                  if (!pileSpheres.length) return;
-                  const settled = settlePilePhysics(pileSpheres, {
-                    radiusIn: props.pileBuilder.radiusIn,
-                    iterations: 200,
-                  });
-                  props.onPileBuilderPatch({ spheres: settled });
-                }}
-                disabled={!pileSpheres.length}
-              >
-                Settle Pile
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      ) : null}
+	            <div className="field">
+	              <button
+	                className="btn"
+	                onClick={() => {
+	                  if (!pileSpheres.length) return;
+	                  const settled = settlePilePhysics(pileSpheres, {
+	                    radiusIn: props.pileBuilder.radiusIn,
+	                    iterations: 200,
+	                  });
+	                  props.onPileBuilderPatch({ spheres: settled });
+	                }}
+	                disabled={!pileSpheres.length}
+	              >
+	                Settle Pile
+	              </button>
+	            </div>
+
+              <div className="field">
+                <button className="btn" onClick={shakeAndSettlePile} disabled={!pileSpheres.length}>
+                  Shake + Settle
+                </button>
+              </div>
+	          </div>
+	        </div>
+	      </div>
+	      ) : null}
 
       {tools.mode === "place_cluster" ? (
       <div className="pvToolsRow pvToolsRow--cluster">
