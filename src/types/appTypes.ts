@@ -2,6 +2,7 @@ export type ToolMode =
   | "select"
   | "move_anchor"
   | "copy_anchor"
+  | "measure"
   | "place_strand"
   | "place_stack"
   | "place_pile"
@@ -23,6 +24,9 @@ export type ProjectSpecs = {
   boundaryWidthIn: number;
   boundaryHeightIn: number;
   boundaryShape?: BoundaryShape;
+  snapToBoundary?: boolean;
+  snapToGuides?: boolean;
+  maskOutsideBoundary?: boolean;
   gridSpacingIn: number;
   strandHoleDiameterIn: number;
   fastenerHoleDiameterIn: number;

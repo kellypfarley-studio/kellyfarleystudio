@@ -602,6 +602,7 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
       if (k === "s") props.onMode("select");
       if (k === "m") props.onMode("move_anchor");
       if (k === "c") props.onMode("copy_anchor");
+      if (k === "e") props.onMode("measure");
       if (k === "f") props.onMode("place_canopy_fastener");
       if (k === "r") props.onMode("place_strand");
       if (k === "t") props.onMode("place_stack");
@@ -634,6 +635,9 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
           </button>
           <button className={tools.mode === "copy_anchor" ? "active" : ""} onClick={() => props.onMode("copy_anchor")}>
             Copy
+          </button>
+          <button className={tools.mode === "measure" ? "active" : ""} onClick={() => props.onMode("measure")}>
+            Measure
           </button>
         </div>
       </div>

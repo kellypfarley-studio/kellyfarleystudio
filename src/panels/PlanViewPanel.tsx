@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { Anchor, Cluster, Guide, Pile, ProjectSpecs, ToolMode, ViewTransform } from "../types/appTypes";
 import type { Ref } from "react";
 import PanelFrame from "../components/PanelFrame";
@@ -61,6 +61,9 @@ export type PlanViewPanelProps = {
   onToggleShowGuides?: () => void;
   onToggleGuidesLocked?: () => void;
   onTogglePolarGuides?: () => void;
+  onToggleSnapGuides?: () => void;
+  onToggleSnapBoundary?: () => void;
+  onToggleMaskOutside?: () => void;
 
   showLabels: boolean;
   onToggleShowLabels: () => void;
@@ -152,6 +155,31 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
     start: { x: 0, y: 0 },
     initPan: { x: 0, y: 0 },
   });
+
+  const [measure, setMeasure] = useState<{ start: { x: number; y: number }; end: { x: number; y: number }; locked: boolean } | null>(null);
+
+  const setMeasurePoint = (x: number, y: number) => {
+    setMeasure((prev) => {
+      if (!prev || prev.locked) {
+        return { start: { x, y }, end: { x, y }, locked: false };
+      }
+      return { ...prev, end: { x, y }, locked: true };
+    });
+  };
+
+  useEffect(() => {
+    if (props.mode !== "measure") setMeasure(null);
+  }, [props.mode]);
+
+  useEffect(() => {
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key === "Escape" && props.mode === "measure") {
+        setMeasure(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [props.mode]);
 
   const gridLines = useMemo(() => {
     const xs: number[] = [];
@@ -264,6 +292,39 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
         />
         <span className="smallLabel">Polar</span>
       </label>
+
+      <label style={{ display: "flex", alignItems: "center", gap: 6, userSelect: "none" }} title="Snap to guides">
+        <input
+          type="checkbox"
+          checked={specs.snapToGuides !== false}
+          onChange={() => props.onToggleSnapGuides?.()}
+          disabled={!props.onToggleSnapGuides}
+        />
+        <span className="smallLabel">Snap G</span>
+      </label>
+
+      <label style={{ display: "flex", alignItems: "center", gap: 6, userSelect: "none" }} title="Clamp to boundary shape">
+        <input
+          type="checkbox"
+          checked={specs.snapToBoundary !== false}
+          onChange={() => props.onToggleSnapBoundary?.()}
+          disabled={!props.onToggleSnapBoundary}
+        />
+        <span className="smallLabel">Snap B</span>
+      </label>
+
+      <label
+        style={{ display: "flex", alignItems: "center", gap: 6, userSelect: "none", opacity: boundaryShape === "rect" ? 0.5 : 1 }}
+        title={boundaryShape === "rect" ? "Mask is for circle/oval boundaries" : "Dim outside boundary"}
+      >
+        <input
+          type="checkbox"
+          checked={!!specs.maskOutsideBoundary}
+          onChange={() => props.onToggleMaskOutside?.()}
+          disabled={!props.onToggleMaskOutside || boundaryShape === "rect"}
+        />
+        <span className="smallLabel">Mask</span>
+      </label>
     </div>
   );
 
@@ -302,6 +363,12 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
             const p = clientToSvgCoords(svg, ev.clientX, ev.clientY);
             const inside = isInsideBoundary(p.x, p.y);
             props.onCursorMove(p.x, p.y, inside);
+            if (props.mode === "measure") {
+              setMeasure((prev) => {
+                if (!prev || prev.locked) return prev;
+                return { ...prev, end: { x: p.x, y: p.y } };
+              });
+            }
           }}
           onPointerLeave={() => props.onCursorLeave()}
           onPointerDown={(ev) => {
@@ -341,6 +408,11 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
 
             // Background click: place or clear or move, depending on mode.
             const p = clientToSvgCoords(svg, ev.clientX, ev.clientY);
+
+            if (props.mode === "measure") {
+              setMeasurePoint(p.x, p.y);
+              return;
+            }
 
             if (props.mode === "place_strand") {
               props.onPlaceStrand(p.x, p.y);
@@ -470,6 +542,26 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
           </g>
         ) : null}
 
+        {/* Mask outside boundary (circle/oval) */}
+        {specs.maskOutsideBoundary && boundaryShape !== "rect" ? (
+          <>
+            <defs>
+              <mask id="boundary-mask">
+                <rect x={0} y={0} width={specs.boundaryWidthIn} height={specs.boundaryHeightIn} fill="white" />
+                <ellipse cx={boundaryCx} cy={boundaryCy} rx={boundaryRx} ry={boundaryRy} fill="black" />
+              </mask>
+            </defs>
+            <rect
+              x={0}
+              y={0}
+              width={specs.boundaryWidthIn}
+              height={specs.boundaryHeightIn}
+              fill="rgba(0,0,0,0.06)"
+              mask="url(#boundary-mask)"
+            />
+          </>
+        ) : null}
+
         {/* Boundary */}
         {boundaryShape === "rect" ? (
           <rect x={0} y={0} width={specs.boundaryWidthIn} height={specs.boundaryHeightIn} fill="none" stroke="#111" strokeWidth={0.08} />
@@ -484,6 +576,34 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
             strokeWidth={0.08}
           />
         )}
+
+        {/* Measure overlay */}
+        {measure ? (() => {
+          const dx = measure.end.x - measure.start.x;
+          const dy = measure.end.y - measure.start.y;
+          const dist = Math.hypot(dx, dy);
+          const midX = (measure.start.x + measure.end.x) / 2;
+          const midY = (measure.start.y + measure.end.y) / 2;
+          const label = `ΔX ${round(dx, 2)}"  ΔY ${round(dy, 2)}"  D ${round(dist, 2)}"`;
+          return (
+            <g>
+              <line
+                x1={measure.start.x}
+                y1={measure.start.y}
+                x2={measure.end.x}
+                y2={measure.end.y}
+                stroke="#ff8800"
+                strokeWidth={0.08}
+                strokeDasharray={measure.locked ? "0" : "0.25 0.25"}
+              />
+              <circle cx={measure.start.x} cy={measure.start.y} r={0.18} fill="#ff8800" />
+              <circle cx={measure.end.x} cy={measure.end.y} r={0.18} fill="#ff8800" />
+              <text x={midX + 0.3} y={midY - 0.3} fontSize={0.6} fill="#ff8800">
+                {label}
+              </text>
+            </g>
+          );
+        })() : null}
 
         {/* Guides */}
         {props.showGuides ? (
@@ -626,6 +746,10 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
                 style={{ cursor: "pointer" }}
                 onPointerDown={(ev) => {
                   ev.stopPropagation();
+                  if (props.mode === "measure") {
+                    setMeasurePoint(p.xIn, p.yIn);
+                    return;
+                  }
                   if (props.onSelectPile) props.onSelectPile(p.id);
 
                   if (props.mode === "move_anchor") {
@@ -684,6 +808,10 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
                   style={{ cursor: "pointer" }}
                   onPointerDown={(ev) => {
                     ev.stopPropagation();
+                    if (props.mode === "measure") {
+                      setMeasurePoint(a.xIn, a.yIn);
+                      return;
+                    }
                     props.onSelectAnchor(a.id);
                     if (props.mode === "copy_anchor" && props.onBeginCopyAnchor) {
                       props.onBeginCopyAnchor(a.id);

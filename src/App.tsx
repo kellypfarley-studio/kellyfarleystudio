@@ -616,6 +616,9 @@ export default function App() {
               onToggleShowGuides={() => s.setShowGuides(!s.showGuides)}
               onToggleGuidesLocked={() => s.setGuidesLocked(!s.guidesLocked)}
               onTogglePolarGuides={() => s.setProjectSpecs({ showPolarGuides: !s.projectSpecs.showPolarGuides })}
+              onToggleSnapGuides={() => s.setProjectSpecs({ snapToGuides: !(s.projectSpecs.snapToGuides !== false) })}
+              onToggleSnapBoundary={() => s.setProjectSpecs({ snapToBoundary: !(s.projectSpecs.snapToBoundary !== false) })}
+              onToggleMaskOutside={() => s.setProjectSpecs({ maskOutsideBoundary: !s.projectSpecs.maskOutsideBoundary })}
               showLabels={s.showLabels}
               onToggleShowLabels={() => s.setShowLabels(!s.showLabels)}
               onCursorMove={(xIn, yIn, inside) => s.setPlanCursor({ xIn, yIn, inside })}

@@ -108,6 +108,46 @@ export function useAppState() {
     [projectSpecs.boundaryHeightIn, projectSpecs.boundaryWidthIn, projectSpecs.boundaryShape],
   );
 
+  const applyGuideSnap = useCallback(
+    (xIn: number, yIn: number) => {
+      if (!projectSpecs.snapToGuides) return { xIn, yIn };
+      if (!guides.length) return { xIn, yIn };
+      const threshold = Math.max(0.25, Math.min(1, (projectSpecs.gridSpacingIn || 1) * 0.2));
+
+      let nextX = xIn;
+      let nextY = yIn;
+      let bestDx = threshold + 1;
+      let bestDy = threshold + 1;
+
+      for (const g of guides) {
+        if (g.orientation === "v") {
+          const dx = Math.abs(g.posIn - xIn);
+          if (dx <= threshold && dx < bestDx) {
+            bestDx = dx;
+            nextX = g.posIn;
+          }
+        } else {
+          const dy = Math.abs(g.posIn - yIn);
+          if (dy <= threshold && dy < bestDy) {
+            bestDy = dy;
+            nextY = g.posIn;
+          }
+        }
+      }
+
+      return { xIn: nextX, yIn: nextY };
+    },
+    [guides, projectSpecs.gridSpacingIn, projectSpecs.snapToGuides],
+  );
+
+  const applyBoundarySnap = useCallback(
+    (xIn: number, yIn: number) => {
+      if (projectSpecs.snapToBoundary === false) return { xIn, yIn };
+      return clampToShape(xIn, yIn);
+    },
+    [clampToShape, projectSpecs.snapToBoundary],
+  );
+
   // snapAndClamp removed - movement now computes grid indices directly via gridMath
 
   const findAnchorAt = useCallback(
@@ -184,7 +224,9 @@ export function useAppState() {
     (xIn: number, yIn: number) => {
       const { col, row } = snapToGridIndex(xIn, yIn, projectSpecs);
       const snapped = gridIndexToWorld(col, row, projectSpecs);
-      const { xIn: sx, yIn: sy } = clampToShape(snapped.xIn, snapped.yIn);
+      const guided = applyGuideSnap(snapped.xIn, snapped.yIn);
+      const clamped = applyBoundarySnap(guided.xIn, guided.yIn);
+      const { xIn: sx, yIn: sy } = clamped;
       const existing = findAnchorAt(sx, sy);
 
       let anchorId = existing?.id;
@@ -217,14 +259,16 @@ export function useAppState() {
       setSelection({ selectedAnchorId: anchorId, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
       return anchorId;
     },
-    [findAnchorAt, planTools.draftStrand, projectSpecs, clampToShape],
+    [findAnchorAt, planTools.draftStrand, projectSpecs, applyGuideSnap, applyBoundarySnap],
   );
 
   const placeStackAt = useCallback(
     (xIn: number, yIn: number) => {
       const { col, row } = snapToGridIndex(xIn, yIn, projectSpecs);
       const snapped = gridIndexToWorld(col, row, projectSpecs);
-      const { xIn: sx, yIn: sy } = clampToShape(snapped.xIn, snapped.yIn);
+      const guided = applyGuideSnap(snapped.xIn, snapped.yIn);
+      const clamped = applyBoundarySnap(guided.xIn, guided.yIn);
+      const { xIn: sx, yIn: sy } = clamped;
       const existing = findAnchorAt(sx, sy);
 
       let anchorId = existing?.id;
@@ -257,7 +301,7 @@ export function useAppState() {
       setSelection({ selectedAnchorId: anchorId, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
       return anchorId;
     },
-    [findAnchorAt, planTools.draftStack, projectSpecs, clampToShape],
+    [findAnchorAt, planTools.draftStack, projectSpecs, applyGuideSnap, applyBoundarySnap],
   );
 
   const placePileAt = useCallback(
@@ -270,7 +314,9 @@ export function useAppState() {
 
       const { col, row } = snapToGridIndex(xIn, yIn, projectSpecs);
       const snapped = gridIndexToWorld(col, row, projectSpecs);
-      const { xIn: sx, yIn: sy } = clampToShape(snapped.xIn, snapped.yIn);
+      const guided = applyGuideSnap(snapped.xIn, snapped.yIn);
+      const clamped = applyBoundarySnap(guided.xIn, guided.yIn);
+      const { xIn: sx, yIn: sy } = clamped;
 
       const spec: PileSpec = {
         spheres: spheres.map((s) => ({ ...s })),
@@ -282,7 +328,7 @@ export function useAppState() {
       setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: pileId, selectedGuideId: null });
       return pileId;
     },
-    [planTools.pileBuilder, projectSpecs, clampToShape],
+    [planTools.pileBuilder, projectSpecs, applyGuideSnap, applyBoundarySnap],
   );
 
   const placeClusterAt = useCallback(
@@ -295,7 +341,9 @@ export function useAppState() {
 
       const { col, row } = snapToGridIndex(xIn, yIn, projectSpecs);
       const snapped = gridIndexToWorld(col, row, projectSpecs);
-      const { xIn: sx, yIn: sy } = clampToShape(snapped.xIn, snapped.yIn);
+      const guided = applyGuideSnap(snapped.xIn, snapped.yIn);
+      const clamped = applyBoundarySnap(guided.xIn, guided.yIn);
+      const { xIn: sx, yIn: sy } = clamped;
       const existing = findAnchorAt(sx, sy);
 
       let anchorId = existing?.id;
@@ -330,7 +378,7 @@ export function useAppState() {
       setSelection({ selectedAnchorId: anchorId, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
       return anchorId;
     },
-    [findAnchorAt, planTools.clusterBuilder, projectSpecs, clampToShape],
+    [findAnchorAt, planTools.clusterBuilder, projectSpecs, applyGuideSnap, applyBoundarySnap],
   );
 
   const placeCustomStrandAt = useCallback(
@@ -343,7 +391,9 @@ export function useAppState() {
 
       const { col, row } = snapToGridIndex(xIn, yIn, projectSpecs);
       const snapped = gridIndexToWorld(col, row, projectSpecs);
-      const { xIn: sx, yIn: sy } = clampToShape(snapped.xIn, snapped.yIn);
+      const guided = applyGuideSnap(snapped.xIn, snapped.yIn);
+      const clamped = applyBoundarySnap(guided.xIn, guided.yIn);
+      const { xIn: sx, yIn: sy } = clamped;
       const existing = findAnchorAt(sx, sy);
 
       let anchorId = existing?.id;
@@ -378,7 +428,7 @@ export function useAppState() {
       setSelection({ selectedAnchorId: anchorId, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
       return anchorId;
     },
-    [findAnchorAt, planTools.customBuilder, projectSpecs, clampToShape],
+    [findAnchorAt, planTools.customBuilder, projectSpecs, applyGuideSnap, applyBoundarySnap],
   );
 
   const beginCopyAnchor = useCallback((anchorId: string) => {
@@ -395,7 +445,9 @@ export function useAppState() {
 
       const { col, row } = snapToGridIndex(xIn, yIn, projectSpecs);
       const snapped = gridIndexToWorld(col, row, projectSpecs);
-      const { xIn: sx, yIn: sy } = clampToShape(snapped.xIn, snapped.yIn);
+      const guided = applyGuideSnap(snapped.xIn, snapped.yIn);
+      const clamped = applyBoundarySnap(guided.xIn, guided.yIn);
+      const { xIn: sx, yIn: sy } = clamped;
 
       const newAnchorId = uid("a");
       const isFastener = sourceAnchor.holeType === "fastener" || sourceAnchor.type === "canopy_fastener";
@@ -428,13 +480,15 @@ export function useAppState() {
       setSelection({ selectedAnchorId: newAnchorId, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
       setPlanTools((prev) => ({ ...prev, pendingCopyAnchorId: null }));
     },
-    [anchors, clusters, customStrands, planTools.pendingCopyAnchorId, projectSpecs, stacks, strands, clampToShape],
+    [anchors, clusters, customStrands, planTools.pendingCopyAnchorId, projectSpecs, stacks, strands, applyGuideSnap, applyBoundarySnap],
   );
 
   const ensureStrandHoleAt = useCallback((xIn: number, yIn: number): string | undefined => {
     const { col, row } = snapToGridIndex(xIn, yIn, projectSpecs);
     const snapped = gridIndexToWorld(col, row, projectSpecs);
-    const { xIn: sx, yIn: sy } = clampToShape(snapped.xIn, snapped.yIn);
+    const guided = applyGuideSnap(snapped.xIn, snapped.yIn);
+    const clamped = applyBoundarySnap(guided.xIn, guided.yIn);
+    const { xIn: sx, yIn: sy } = clamped;
     const existing = findAnchorAt(sx, sy);
 
     // Never auto-convert a fastener hole into a strand hole.
@@ -453,13 +507,15 @@ export function useAppState() {
     }
 
     return anchorId;
-  }, [findAnchorAt, projectSpecs, clampToShape]);
+  }, [findAnchorAt, projectSpecs, applyGuideSnap, applyBoundarySnap]);
 
   const placeCanopyFastenerAt = useCallback(
     (xIn: number, yIn: number) => {
       const { col, row } = snapToGridIndex(xIn, yIn, projectSpecs);
       const snapped = gridIndexToWorld(col, row, projectSpecs);
-      const { xIn: sx, yIn: sy } = clampToShape(snapped.xIn, snapped.yIn);
+      const guided = applyGuideSnap(snapped.xIn, snapped.yIn);
+      const clamped = applyBoundarySnap(guided.xIn, guided.yIn);
+      const { xIn: sx, yIn: sy } = clamped;
       const existing = findAnchorAt(sx, sy);
 
       if (!existing) {
@@ -484,7 +540,7 @@ export function useAppState() {
       setPlanTools((prev) => (prev.pendingSwoopStartHoleId === existing.id ? { ...prev, pendingSwoopStartHoleId: null } : prev));
       setSelection({ selectedAnchorId: existing.id, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
     },
-    [findAnchorAt, projectSpecs, clampToShape],
+    [findAnchorAt, projectSpecs, applyGuideSnap, applyBoundarySnap],
   );
 
     const onSwoopAnchorClick = useCallback(
@@ -533,21 +589,25 @@ export function useAppState() {
       // Compute grid index from pointer position, then reproject to world using grid index.
       const { col, row } = snapToGridIndex(xIn, yIn, projectSpecs);
       const snapped = gridIndexToWorld(col, row, projectSpecs);
-      const { xIn: sx, yIn: sy } = clampToShape(snapped.xIn, snapped.yIn);
+      const guided = applyGuideSnap(snapped.xIn, snapped.yIn);
+      const clamped = applyBoundarySnap(guided.xIn, guided.yIn);
+      const { xIn: sx, yIn: sy } = clamped;
       setAnchors((prev) => prev.map((a) => (a.id === anchorId ? { ...a, xIn: sx, yIn: sy, gridCol: col, gridRow: row } : a)));
       // selection stays
     },
-    [projectSpecs, clampToShape],
+    [projectSpecs, applyGuideSnap, applyBoundarySnap],
   );
 
   const movePile = useCallback(
     (pileId: string, xIn: number, yIn: number) => {
       const { col, row } = snapToGridIndex(xIn, yIn, projectSpecs);
       const snapped = gridIndexToWorld(col, row, projectSpecs);
-      const { xIn: sx, yIn: sy } = clampToShape(snapped.xIn, snapped.yIn);
+      const guided = applyGuideSnap(snapped.xIn, snapped.yIn);
+      const clamped = applyBoundarySnap(guided.xIn, guided.yIn);
+      const { xIn: sx, yIn: sy } = clamped;
       setPiles((prev) => prev.map((p) => (p.id === pileId ? { ...p, xIn: sx, yIn: sy } : p)));
     },
-    [projectSpecs, clampToShape],
+    [projectSpecs, applyGuideSnap, applyBoundarySnap],
   );
 
   const deleteSelected = useCallback(() => {
@@ -682,34 +742,40 @@ export function useAppState() {
         (patch.boundaryHeightIn !== undefined && patch.boundaryHeightIn !== oldSpecs.boundaryHeightIn) ||
         (patch.boundaryShape !== undefined && patch.boundaryShape !== oldSpecs.boundaryShape);
 
+      const shouldClamp = nextSpecs.snapToBoundary !== false;
+
       if (gridRelatedChanged) {
         setAnchors((prevAnchors) =>
           prevAnchors.map((a) => {
             if (a.gridCol != null && a.gridRow != null) {
               const snapped = gridIndexToWorld(a.gridCol, a.gridRow, nextSpecs);
-              const clamped = clampToBoundaryShape(
-                snapped.xIn,
-                snapped.yIn,
-                nextSpecs.boundaryWidthIn,
-                nextSpecs.boundaryHeightIn,
-                nextSpecs.boundaryShape ?? "rect",
-              );
-              return { ...a, xIn: clamped.xIn, yIn: clamped.yIn };
+              const nextPos = shouldClamp
+                ? clampToBoundaryShape(
+                    snapped.xIn,
+                    snapped.yIn,
+                    nextSpecs.boundaryWidthIn,
+                    nextSpecs.boundaryHeightIn,
+                    nextSpecs.boundaryShape ?? "rect",
+                  )
+                : { xIn: snapped.xIn, yIn: snapped.yIn };
+              return { ...a, xIn: nextPos.xIn, yIn: nextPos.yIn };
             }
             // no grid indices: compute using old specs, then reproject to new specs
             const { col, row } = snapToGridIndex(a.xIn, a.yIn, oldSpecs);
             const snapped = gridIndexToWorld(col, row, nextSpecs);
-            const clamped = clampToBoundaryShape(
-              snapped.xIn,
-              snapped.yIn,
-              nextSpecs.boundaryWidthIn,
-              nextSpecs.boundaryHeightIn,
-              nextSpecs.boundaryShape ?? "rect",
-            );
-            return { ...a, gridCol: col, gridRow: row, xIn: clamped.xIn, yIn: clamped.yIn };
+            const nextPos = shouldClamp
+              ? clampToBoundaryShape(
+                  snapped.xIn,
+                  snapped.yIn,
+                  nextSpecs.boundaryWidthIn,
+                  nextSpecs.boundaryHeightIn,
+                  nextSpecs.boundaryShape ?? "rect",
+                )
+              : { xIn: snapped.xIn, yIn: snapped.yIn };
+            return { ...a, gridCol: col, gridRow: row, xIn: nextPos.xIn, yIn: nextPos.yIn };
           }),
         );
-      } else if (boundaryChanged) {
+      } else if (boundaryChanged && shouldClamp) {
         setAnchors((prevAnchors) =>
           prevAnchors.map((a) => {
             const clamped = clampToBoundaryShape(
@@ -724,7 +790,7 @@ export function useAppState() {
         );
       }
 
-      if (boundaryChanged) {
+      if (boundaryChanged && shouldClamp) {
         setPiles((prev) =>
           prev.map((p) => {
             const clamped = clampToBoundaryShape(
