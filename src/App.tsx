@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import MenuBar from "./components/MenuBar";
 import exportSvgElementToPng from "./utils/export/exportPng";
+import serializeSvg from "./utils/export/svgSerialize";
+import svgStringToPngBlob from "./utils/export/svgToPng";
+import { exportPdfPages } from "./utils/export/exportPdf";
+import exportDfaPdf from "./utils/export/exportDfaPdf";
+import exportProposalPdf from "./utils/export/exportProposalPdf";
+import exportPreviewGif, { renderPreviewGifBytes } from "./utils/export/exportGif";
+import exportClientViewerZip from "./utils/export/exportClientViewerZip";
 import { computePlanFitBounds } from "./panels/PlanViewPanel";
 import { computePreviewFitBounds } from "./utils/previewBounds";
 import importProjectJson from "./utils/export/importProjectJson";
@@ -24,6 +31,14 @@ export default function App() {
   const previewSvgRef = useRef<SVGSVGElement | null>(null);
   const [planPan, setPlanPan] = useState(false);
   const [frontPan, setFrontPan] = useState(false);
+  const isViewerMode = useMemo(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("viewer") === "1" || params.get("viewer") === "true";
+    } catch {
+      return false;
+    }
+  }, []);
   // backPan removed with BackPreviewPanel
   // canvasRef removed; panels now contain their own resize logic
 
@@ -66,6 +81,8 @@ export default function App() {
     const adjust = () => {
       try {
         const style = getComputedStyle(root);
+        const allowOverflow = style.getPropertyValue("--previewAllowOverflow")?.trim() === "1";
+        if (allowOverflow) return;
         const planH = parseFloat(style.getPropertyValue("--planH")) || 320;
         let previewH = parseFloat(style.getPropertyValue("--previewH")) || 520;
         const gap = 12; // gap between rows
@@ -226,6 +243,27 @@ export default function App() {
     };
   }, []);
 
+  const waitNextPaint = () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
+
+  const rasterSizeForFit = (fit: { w: number; h: number }, longEdgePx = 2400) => {
+    const ratio = fit.h / fit.w;
+    if (ratio > 1) {
+      const heightPx = longEdgePx;
+      const widthPx = Math.max(1, Math.round(longEdgePx / ratio));
+      return { widthPx, heightPx };
+    }
+    const widthPx = longEdgePx;
+    const heightPx = Math.max(1, Math.round(longEdgePx * ratio));
+    return { widthPx, heightPx };
+  };
+
+  const captureSvgToPngBytes = async (svgEl: SVGSVGElement, fitBounds: { x: number; y: number; w: number; h: number }) => {
+    const { widthPx, heightPx } = rasterSizeForFit({ w: fitBounds.w, h: fitBounds.h }, 2400);
+    const svgString = serializeSvg(svgEl, { fitBounds });
+    const pngBlob = await svgStringToPngBlob(svgString, { widthPx, heightPx, backgroundColor: "#ffffff" });
+    return new Uint8Array(await pngBlob.arrayBuffer());
+  };
+
   const handleMenuAction = async (action: MenuAction) => {
     if (action === "png") {
       try {
@@ -247,6 +285,178 @@ export default function App() {
       }
       return;
     }
+    if (action === "pdf") {
+      try {
+        const previewEl = previewSvgRef.current;
+        if (!previewEl) {
+          alert("Cannot export PDF: preview not found.");
+          return;
+        }
+
+        const previewFit = computePreviewFitBounds(s.projectSpecs, s.strands, s.anchors, s.swoops, s.stacks, s.customStrands, s.clusters);
+        await waitNextPaint();
+        const previewBytes = await captureSvgToPngBytes(previewEl, previewFit);
+
+        const name = (s.projectSpecs.projectName?.trim() || "Project");
+        await exportPdfPages({
+          filenameBase: name,
+          subtitle: s.projectSpecs.dueDate ? `Due: ${s.projectSpecs.dueDate}` : undefined,
+          pages: [
+            { title: "Preview", pngBytes: previewBytes },
+          ],
+        });
+      } catch (e: any) {
+        console.error("PDF export failed", e);
+        alert("PDF export failed: " + (e?.message || String(e)));
+      }
+      return;
+    }
+    if (action === "dfa") {
+      try {
+        const previewEl = previewSvgRef.current;
+        if (!previewEl) {
+          alert("Cannot export DFA: preview not found.");
+          return;
+        }
+
+        const previewFit = computePreviewFitBounds(s.projectSpecs, s.strands, s.anchors, s.swoops, s.stacks, s.customStrands, s.clusters);
+        await waitNextPaint();
+        const previewBytes = await captureSvgToPngBytes(previewEl, previewFit);
+
+        await exportDfaPdf({
+          projectSpecs: s.projectSpecs,
+          previewPngBytes: previewBytes,
+          customerNotes: s.notes.customerNotes,
+          artistNotes: s.notes.artistNotes,
+        });
+      } catch (e: any) {
+        console.error("DFA export failed", e);
+        alert("DFA export failed: " + (e?.message || String(e)));
+      }
+      return;
+    }
+    if (action === "proposal") {
+      try {
+        const previewEl = previewSvgRef.current;
+        if (!previewEl) {
+          alert("Cannot export Proposal: preview not found.");
+          return;
+        }
+
+        const previewFit = computePreviewFitBounds(
+          s.projectSpecs,
+          s.strands,
+          s.anchors,
+          s.swoops,
+          s.stacks,
+          s.customStrands,
+          s.clusters,
+        );
+
+        const resources = calcResources({
+          strands: s.strands,
+          stacks: s.stacks,
+          piles: s.piles,
+          customStrands: s.customStrands,
+          clusters: s.clusters,
+          anchors: s.anchors,
+          swoops: s.swoops,
+          projectSpecs: s.projectSpecs,
+        });
+        const costs = calcCosts(
+          { strands: s.strands, stacks: s.stacks, piles: s.piles, customStrands: s.customStrands, clusters: s.clusters, anchors: s.anchors, projectSpecs: s.projectSpecs },
+          resources,
+        );
+
+        const currentRotation = s.projectSpecs.previewView?.rotationDeg ?? 0;
+        let previewBytes: Uint8Array;
+        let gifBytes: Uint8Array | undefined;
+        try {
+          // Make the cover image match the first GIF frame (rotation=0).
+          s.setPreviewViewPatch({ rotationDeg: 0 });
+          await waitNextPaint();
+          previewBytes = await captureSvgToPngBytes(previewEl, previewFit);
+
+          gifBytes = await renderPreviewGifBytes({
+            svgEl: previewEl,
+            fitBounds: previewFit,
+            frameCount: 36,
+            delayMs: 60,
+            longEdgePx: 900,
+            setFrame: async (_i, deg) => {
+              s.setPreviewViewPatch({ rotationDeg: deg });
+            },
+          });
+        } finally {
+          s.setPreviewViewPatch({ rotationDeg: currentRotation });
+        }
+
+        await exportProposalPdf({
+          projectSpecs: s.projectSpecs,
+          previewPngBytes: previewBytes!,
+          previewGifBytes: gifBytes,
+          resources,
+          costs,
+        });
+      } catch (e: any) {
+        console.error("Proposal export failed", e);
+        alert("Proposal export failed: " + (e?.message || String(e)));
+      }
+      return;
+    }
+    if (action === "gif") {
+      try {
+        const previewEl = previewSvgRef.current;
+        if (!previewEl) {
+          alert("No preview available to export.");
+          return;
+        }
+        const previewBounds = computePreviewFitBounds(s.projectSpecs, s.strands, s.anchors, s.swoops, s.stacks, s.customStrands, s.clusters);
+        const currentRotation = s.projectSpecs.previewView?.rotationDeg ?? 0;
+        await exportPreviewGif({
+          svgEl: previewEl,
+          fitBounds: previewBounds,
+          filename: "preview.gif",
+          frameCount: 36,
+          delayMs: 60,
+          longEdgePx: 1200,
+          setFrame: async (_i, deg) => {
+            s.setPreviewViewPatch({ rotationDeg: deg });
+          },
+        });
+        s.setPreviewViewPatch({ rotationDeg: currentRotation });
+      } catch (e: any) {
+        alert("GIF export failed: " + (e?.message || String(e)));
+        console.error("GIF export failed", e);
+      }
+      return;
+    }
+    if (action === "viewer_zip") {
+      try {
+        const payload = {
+          projectSpecs: s.projectSpecs,
+          planTools: { ...s.planTools, pendingSwoopStartHoleId: null },
+          palette: s.palette,
+          anchors: s.anchors,
+          strands: s.strands,
+          stacks: s.stacks,
+          piles: s.piles,
+          clusters: s.clusters,
+          swoops: s.swoops,
+          customStrands: s.customStrands,
+          notes: s.notes,
+          showLabels: s.showLabels,
+          planView: s.planView,
+          frontView: s.frontView,
+          views: { planView: s.planView, frontView: s.frontView },
+        };
+        exportClientViewerZip(payload, s.projectSpecs?.projectName ?? "untitled");
+      } catch (e: any) {
+        alert("Viewer export failed: " + (e?.message || String(e)));
+        console.error("Viewer export failed", e);
+      }
+      return;
+    }
     s.onMenuAction(action);
   };
 
@@ -263,6 +473,10 @@ export default function App() {
     () => (selectedAnchorId ? s.stacks.find((st) => st.anchorId === selectedAnchorId) ?? null : null),
     [selectedAnchorId, s.stacks],
   );
+  const selectedPile = useMemo(
+    () => (s.selection.selectedPileId ? s.piles.find((p) => p.id === s.selection.selectedPileId) ?? null : null),
+    [s.selection.selectedPileId, s.piles],
+  );
   const selectedCluster = useMemo(
     () => (selectedAnchorId ? s.clusters.find((cl) => cl.anchorId === selectedAnchorId) ?? null : null),
     [selectedAnchorId, s.clusters],
@@ -271,146 +485,207 @@ export default function App() {
     () => (selectedAnchorId ? s.customStrands.find((cs) => cs.anchorId === selectedAnchorId) ?? null : null),
     [selectedAnchorId, s.customStrands],
   );
+  const selectedSwoop = useMemo(
+    () => (s.selection.selectedSwoopId ? s.swoops.find((sw) => sw.id === s.selection.selectedSwoopId) ?? null : null),
+    [s.selection.selectedSwoopId, s.swoops],
+  );
 
   return (
     <div className="app">
-      <MenuBar onAction={handleMenuAction} onLoad={async (file: File) => {
-        try {
-          const parsed = await importProjectJson(file);
-          // parsed is the loaded app snapshot (merged with defaults); replace state
-          s.loadSnapshot(parsed);
-        } catch (e: any) {
-          alert('Failed to load project: ' + (e?.message || String(e)));
-        }
-      }} />
-      <ProjectSpecsBar
-        specs={s.projectSpecs}
-        onChange={s.setProjectSpecs}
-        dueDate={s.projectSpecs.dueDate}
-        onDueDateChange={s.setDueDate}
-      />
-      <PlanViewToolsBar
-        tools={s.planTools}
-        palette={s.palette}
-        cursor={s.planCursor}
-        cursorText={s.formatCursor(s.planCursor)}
-        selectedAnchor={selectedAnchor}
-        selectedStrand={selectedStrand}
-        selectedStack={selectedStack}
-        selectedCluster={selectedCluster}
-        selectedCustomStrand={selectedCustomStrand}
-        onPatchSelectedStrand={
-          selectedAnchorId && selectedStrand
-            ? (patch) => s.patchStrandAtAnchor(selectedAnchorId, patch)
-            : undefined
-        }
-        onPatchSelectedStack={
-          selectedAnchorId && selectedStack
-            ? (patch) => s.patchStackAtAnchor(selectedAnchorId, patch)
-            : undefined
-        }
-        onPatchSelectedCluster={
-          selectedAnchorId && selectedCluster
-            ? (patch) => s.patchClusterAtAnchor(selectedAnchorId, patch)
-            : undefined
-        }
-        onPatchSelectedCustomStrand={
-          selectedAnchorId && selectedCustomStrand
-            ? (patch) => s.patchCustomStrandAtAnchor(selectedAnchorId, patch)
-            : undefined
-        }
-        onMode={s.setMode}
-        onDraftPatch={s.setDraftStrand}
-        onDraftStackPatch={s.setDraftStack}
-        clusterBuilder={s.planTools.clusterBuilder}
-        onClusterBuilderPatch={s.setClusterBuilderPatch}
-        onAppendClusterStrand={s.appendClusterStrand}
-        onUpdateClusterStrand={s.updateClusterStrand}
-        onRemoveClusterStrand={s.removeClusterStrand}
-        customBuilder={s.planTools.customBuilder}
-        onCustomBuilderPatch={s.setCustomBuilderPatch}
-        onAppendCustomNode={s.appendCustomNode}
-        onRemoveLastCustomNode={s.removeLastCustomNode}
-        onDraftSwoopPatch={s.setDraftSwoop}
+      <MenuBar
+        onAction={handleMenuAction}
+        onLoad={async (file: File) => {
+          try {
+            const parsed = await importProjectJson(file);
+            // parsed is the loaded app snapshot (merged with defaults); replace state
+            s.loadSnapshot(parsed);
+          } catch (e: any) {
+            alert("Failed to load project: " + (e?.message || String(e)));
+          }
+        }}
+        viewerOnly={isViewerMode}
       />
 
-      <div className="canvasStack" style={{ minHeight: 0 }} ref={canvasStackRef}>
-        <PlanViewPanel
-          specs={s.projectSpecs}
-          view={s.planView}
-          onViewChange={s.setPlanView}
-          svgRef={planSvgRef}
-          mode={s.planTools.mode}
-          anchors={s.anchors}
-          clusters={s.clusters}
-          selectedAnchorId={s.selection.selectedAnchorId}
-          swoops={s.swoops}
-          onSwoopAnchorClick={s.onSwoopAnchorClick}
-          onSelectSwoop={s.selectSwoop}
-          pendingSwoopStartHoleId={s.planTools.pendingSwoopStartHoleId}
-          planCursor={s.planCursor}
-          onPlaceStrand={s.placeStrandAt}
-          onPlaceStack={s.placeStackAt}
-          onPlaceCluster={s.placeClusterAt}
-          onPlaceCustomStrand={s.placeCustomStrandAt}
-          onEnsureStrandHoleAt={s.ensureStrandHoleAt}
-          onPlaceCanopyFastener={s.placeCanopyFastenerAt}
-          onSelectAnchor={s.selectAnchor}
-          onClearSelection={s.clearSelection}
-          onMoveAnchor={s.moveAnchor}
-          showLabels={s.showLabels}
-          onToggleShowLabels={() => s.setShowLabels(!s.showLabels)}
-          onCursorMove={(xIn, yIn, inside) => s.setPlanCursor({ xIn, yIn, inside })}
-          onCursorLeave={s.clearPlanCursor}
-          panEnabled={planPan}
-          onTogglePan={() => setPlanPan((v) => !v)}
-        />
+      {!isViewerMode ? (
+        <>
+          <ProjectSpecsBar
+            specs={s.projectSpecs}
+            onChange={s.setProjectSpecs}
+            dueDate={s.projectSpecs.dueDate}
+            onDueDateChange={s.setDueDate}
+          />
+            <PlanViewToolsBar
+              tools={s.planTools}
+              palette={s.palette}
+              sphereDiameterIn={s.projectSpecs.materials?.sphereDiameterIn ?? 4.5}
+              cursor={s.planCursor}
+              cursorText={s.formatCursor(s.planCursor)}
+              selectedAnchor={selectedAnchor}
+              selectedStrand={selectedStrand}
+              selectedStack={selectedStack}
+              selectedPile={selectedPile}
+              selectedCluster={selectedCluster}
+              selectedCustomStrand={selectedCustomStrand}
+              selectedSwoop={selectedSwoop}
+            onPatchSelectedStrand={
+              selectedAnchorId && selectedStrand
+                ? (patch) => s.patchStrandAtAnchor(selectedAnchorId, patch)
+                : undefined
+            }
+            onPatchSelectedStack={
+              selectedAnchorId && selectedStack
+                ? (patch) => s.patchStackAtAnchor(selectedAnchorId, patch)
+                : undefined
+            }
+            onPatchSelectedPile={
+              selectedPile ? (patch) => s.patchPileById(selectedPile.id, patch) : undefined
+            }
+            onPatchSelectedCluster={
+              selectedAnchorId && selectedCluster
+                ? (patch) => s.patchClusterAtAnchor(selectedAnchorId, patch)
+                : undefined
+            }
+            onPatchSelectedCustomStrand={
+              selectedAnchorId && selectedCustomStrand
+                ? (patch) => s.patchCustomStrandAtAnchor(selectedAnchorId, patch)
+                : undefined
+            }
+            onPatchSelectedSwoop={
+              selectedSwoop ? (patch) => s.patchSwoopById(selectedSwoop.id, patch) : undefined
+            }
+            onMode={s.setMode}
+            onDraftPatch={s.setDraftStrand}
+            onDraftStackPatch={s.setDraftStack}
+            pileBuilder={s.planTools.pileBuilder}
+            onPileBuilderPatch={s.setPileBuilderPatch}
+            onGeneratePileSpheres={s.generatePileSpheres}
+            onAppendPileSphere={s.appendPileSphere}
+            onUpdatePileSphere={s.updatePileSphere}
+            onRemovePileSphere={s.removePileSphere}
+            clusterBuilder={s.planTools.clusterBuilder}
+            onClusterBuilderPatch={s.setClusterBuilderPatch}
+            onAppendClusterStrand={s.appendClusterStrand}
+            onUpdateClusterStrand={s.updateClusterStrand}
+            onRemoveClusterStrand={s.removeClusterStrand}
+            customBuilder={s.planTools.customBuilder}
+            onCustomBuilderPatch={s.setCustomBuilderPatch}
+            onAppendCustomNode={s.appendCustomNode}
+            onRemoveLastCustomNode={s.removeLastCustomNode}
+            onDraftSwoopPatch={s.setDraftSwoop}
+          />
 
+          <div className="canvasStack" style={{ minHeight: 0 }} ref={canvasStackRef}>
+            <PlanViewPanel
+              specs={s.projectSpecs}
+              view={s.planView}
+              onViewChange={s.setPlanView}
+              svgRef={planSvgRef}
+              mode={s.planTools.mode}
+              anchors={s.anchors}
+              piles={s.piles}
+              clusters={s.clusters}
+              selectedAnchorId={s.selection.selectedAnchorId}
+              selectedPileId={s.selection.selectedPileId}
+              swoops={s.swoops}
+              onSwoopAnchorClick={s.onSwoopAnchorClick}
+              onSelectSwoop={s.selectSwoop}
+              pendingSwoopStartHoleId={s.planTools.pendingSwoopStartHoleId}
+              planCursor={s.planCursor}
+              onPlaceStrand={s.placeStrandAt}
+              onPlaceStack={s.placeStackAt}
+              onPlacePile={s.placePileAt}
+              onPlaceCluster={s.placeClusterAt}
+              onPlaceCustomStrand={s.placeCustomStrandAt}
+              onBeginCopyAnchor={s.beginCopyAnchor}
+              onPlaceCopyAt={s.placeCopyAt}
+              pendingCopyAnchorId={s.planTools.pendingCopyAnchorId ?? null}
+              onEnsureStrandHoleAt={s.ensureStrandHoleAt}
+              onPlaceCanopyFastener={s.placeCanopyFastenerAt}
+              onSelectAnchor={s.selectAnchor}
+              onSelectPile={s.selectPile}
+              onClearSelection={s.clearSelection}
+              onMoveAnchor={s.moveAnchor}
+              onMovePile={s.movePile}
+              showLabels={s.showLabels}
+              onToggleShowLabels={() => s.setShowLabels(!s.showLabels)}
+              onCursorMove={(xIn, yIn, inside) => s.setPlanCursor({ xIn, yIn, inside })}
+              onCursorLeave={s.clearPlanCursor}
+              panEnabled={planPan}
+              onTogglePan={() => setPlanPan((v) => !v)}
+            />
 
+            <FrontPreviewPanel
+              specs={s.projectSpecs}
+              view={s.frontView}
+              onViewChange={s.setFrontView}
+              svgRef={previewSvgRef}
+              anchors={s.anchors}
+              strands={s.strands}
+              stacks={s.stacks}
+              piles={s.piles}
+              clusters={s.clusters}
+              customStrands={s.customStrands}
+              swoops={s.swoops}
+              previewClusterBuilder={s.planTools.clusterBuilder}
+              previewPileBuilder={s.planTools.pileBuilder}
+              palette={s.palette}
+              selectedAnchorId={s.selection.selectedAnchorId}
+              selectedPileId={s.selection.selectedPileId}
+              panEnabled={frontPan}
+              onTogglePan={() => setFrontPan((v) => !v)}
+              previewView={s.projectSpecs.previewView}
+              onPreviewDepthPatch={s.setPreviewDepthPatch}
+              onPreviewViewPatch={s.setPreviewViewPatch}
+            />
 
-        <FrontPreviewPanel
-          specs={s.projectSpecs}
-          view={s.frontView}
-          onViewChange={s.setFrontView}
-          svgRef={previewSvgRef}
-          anchors={s.anchors}
-          strands={s.strands}
-          stacks={s.stacks}
-          clusters={s.clusters}
-          customStrands={s.customStrands}
-          swoops={s.swoops}
-          previewClusterBuilder={s.planTools.clusterBuilder}
-          palette={s.palette}
-          selectedAnchorId={s.selection.selectedAnchorId}
-          panEnabled={frontPan}
+            {/* Back preview removed — deprecated */}
+          </div>
+
+          <div className="belowStack" ref={belowStackRef}>
+            {
+              // compute totals from the app state (pure functions)
+            }
+            <ResourceBand
+              resources={calcResources({ strands: s.strands, stacks: s.stacks, piles: s.piles, customStrands: s.customStrands, clusters: s.clusters, anchors: s.anchors, swoops: s.swoops, projectSpecs: s.projectSpecs })}
+              costs={calcCosts(
+                { strands: s.strands, stacks: s.stacks, piles: s.piles, customStrands: s.customStrands, clusters: s.clusters, anchors: s.anchors, projectSpecs: s.projectSpecs },
+                calcResources({ strands: s.strands, stacks: s.stacks, piles: s.piles, customStrands: s.customStrands, clusters: s.clusters, anchors: s.anchors, swoops: s.swoops, projectSpecs: s.projectSpecs }),
+              )}
+              pricing={s.projectSpecs.pricing}
+              quote={s.projectSpecs.quote}
+              onPricingPatch={s.setPricingPatch}
+              onQuotePatch={s.setQuotePatch}
+            />
+            <NotesSection notes={s.notes} onChange={s.setNotesPatch} />
+          </div>
+        </>
+      ) : (
+        <div className="canvasStack" style={{ minHeight: 0 }} ref={canvasStackRef}>
+          <FrontPreviewPanel
+            specs={s.projectSpecs}
+            view={s.frontView}
+            onViewChange={s.setFrontView}
+            svgRef={previewSvgRef}
+            anchors={s.anchors}
+            strands={s.strands}
+            stacks={s.stacks}
+            piles={s.piles}
+            clusters={s.clusters}
+            customStrands={s.customStrands}
+            swoops={s.swoops}
+            previewClusterBuilder={s.planTools.clusterBuilder}
+            previewPileBuilder={s.planTools.pileBuilder}
+            palette={s.palette}
+            selectedAnchorId={s.selection.selectedAnchorId}
+            selectedPileId={s.selection.selectedPileId}
+            panEnabled={frontPan}
             onTogglePan={() => setFrontPan((v) => !v)}
             previewView={s.projectSpecs.previewView}
             onPreviewDepthPatch={s.setPreviewDepthPatch}
             onPreviewViewPatch={s.setPreviewViewPatch}
-        />
-
-
-
-        {/* Back preview removed — deprecated */}
-      </div>
-
-      <div className="belowStack" ref={belowStackRef}>
-        {
-          // compute totals from the app state (pure functions)
-        }
-        <ResourceBand
-          resources={calcResources({ strands: s.strands, stacks: s.stacks, customStrands: s.customStrands, clusters: s.clusters, anchors: s.anchors, swoops: s.swoops, projectSpecs: s.projectSpecs })}
-          costs={calcCosts(
-            { strands: s.strands, stacks: s.stacks, customStrands: s.customStrands, clusters: s.clusters, anchors: s.anchors, projectSpecs: s.projectSpecs },
-            calcResources({ strands: s.strands, stacks: s.stacks, customStrands: s.customStrands, clusters: s.clusters, anchors: s.anchors, swoops: s.swoops, projectSpecs: s.projectSpecs }),
-          )}
-          pricing={s.projectSpecs.pricing}
-          quote={s.projectSpecs.quote}
-          onPricingPatch={s.setPricingPatch}
-          onQuotePatch={s.setQuotePatch}
-        />
-        <NotesSection notes={s.notes} onChange={s.setNotesPatch} />
-      </div>
+          />
+        </div>
+      )}
     </div>
   );
 }

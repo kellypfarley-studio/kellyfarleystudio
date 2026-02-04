@@ -1,5 +1,5 @@
 import { useMemo, useRef } from "react";
-import type { Anchor, Cluster, ProjectSpecs, ToolMode, ViewTransform } from "../types/appTypes";
+import type { Anchor, Cluster, Pile, ProjectSpecs, ToolMode, ViewTransform } from "../types/appTypes";
 import type { Ref } from "react";
 import PanelFrame from "../components/PanelFrame";
 import ViewControls from "../components/ViewControls";
@@ -25,13 +25,19 @@ export type PlanViewPanelProps = {
   mode: ToolMode;
 
   anchors: Anchor[];
+  piles?: Pile[];
   clusters?: Cluster[];
   selectedAnchorId: string | null;
+  selectedPileId?: string | null;
+  pendingCopyAnchorId?: string | null;
 
   onPlaceStrand: (xIn: number, yIn: number) => void;
   onPlaceStack: (xIn: number, yIn: number) => void;
+  onPlacePile?: (xIn: number, yIn: number) => void;
   onPlaceCluster: (xIn: number, yIn: number) => void;
   onPlaceCustomStrand: (xIn: number, yIn: number) => void;
+  onBeginCopyAnchor?: (anchorId: string) => void;
+  onPlaceCopyAt?: (xIn: number, yIn: number) => void;
   onPlaceCanopyFastener: (xIn: number, yIn: number) => void;
   onEnsureStrandHoleAt?: (xIn: number, yIn: number) => string | undefined;
   onSelectSwoop?: (swoopId: string) => void;
@@ -40,9 +46,11 @@ export type PlanViewPanelProps = {
   planCursor?: import("../types/appTypes").CursorState | null;
 
   onSelectAnchor: (anchorId: string) => void;
+  onSelectPile?: (pileId: string) => void;
   onSwoopAnchorClick?: (anchorId: string) => void;
   onClearSelection: () => void;
   onMoveAnchor: (anchorId: string, xIn: number, yIn: number, snap?: boolean) => void;
+  onMovePile?: (pileId: string, xIn: number, yIn: number, snap?: boolean) => void;
 
   showLabels: boolean;
   onToggleShowLabels: () => void;
@@ -239,12 +247,28 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
               props.onPlaceStack(p.x, p.y);
               return;
             }
+            if (props.mode === "place_pile") {
+              if (!props.onPlacePile) {
+                alert("Pile placement is not configured.");
+                return;
+              }
+              props.onPlacePile(p.x, p.y);
+              return;
+            }
             if (props.mode === "place_cluster") {
               props.onPlaceCluster(p.x, p.y);
               return;
             }
             if (props.mode === "place_custom_strand") {
               props.onPlaceCustomStrand(p.x, p.y);
+              return;
+            }
+            if (props.mode === "copy_anchor") {
+              if (props.pendingCopyAnchorId && props.onPlaceCopyAt) {
+                props.onPlaceCopyAt(p.x, p.y);
+              } else {
+                alert("Copy: click a hole to copy, then click a new location.");
+              }
               return;
             }
             if (props.mode === "place_swoop") {
@@ -269,8 +293,14 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
               return;
             }
             if (props.mode === "move_anchor") {
-              if (!props.selectedAnchorId) return;
+              if (props.selectedAnchorId) {
                 props.onMoveAnchor(props.selectedAnchorId, p.x, p.y);
+                return;
+              }
+              if (props.selectedPileId && props.onMovePile) {
+                props.onMovePile(props.selectedPileId, p.x, p.y);
+                return;
+              }
               return;
             }
             // select mode: clear selection on empty background click
@@ -351,6 +381,54 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
           })}
         </g>
 
+        {/* Piles (floor sphere piles) */}
+        <g>
+          {(props.piles || []).map((p) => {
+            const isSelected = p.id === props.selectedPileId;
+            const stroke = isSelected ? "#ff6666" : "#555";
+            const strokeWidth = isSelected ? 0.14 : 0.08;
+            const r = Math.max(0.6, p.spec?.radiusIn ?? 0);
+            return (
+              <g
+                key={p.id}
+                style={{ cursor: "pointer" }}
+                onPointerDown={(ev) => {
+                  ev.stopPropagation();
+                  if (props.onSelectPile) props.onSelectPile(p.id);
+
+                  if (props.mode === "move_anchor") {
+                    const svg = svgRef.current;
+                    if (!svg || !props.onMovePile) return;
+                    (ev.target as Element).setPointerCapture(ev.pointerId);
+
+                    const onMove = (mev: PointerEvent) => {
+                      const pt = clientToSvgCoords(svg, mev.clientX, mev.clientY);
+                      props.onMovePile!(p.id, pt.x, pt.y);
+                    };
+
+                    const onUp = () => {
+                      try { (ev.target as Element).releasePointerCapture(ev.pointerId); } catch (_) {}
+                      window.removeEventListener("pointermove", onMove);
+                      window.removeEventListener("pointerup", onUp);
+                    };
+
+                    window.addEventListener("pointermove", onMove);
+                    window.addEventListener("pointerup", onUp);
+                  }
+                }}
+              >
+                <circle cx={p.xIn} cy={p.yIn} r={r} fill="none" stroke={stroke} strokeWidth={0.06} strokeDasharray="0.35 0.35" opacity={0.6} />
+                <circle cx={p.xIn} cy={p.yIn} r={0.25} fill="#fff" stroke={stroke} strokeWidth={strokeWidth} />
+                {props.showLabels ? (
+                  <text x={p.xIn + 0.35} y={p.yIn + 0.55} fontSize={0.6} fill="#111">
+                    {`Pile`}
+                  </text>
+                ) : null}
+              </g>
+            );
+          })}
+        </g>
+
         {/* Anchors */}
         <g>
           {props.anchors.map((a) => {
@@ -375,6 +453,10 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
                   onPointerDown={(ev) => {
                     ev.stopPropagation();
                     props.onSelectAnchor(a.id);
+                    if (props.mode === "copy_anchor" && props.onBeginCopyAnchor) {
+                      props.onBeginCopyAnchor(a.id);
+                      return;
+                    }
                     if (props.mode === "place_swoop" && typeof props.onSwoopAnchorClick === "function") {
                       if (isFastener) {
                         alert("Cannot use a fastener hole for a swoop. Choose a strand hole instead.");

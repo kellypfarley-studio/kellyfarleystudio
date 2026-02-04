@@ -1,5 +1,6 @@
 import type { Anchor, Cluster, CustomStrand, ProjectSpecs, Stack, Strand, Swoop } from "../types/appTypes";
-import { SPHERE_DIAMETER_IN, SPHERE_GAP_IN, SPHERE_RADIUS_IN } from "./previewGeometry";
+import { computeCustomStrandPreview, computeStackPreview, computeStrandPreview, SPHERE_DIAMETER_IN, SPHERE_GAP_IN, SPHERE_PITCH_IN, SPHERE_RADIUS_IN } from "./previewGeometry";
+import { projectPreview } from "./rotationProjection";
 
 export type Pt = { x: number; y: number };
 
@@ -81,23 +82,16 @@ export function buildHangingPolyline(
 
 export function computePreviewFitBounds(specs: ProjectSpecs, strands: Strand[], anchors: Anchor[], swoops: Swoop[] = [], stacks: Stack[] = [], customStrands: CustomStrand[] = [], clusters: Cluster[] = []) {
   const previews = strands.map((s) => {
-    // computeStrandPreview is in previewGeometry; import dynamically to avoid circular deps
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { computeStrandPreview } = require("./previewGeometry");
     const a = anchors.find((x) => x.id === s.anchorId) ?? null;
     const pv = computeStrandPreview(specs, s.spec);
     return { strand: s, anchor: a, pv };
   });
   const stackPreviews = stacks.map((s) => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { computeStackPreview } = require("./previewGeometry");
     const a = anchors.find((x) => x.id === s.anchorId) ?? null;
     const pv = computeStackPreview(specs, s.spec, { sphereDiameterIn: specs.materials?.sphereDiameterIn });
     return { stack: s, anchor: a, pv };
   });
   const customPreviews = customStrands.map((s) => {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { computeCustomStrandPreview } = require("./previewGeometry");
     const a = anchors.find((x) => x.id === s.anchorId) ?? null;
     const pv = computeCustomStrandPreview(specs, s.spec, { sphereDiameterIn: specs.materials?.sphereDiameterIn });
     return { custom: s, anchor: a, pv };
@@ -144,7 +138,6 @@ export function computePreviewFitBounds(specs: ProjectSpecs, strands: Strand[], 
       continue;
     }
 
-    const { projectPreview } = require("./rotationProjection");
     const pa = projectPreview(specs, a, pvView.rotationDeg, pvView.rotationStrength);
     const pb = projectPreview(specs, b, pvView.rotationDeg, pvView.rotationStrength);
     const xA = pa.xIn;

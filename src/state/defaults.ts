@@ -10,6 +10,7 @@ import type {
   StackSpec,
   ClusterSpec,
   ClusterBuilderState,
+  PileBuilderState,
   ViewTransform,
   MaterialsDefaults,
   PricingDefaults,
@@ -31,6 +32,7 @@ export const DEFAULT_PALETTE: PaletteColor[] = [
 
 export const DEFAULT_SPECS: ProjectSpecs = {
   projectName: "New Project",
+  clientViewerUrl: "",
   ceilingHeightIn: 110,
   boundaryWidthIn: 24,
   boundaryHeightIn: 12,
@@ -92,6 +94,7 @@ export const DEFAULT_NOTES: NotesState = {
 
 export const DEFAULT_SELECTION: SelectionState = {
   selectedAnchorId: null,
+  selectedPileId: null,
 };
 
 export const DEFAULT_CURSOR: CursorState | null = null;
@@ -154,14 +157,29 @@ export function makeDefaultClusterBuilder(palette: PaletteColor[]): ClusterBuild
   };
 }
 
+export function makeDefaultPileBuilder(palette: PaletteColor[]): PileBuilderState {
+  const defaultColor = palette[0]?.id ?? "c1";
+  return {
+    spheres: [],
+    sphereCount: 12,
+    radiusIn: 6,
+    colorId: defaultColor,
+    selectedIndex: null,
+    showPreview: false,
+    autoSettleZ: true,
+  };
+}
+
 export function makeDefaultPlanTools(palette: PaletteColor[]): PlanToolsState {
   return {
     mode: "place_strand",
     draftStrand: makeDefaultStrandSpec(palette),
     draftStack: makeDefaultStackSpec(palette),
+    pileBuilder: makeDefaultPileBuilder(palette),
     clusterBuilder: makeDefaultClusterBuilder(palette),
     draftSwoop: { sphereCount: 6, chainAIn: 12, chainBIn: 12, sagIn: 4, colorId: palette[0]?.id ?? "c1" },
     customBuilder: makeDefaultCustomBuilder(palette),
     pendingSwoopStartHoleId: null,
+    pendingCopyAnchorId: null,
   };
 }

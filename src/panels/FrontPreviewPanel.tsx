@@ -1,5 +1,5 @@
 import { useMemo, useRef } from "react";
-import type { Anchor, Cluster, ClusterBuilderState, CustomStrand, DepthLayer, PaletteColor, ProjectSpecs, Stack, Strand, ViewTransform, Swoop } from "../types/appTypes";
+import type { Anchor, Cluster, ClusterBuilderState, CustomStrand, DepthLayer, PaletteColor, Pile, PileBuilderState, ProjectSpecs, Stack, Strand, ViewTransform, Swoop } from "../types/appTypes";
 import type { Ref } from "react";
 import PanelFrame from "../components/PanelFrame";
 import ViewControls from "../components/ViewControls";
@@ -22,12 +22,15 @@ export type FrontPreviewPanelProps = {
   anchors: Anchor[];
   strands: Strand[];
   stacks: Stack[];
+  piles: Pile[];
   clusters: Cluster[];
   customStrands: CustomStrand[];
   swoops?: Swoop[];
   previewClusterBuilder?: ClusterBuilderState;
+  previewPileBuilder?: PileBuilderState;
   palette: PaletteColor[];
   selectedAnchorId: string | null;
+  selectedPileId?: string | null;
   panEnabled?: boolean;
   onTogglePan?: () => void;
   previewView?: ProjectSpecs["previewView"];
@@ -187,6 +190,10 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
     });
   }, [anchorById, props.clusters]);
 
+  const pilePreviews = useMemo(() => {
+    return (props.piles ?? []).map((p) => ({ pile: p }));
+  }, [props.piles]);
+
   const swoopPreviews = useMemo(() => {
     return (props.swoops ?? []).map((sw) => {
       const a = anchorById.get(sw.aHoleId) ?? null;
@@ -266,14 +273,51 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
   const vbW = viewW;
   const vbH = viewH;
 
+  const zoomMin = 0.25;
+  const zoomMax = 4.0;
+  const panRange = Math.max(1, bounds.h / 2);
+
   const left = (
-    <ViewControls
-      view={view}
-      onChange={props.onViewChange}
-      onFit={() => props.onViewChange({ zoom: 1, panX: 0, panY: 0 })}
-      panEnabled={props.panEnabled}
-      onTogglePan={props.onTogglePan}
-    />
+    <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
+      <ViewControls
+        view={view}
+        onChange={props.onViewChange}
+        onFit={() => props.onViewChange({ zoom: 1, panX: 0, panY: 0 })}
+        panEnabled={props.panEnabled}
+        onTogglePan={props.onTogglePan}
+      />
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
+        <div className="muted" style={{ fontSize: 10 }}>
+          ZOOM SLIDER
+        </div>
+        <input
+          type="range"
+          min={zoomMin}
+          max={zoomMax}
+          step={0.05}
+          value={Math.min(zoomMax, Math.max(zoomMin, view.zoom))}
+          onChange={(e) => props.onViewChange({ ...view, zoom: Number(e.target.value) })}
+          style={{ width: 110 }}
+        />
+        <div className="muted" style={{ fontSize: 10 }}>
+          PAN (Y)
+        </div>
+        <input
+          type="range"
+          min={-panRange}
+          max={panRange}
+          step={0.25}
+          value={view.panY || 0}
+          onChange={(e) => props.onViewChange({ ...view, panY: Number(e.target.value) })}
+          style={{
+            height: 120,
+            width: 24,
+            writingMode: "bt-lr",
+            WebkitAppearance: "slider-vertical",
+          }}
+        />
+      </div>
+    </div>
   );
 
   const centerControls = (
@@ -343,11 +387,11 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
       left={left}
       center={centerControls}
     >
-      <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <div className="frontPreviewWrap">
         <svg
           ref={setSvgRef}
+          className="frontPreviewSvg"
           width="100%"
-          height="100%"
           viewBox={`${vbX} ${vbY} ${vbW} ${vbH}`}
           preserveAspectRatio="xMidYMid meet"
           style={{ background: "#fff", touchAction: "none", cursor: props.panEnabled ? "grab" : undefined }}
@@ -426,7 +470,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                   xBot: sx,
                   yBot,
                   strokeColor: isSelected ? "#ff6666" : "#111",
-                  strokeIn: 0.1875,
+                  strokeIn: 0.1,
                   chainHeightIn: 1.0,
                   chainWidthIn: 0.55,
                   eyeDiaIn: 0.75,
@@ -466,9 +510,9 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
               const jsx = (
                 <g key={`strand-${p.strand?.id}`} opacity={op}>
                   {topChainEls}
+                  {bottomChainEls}
                   {claspEls}
                   {sphereEls}
-                  {bottomChainEls}
                   {p.strand?.spec.moundPreset !== "none" ? (
                     (() => {
                       // map preset to counts: small=6, medium=12, large=24
@@ -536,8 +580,8 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
               const jsx = (
                 <g key={`stack-${p.stack?.id}`} opacity={op}>
                   {topChainEls}
-                  {sphereEls}
                   {bottomChainEls}
+                  {sphereEls}
                   {p.stack?.spec.moundPreset !== "none" ? (
                     (() => {
                       const map: Record<string, number> = { small: 6, medium: 12, large: 24 };
@@ -615,7 +659,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                           xBot: sx,
                           yBot,
                           strokeColor: isSelected ? "#ff6666" : "#111",
-                          strokeIn: 0.1875,
+                          strokeIn: 0.1,
                           chainHeightIn: 1.0,
                           chainWidthIn: 0.55,
                           eyeDiaIn: 0.75,
@@ -671,14 +715,12 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                 const y0 = 0 - yShift;
 
                 // angled chain from shared anchor toward the strand direction
-                const dx = x - ax;
-                const dy = y0 - ay;
-                const dist = Math.hypot(dx, dy) || 1e-6;
-                const ux = dx / dist;
-                const uy = dy / dist;
                 const chainLen = Math.max(0, st.topChainLengthIn || 0);
-                const chainEndX = ax + ux * chainLen;
-                const chainEndY = ay + uy * chainLen;
+                const dx = x - ax;
+                const absDx = Math.abs(dx);
+                const dy = chainLen > absDx ? Math.sqrt(chainLen * chainLen - absDx * absDx) : 0;
+                const chainEndX = x;
+                const chainEndY = ay + dy;
                 const chainEls = renderChainAlongPolyline({
                   keyPrefix: `cluster-${p.cluster.id}-${idx}-chain`,
                   points: [{ x: ax, y: ay }, { x: chainEndX, y: chainEndY }],
@@ -694,9 +736,11 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                 const bottomCount = Math.max(0, Math.floor(st.bottomSphereCount || 0));
                 const totalCount = mainCount + bottomCount;
 
+                const col = colorHex(props.palette, st.colorId ?? "");
+                const centers: number[] = [];
                 for (let i = 0; i < totalCount; i++) {
                   const cy = chainEndY + sphereR + i * pitch;
-                  const col = colorHex(props.palette, st.colorId ?? "");
+                  centers.push(cy);
                   parts.push(
                     <circle
                       key={`cluster-${p.cluster.id}-${idx}-sp-${i}`}
@@ -709,17 +753,140 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                     />,
                   );
                 }
+
+                // clasps between spheres (strand-style)
+                for (let i = 0; i < centers.length - 1; i++) {
+                  const yTop = centers[i];
+                  const yBot = centers[i + 1];
+                  parts.push(
+                    ...renderClaspBetweenPoints({
+                      key: `cluster-${p.cluster.id}-${idx}-clasp-${i}`,
+                      xTop: chainEndX,
+                      yTop,
+                      xBot: chainEndX,
+                      yBot,
+                      strokeColor: isSelected ? "#ff6666" : "#111",
+                      strokeIn: 0.1875,
+                      chainHeightIn: 1.0,
+                      chainWidthIn: 0.55,
+                      eyeDiaIn: 0.75,
+                      gapIn: 2.5,
+                    }),
+                  );
+                }
               }
 
               const jsx = (
-                <g key={`cluster-${p.cluster.id}`} opacity={0.9}>
+                <g key={`cluster-${p.cluster.id}`} opacity={1}>
                   {parts}
                 </g>
               );
               drawables.push({ key: `cluster-${p.cluster.id}`, depth: depthEff, jsx });
             }
 
-            // 1e) cluster builder preview (ghost)
+            // 1e) piles (floor sphere piles)
+            for (const pp of pilePreviews) {
+              const pile = pp.pile;
+              const isEditingThisPile =
+                !!props.previewPileBuilder?.showPreview &&
+                !!props.selectedPileId &&
+                props.selectedPileId === pile.id;
+              if (isEditingThisPile) continue; // ghost preview will render in its place
+
+              const spheres = pile.spec?.spheres ?? [];
+              if (!spheres.length) continue;
+              const sphereD = specs.materials?.sphereDiameterIn ?? SPHERE_DIAMETER_IN;
+              const sphereR = sphereD / 2;
+              const perspective = specs.previewDepth?.perspectiveFactor ?? 0;
+              const isSelectedPile = pile.id === props.selectedPileId;
+
+              for (let i = 0; i < spheres.length; i++) {
+                const sp = spheres[i];
+                const pseudo: Anchor = {
+                  id: `pile-${pile.id}-sp-${i}`,
+                  xIn: pile.xIn + (sp.offsetXIn ?? 0),
+                  yIn: pile.yIn + (sp.offsetYIn ?? 0),
+                  type: "strand",
+                };
+                const proj = projectPreview(specs, pseudo, pvView.rotationDeg, pvView.rotationStrength);
+                const depthEff = proj.depthKey;
+                const yShift = computeYShift(specs, depthEff, perspective);
+                const cx = proj.xIn;
+                const floorY = specs.ceilingHeightIn - yShift;
+                const cy = floorY - sphereR - Math.max(0, sp.zIn ?? 0);
+                const col = colorHex(props.palette, sp.colorId ?? "");
+
+                drawables.push({
+                  key: `pile-${pile.id}-sp-${i}`,
+                  depth: depthEff,
+                  jsx: (
+                    <circle
+                      key={`pile-${pile.id}-sp-${i}`}
+                      cx={cx}
+                      cy={cy}
+                      r={sphereR}
+                      fill={col}
+                      stroke={isSelectedPile ? "#ff6666" : "#111"}
+                      strokeWidth={isSelectedPile ? 0.18 : 0.1}
+                    />
+                  ),
+                });
+              }
+            }
+
+            // 1f) pile builder preview (ghost)
+            if (props.previewPileBuilder?.showPreview) {
+              const b = props.previewPileBuilder;
+              const spheres = b.spheres ?? [];
+              if (spheres.length > 0) {
+                const selectedPile = props.selectedPileId ? (props.piles ?? []).find((p) => p.id === props.selectedPileId) ?? null : null;
+                const centerAnchor: Anchor = {
+                  id: "pile-preview",
+                  xIn: selectedPile ? selectedPile.xIn : specs.boundaryWidthIn / 2,
+                  yIn: selectedPile ? selectedPile.yIn : specs.boundaryHeightIn / 2,
+                  type: "strand",
+                };
+                const sphereD = specs.materials?.sphereDiameterIn ?? SPHERE_DIAMETER_IN;
+                const sphereR = sphereD / 2;
+                const perspective = specs.previewDepth?.perspectiveFactor ?? 0;
+
+                for (let i = 0; i < spheres.length; i++) {
+                  const sp = spheres[i];
+                  const pseudo: Anchor = {
+                    id: `pile-preview-sp-${i}`,
+                    xIn: centerAnchor.xIn + (sp.offsetXIn ?? 0),
+                    yIn: centerAnchor.yIn + (sp.offsetYIn ?? 0),
+                    type: "strand",
+                  };
+                  const proj = projectPreview(specs, pseudo, pvView.rotationDeg, pvView.rotationStrength);
+                  const depthEff = proj.depthKey;
+                  const yShift = computeYShift(specs, depthEff, perspective);
+                  const cx = proj.xIn;
+                  const floorY = specs.ceilingHeightIn - yShift;
+                  const cy = floorY - sphereR - Math.max(0, sp.zIn ?? 0);
+                  const col = colorHex(props.palette, sp.colorId ?? b.colorId ?? "");
+
+                  drawables.push({
+                    key: `pile-preview-sp-${i}`,
+                    depth: depthEff,
+                    jsx: (
+                      <circle
+                        key={`pile-preview-sp-${i}`}
+                        cx={cx}
+                        cy={cy}
+                        r={sphereR}
+                        fill={col}
+                        stroke="#0077cc"
+                        strokeWidth={0.08}
+                        opacity={0.6}
+                      />
+                    ),
+                  });
+                }
+              }
+            }
+
+            // 1g) cluster builder preview (ghost)
             if (props.previewClusterBuilder?.showPreview) {
               const b = props.previewClusterBuilder;
               const strands = b.strands ?? [];
@@ -749,14 +916,12 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                   const x = proj.xIn;
                   const y0 = 0 - yShift;
 
-                  const dx = x - ax;
-                  const dy = y0 - ay;
-                  const dist = Math.hypot(dx, dy) || 1e-6;
-                  const ux = dx / dist;
-                  const uy = dy / dist;
                   const chainLen = Math.max(0, st.topChainLengthIn || 0);
-                  const chainEndX = ax + ux * chainLen;
-                  const chainEndY = ay + uy * chainLen;
+                  const dx = x - ax;
+                  const absDx = Math.abs(dx);
+                  const dy = chainLen > absDx ? Math.sqrt(chainLen * chainLen - absDx * absDx) : 0;
+                  const chainEndX = x;
+                  const chainEndY = ay + dy;
                   const chainEls = renderChainAlongPolyline({
                     keyPrefix: `cluster-prev-${idx}-chain`,
                     points: [{ x: ax, y: ay }, { x: chainEndX, y: chainEndY }],
@@ -764,7 +929,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                     strokeIn: 0.08,
                     linkWidthIn: 0.45,
                     startPhase: idx % 2,
-                    strokeColor: "#66a3ff",
+                    strokeColor: "#888",
                   });
                   parts.push(...chainEls);
 
@@ -772,18 +937,41 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                   const bottomCount = Math.max(0, Math.floor(st.bottomSphereCount || 0));
                   const totalCount = mainCount + bottomCount;
 
+                  const centers: number[] = [];
+                  const col = colorHex(props.palette, st.colorId ?? "");
                   for (let i = 0; i < totalCount; i++) {
                     const cy = chainEndY + sphereR + i * pitch;
+                    centers.push(cy);
                     parts.push(
                       <circle
                         key={`cluster-prev-${idx}-sp-${i}`}
                         cx={chainEndX}
                         cy={cy}
                         r={sphereR}
-                        fill="none"
-                        stroke="#66a3ff"
+                        fill={col}
+                        stroke="#111"
                         strokeWidth={0.1}
                       />,
+                    );
+                  }
+
+                  for (let i = 0; i < centers.length - 1; i++) {
+                    const yTop = centers[i];
+                    const yBot = centers[i + 1];
+                    parts.push(
+                      ...renderClaspBetweenPoints({
+                        key: `cluster-prev-${idx}-clasp-${i}`,
+                        xTop: chainEndX,
+                        yTop,
+                        xBot: chainEndX,
+                        yBot,
+                        strokeColor: "#888",
+                        strokeIn: 0.12,
+                        chainHeightIn: 1.0,
+                        chainWidthIn: 0.55,
+                        eyeDiaIn: 0.75,
+                        gapIn: 2.5,
+                      }),
                     );
                   }
                 }
@@ -920,7 +1108,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                     xBot: b.x,
                     yBot,
                     strokeColor: chainColor,
-                    strokeIn: 0.1875,
+                    strokeIn: 0.1,
                     chainHeightIn: 1.0,
                     chainWidthIn: 0.55,
                     eyeDiaIn: 0.75,
@@ -986,7 +1174,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
 
         {/* separator: adjusts --previewH (bottom of Preview) */}
         <div
-          className="resizeHandle"
+          className="resizeHandle frontPreviewHandle"
           role="separator"
           aria-label="Resize front preview height"
           title="Drag to resize front preview"

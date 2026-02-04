@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "fflate": "^0.8.2",
+    "gifenc": "^1.0.3",
+    "pdf-lib": "^1.17.1",
+    "qrcode": "^1.5.3",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "three": "^0.182.0"

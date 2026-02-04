@@ -258,6 +258,7 @@ export function renderClaspBetweenPoints(args: {
   } = args;
 
   const R = SPHERE_RADIUS_IN; // sphere radius (inches)
+  const eyeR = eyeDiaIn / 2;
 
   // Determine endpoint coordinates (support legacy x + yTop/yBot)
   let xTopActual = args.xTop ?? args.x ?? 0;
@@ -272,19 +273,20 @@ export function renderClaspBetweenPoints(args: {
   const ux = dx / dist;
   const uy = dy / dist;
 
-  // Surface points on each sphere toward the other along the segment
-  const topSurfaceX = xTopActual + ux * R;
-  const topSurfaceY = yTopActual + uy * R;
-  const bottomSurfaceX = xBotActual - ux * R;
-  const bottomSurfaceY = yBotActual - uy * R;
-  const gap = Math.hypot(bottomSurfaceX - topSurfaceX, bottomSurfaceY - topSurfaceY);
+  // Place eyes just outside the sphere surface so they read as connected hardware.
+  const surfaceOffset = R + eyeR;
+  const topEyeX = xTopActual + ux * surfaceOffset;
+  const topEyeY = yTopActual + uy * surfaceOffset;
+  const bottomEyeX = xBotActual - ux * surfaceOffset;
+  const bottomEyeY = yBotActual - uy * surfaceOffset;
+  const innerGap = Math.hypot(bottomEyeX - topEyeX, bottomEyeY - topEyeY) - eyeDiaIn;
   const GAP_TOLERANCE = 0.25;
   // Warn only once per clasp key to avoid spamming the console on HMR updates
   const warnedClaspKeys: Set<string> = (globalThis as any).__WARNED_CLASP_KEYS__ || new Set<string>();
   (globalThis as any).__WARNED_CLASP_KEYS__ = warnedClaspKeys;
-  if (Math.abs(gap - gapIn) > GAP_TOLERANCE) {
+  if (Math.abs(innerGap - gapIn) > GAP_TOLERANCE) {
     if (!warnedClaspKeys.has(key)) {
-      console.warn("Clasp gap mismatch", { key, gap, expected: gapIn });
+      console.warn("Clasp gap mismatch", { key, gap: innerGap, expected: gapIn });
       warnedClaspKeys.add(key);
     }
   }
@@ -295,8 +297,8 @@ export function renderClaspBetweenPoints(args: {
   elems.push(
     <circle
       key={`${key}-eye-top`}
-      cx={topSurfaceX}
-      cy={topSurfaceY}
+      cx={topEyeX}
+      cy={topEyeY}
       r={eyeDiaIn / 2}
       fill="none"
       stroke={strokeColor}
@@ -307,8 +309,8 @@ export function renderClaspBetweenPoints(args: {
   );
 
   // Chain link (ellipse) centered between surface points and rotated to align with segment
-  const centerX = (topSurfaceX + bottomSurfaceX) / 2;
-  const centerY = (topSurfaceY + bottomSurfaceY) / 2;
+  const centerX = (topEyeX + bottomEyeX) / 2;
+  const centerY = (topEyeY + bottomEyeY) / 2;
   const baseAng = (Math.atan2(dy, dx) * 180) / Math.PI + 90;
   const ang = baseAng + (args.rotationOffsetDeg ?? 0);
   elems.push(
@@ -331,8 +333,8 @@ export function renderClaspBetweenPoints(args: {
   elems.push(
     <circle
       key={`${key}-eye-bot`}
-      cx={bottomSurfaceX}
-      cy={bottomSurfaceY}
+      cx={bottomEyeX}
+      cy={bottomEyeY}
       r={eyeDiaIn / 2}
       fill="none"
       stroke={strokeColor}

@@ -1,8 +1,10 @@
 export type ToolMode =
   | "select"
   | "move_anchor"
+  | "copy_anchor"
   | "place_strand"
   | "place_stack"
+  | "place_pile"
   | "place_cluster"
   | "place_custom_strand"
   | "place_swoop"
@@ -14,6 +16,7 @@ export type MoundPreset = "none" | "small" | "medium" | "large" | "6" | "12" | "
 
 export type ProjectSpecs = {
   projectName: string;
+  clientViewerUrl?: string;
   ceilingHeightIn: number;
   boundaryWidthIn: number;
   boundaryHeightIn: number;
@@ -123,6 +126,28 @@ export type Cluster = {
   spec: ClusterSpec;
 };
 
+export type PileSphereSpec = {
+  /** offset in plan-view inches relative to the pile's center */
+  offsetXIn: number;
+  /** offset in plan-view inches relative to the pile's center */
+  offsetYIn: number;
+  /** height above the floor in inches (0 rests on the floor) */
+  zIn: number;
+  colorId: string;
+};
+
+export type PileSpec = {
+  spheres: PileSphereSpec[];
+  radiusIn: number;
+};
+
+export type Pile = {
+  id: string;
+  xIn: number;
+  yIn: number;
+  spec: PileSpec;
+};
+
 export type CustomStrandNode =
   | { type: "chain"; lengthIn: number }
   | { type: "strand"; sphereCount: number; colorId: string }
@@ -163,10 +188,12 @@ export type PlanToolsState = {
   mode: ToolMode;
   draftStrand: StrandSpec;
   draftStack: StackSpec;
+  pileBuilder: PileBuilderState;
   clusterBuilder: ClusterBuilderState;
   draftSwoop?: SwoopSpec;
   customBuilder: CustomStrandBuilderState;
   pendingSwoopStartHoleId?: string | null;
+  pendingCopyAnchorId?: string | null;
 };
 
 export type CustomStrandBuilderState = {
@@ -191,9 +218,20 @@ export type ClusterBuilderState = {
   showPreview: boolean;
 };
 
+export type PileBuilderState = {
+  spheres: PileSphereSpec[];
+  sphereCount: number;
+  radiusIn: number;
+  colorId: string;
+  selectedIndex: number | null;
+  showPreview: boolean;
+  autoSettleZ: boolean;
+};
+
 export type SelectionState = {
   selectedAnchorId: string | null;
   selectedSwoopId?: string | null;
+  selectedPileId?: string | null;
 };
 
 export type CursorState = {
@@ -202,7 +240,17 @@ export type CursorState = {
   yIn: number;
 };
 
-export type MenuAction = "save" | "png" | "pdf" | "csv" | "dxf" | "dfa" | "export_3d_zip";
+export type MenuAction =
+  | "save"
+  | "png"
+  | "gif"
+  | "viewer_zip"
+  | "pdf"
+  | "proposal"
+  | "csv"
+  | "dxf"
+  | "dfa"
+  | "export_3d_zip";
 
 // Milestone 5: pricing, materials, quote tiers, and computed resource summaries
 
@@ -234,6 +282,10 @@ export type QuoteSettings = {
 
 export type ResourcesSummary = {
   spheres: number;
+  /** spheres that are part of a floor pile (counted in inventory/cost, excluded from hanging weight) */
+  pileSpheres?: number;
+  /** spheres that hang from the ceiling (used for weight calculations) */
+  hangingSpheres?: number;
   clasps: number;
   holes: number;
   strandHoleCount?: number;

@@ -8,6 +8,7 @@ import type {
   CustomStrand,
   CustomStrandNode,
   Cluster,
+  Pile,
   Stack,
   Strand,
   Swoop,
@@ -18,6 +19,7 @@ import { DEFAULT_PRICING, DEFAULT_MATERIALS, DEFAULT_QUOTE } from "../state/defa
 type MinimalState = {
   strands: Strand[];
   stacks?: Stack[];
+  piles?: Pile[];
   customStrands?: CustomStrand[];
   clusters?: Cluster[];
   anchors: Anchor[];
@@ -28,6 +30,7 @@ type MinimalState = {
 export function calcResources(state: MinimalState): ResourcesSummary {
   const { strands, anchors } = state;
   const stacks = state.stacks ?? [];
+  const piles = state.piles ?? [];
   const customStrands = state.customStrands ?? [];
   const clusters = state.clusters ?? [];
 
@@ -57,7 +60,9 @@ export function calcResources(state: MinimalState): ResourcesSummary {
     return acc + strands.reduce((sum, st) => sum + (st.sphereCount ?? 0) + (st.bottomSphereCount ?? 0), 0);
   }, 0);
   const swoopSpheres = (state.swoops ?? []).reduce((acc, sw) => acc + (sw.spec?.sphereCount ?? 0), 0);
-  const spheres = strandSpheres + stackSpheres + customSpheres + clusterSpheres + swoopSpheres;
+  const pileSpheres = piles.reduce((acc, p) => acc + ((p.spec?.spheres ?? []).length), 0);
+  const spheres = strandSpheres + stackSpheres + customSpheres + clusterSpheres + swoopSpheres + pileSpheres;
+  const hangingSpheres = Math.max(0, spheres - pileSpheres);
 
   // Clasps rule per spec: per strand with N spheres: (N-1) + 1(anchor clasp) + (bottomChainLengthIn>0 ? 1 : 0)
   // (N-1)+1 simplifies to N
@@ -150,7 +155,8 @@ export function calcResources(state: MinimalState): ResourcesSummary {
     ...(state.projectSpecs.materials ?? {}),
   };
 
-  const sphereWeight = (materials.sphereWeightLb ?? 0) * spheres;
+  // Exclude floor-pile spheres from hanging weight.
+  const sphereWeight = (materials.sphereWeightLb ?? 0) * hangingSpheres;
   const chainWeight = (materials.chainWeightLbPerFoot ?? 0) * chainFeet;
   const claspWeight = (materials.claspWeightLb ?? 0) * clasps;
   const eyeScrewWeight = (materials.eyeScrewWeightLb ?? 0) * eyeScrews;
@@ -160,6 +166,8 @@ export function calcResources(state: MinimalState): ResourcesSummary {
 
   return {
     spheres,
+    pileSpheres,
+    hangingSpheres,
     clasps,
     holes,
     strandHoleCount,

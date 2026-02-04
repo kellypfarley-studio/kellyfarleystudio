@@ -45,6 +45,8 @@ export default function ResourceBand({ resources, costs, pricing, quote, onPrici
       <div>
         <div className="panelTitle">Resources</div>
         <div className="smallLabel">Spheres: {resources.spheres}</div>
+        {resources.pileSpheres ? <div className="smallLabel">Floor pile spheres: {resources.pileSpheres}</div> : null}
+        {resources.hangingSpheres != null ? <div className="smallLabel">Hanging spheres: {resources.hangingSpheres}</div> : null}
         <div className="smallLabel">Clasps: {resources.clasps}</div>
         <div className="smallLabel">Strands: {resources.strands}</div>
         {strandBreakdown ? <div className="smallLabel">{strandBreakdown}</div> : null}
@@ -55,7 +57,7 @@ export default function ResourceBand({ resources, costs, pricing, quote, onPrici
         <div className="smallLabel">Strand Holes: {resources.strandHoleCount ?? 0}</div>
         <div className="smallLabel">Fastener Holes: {resources.fastenerHoleCount ?? 0}</div>
         <div className="smallLabel">Total Chain Length (ft): {Number(resources.chainFeet.toFixed(2))}</div>
-        <div className="smallLabel">Total Weight (lb): {Number(resources.totalWeightLb.toFixed(2))}</div>
+        <div className="smallLabel">Hanging Weight (lb): {Number(resources.totalWeightLb.toFixed(2))}</div>
       </div>
 
       <div>

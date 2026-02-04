@@ -18,13 +18,14 @@ export type ExportCsvInput = {
   anchors: any[];
   strands: any[];
   stacks?: any[];
+  piles?: any[];
   customStrands?: any[];
   clusters?: any[];
   notes?: { customerNotes?: string; artistNotes?: string } | null;
 };
 
 export function buildProjectCsv(input: ExportCsvInput): string {
-  const { projectName, projectSpecs, anchors, strands, stacks, customStrands, clusters, notes } = input;
+  const { projectName, projectSpecs, anchors, strands, stacks, piles, customStrands, clusters, notes } = input;
 
   let out = "";
 
@@ -51,8 +52,8 @@ export function buildProjectCsv(input: ExportCsvInput): string {
   out += "\n";
 
   // Resources & Costs using calculators
-  const resources = calcResources({ strands, stacks, customStrands, clusters, anchors, projectSpecs });
-  const costs = calcCosts({ strands, stacks, customStrands, clusters, anchors, projectSpecs }, resources);
+  const resources = calcResources({ strands, stacks, piles, customStrands, clusters, anchors, projectSpecs });
+  const costs = calcCosts({ strands, stacks, piles, customStrands, clusters, anchors, projectSpecs }, resources);
 
   out += row("Resources");
   out += row("item", "quantity");
@@ -63,6 +64,7 @@ export function buildProjectCsv(input: ExportCsvInput): string {
   out += row("hangingAnchors", resources.hangingAnchors);
   out += row("canopyFasteners", resources.canopyFasteners);
   out += row("stacks", resources.stacks ?? 0);
+  out += row("piles", piles?.length ?? 0);
   out += row("customStrands", resources.customStrands ?? 0);
   out += row("clusters", resources.clusters ?? 0);
   out += row("chainFeet", resources.chainFeet);
