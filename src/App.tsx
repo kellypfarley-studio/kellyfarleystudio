@@ -584,8 +584,12 @@ export default function App() {
               anchors={s.anchors}
               piles={s.piles}
               clusters={s.clusters}
+              guides={s.guides}
+              showGuides={s.showGuides}
+              guidesLocked={s.guidesLocked}
               selectedAnchorId={s.selection.selectedAnchorId}
               selectedPileId={s.selection.selectedPileId}
+              selectedGuideId={s.selection.selectedGuideId}
               swoops={s.swoops}
               onSwoopAnchorClick={s.onSwoopAnchorClick}
               onSelectSwoop={s.selectSwoop}
@@ -603,9 +607,14 @@ export default function App() {
               onPlaceCanopyFastener={s.placeCanopyFastenerAt}
               onSelectAnchor={s.selectAnchor}
               onSelectPile={s.selectPile}
+              onSelectGuide={s.selectGuide}
               onClearSelection={s.clearSelection}
               onMoveAnchor={s.moveAnchor}
               onMovePile={s.movePile}
+              onMoveGuide={s.moveGuide}
+              onAddGuide={s.addGuide}
+              onToggleShowGuides={() => s.setShowGuides(!s.showGuides)}
+              onToggleGuidesLocked={() => s.setGuidesLocked(!s.guidesLocked)}
               showLabels={s.showLabels}
               onToggleShowLabels={() => s.setShowLabels(!s.showLabels)}
               onCursorMove={(xIn, yIn, inside) => s.setPlanCursor({ xIn, yIn, inside })}

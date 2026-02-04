@@ -148,6 +148,13 @@ export type Pile = {
   spec: PileSpec;
 };
 
+export type Guide = {
+  id: string;
+  orientation: "v" | "h";
+  /** For vertical guides: x in inches. For horizontal guides: y in inches. */
+  posIn: number;
+};
+
 export type CustomStrandNode =
   | { type: "chain"; lengthIn: number }
   | { type: "strand"; sphereCount: number; colorId: string }
@@ -232,6 +239,7 @@ export type SelectionState = {
   selectedAnchorId: string | null;
   selectedSwoopId?: string | null;
   selectedPileId?: string | null;
+  selectedGuideId?: string | null;
 };
 
 export type CursorState = {

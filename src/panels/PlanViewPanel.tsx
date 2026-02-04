@@ -1,5 +1,5 @@
 import { useMemo, useRef } from "react";
-import type { Anchor, Cluster, Pile, ProjectSpecs, ToolMode, ViewTransform } from "../types/appTypes";
+import type { Anchor, Cluster, Guide, Pile, ProjectSpecs, ToolMode, ViewTransform } from "../types/appTypes";
 import type { Ref } from "react";
 import PanelFrame from "../components/PanelFrame";
 import ViewControls from "../components/ViewControls";
@@ -27,8 +27,12 @@ export type PlanViewPanelProps = {
   anchors: Anchor[];
   piles?: Pile[];
   clusters?: Cluster[];
+  guides?: Guide[];
+  showGuides?: boolean;
+  guidesLocked?: boolean;
   selectedAnchorId: string | null;
   selectedPileId?: string | null;
+  selectedGuideId?: string | null;
   pendingCopyAnchorId?: string | null;
 
   onPlaceStrand: (xIn: number, yIn: number) => void;
@@ -47,10 +51,15 @@ export type PlanViewPanelProps = {
 
   onSelectAnchor: (anchorId: string) => void;
   onSelectPile?: (pileId: string) => void;
+  onSelectGuide?: (guideId: string) => void;
   onSwoopAnchorClick?: (anchorId: string) => void;
   onClearSelection: () => void;
   onMoveAnchor: (anchorId: string, xIn: number, yIn: number, snap?: boolean) => void;
   onMovePile?: (pileId: string, xIn: number, yIn: number, snap?: boolean) => void;
+  onMoveGuide?: (guideId: string, posIn: number) => void;
+  onAddGuide?: (orientation: "v" | "h", posIn: number) => void;
+  onToggleShowGuides?: () => void;
+  onToggleGuidesLocked?: () => void;
 
   showLabels: boolean;
   onToggleShowLabels: () => void;
@@ -165,10 +174,59 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
     </>
   );
 
+  const guideCenter = (
+    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+      <div className="btnGroup" title="Guides">
+        <button
+          onClick={() => {
+            if (!props.onAddGuide) return;
+            const pos = props.planCursor?.inside ? props.planCursor.xIn : specs.boundaryWidthIn / 2;
+            props.onAddGuide("v", pos);
+          }}
+          disabled={!props.onAddGuide}
+          title='Add vertical guide'
+        >
+          +V
+        </button>
+        <button
+          onClick={() => {
+            if (!props.onAddGuide) return;
+            const pos = props.planCursor?.inside ? props.planCursor.yIn : specs.boundaryHeightIn / 2;
+            props.onAddGuide("h", pos);
+          }}
+          disabled={!props.onAddGuide}
+          title='Add horizontal guide'
+        >
+          +H
+        </button>
+      </div>
+
+      <label style={{ display: "flex", alignItems: "center", gap: 6, userSelect: "none" }} title="Show/hide guides">
+        <input
+          type="checkbox"
+          checked={!!props.showGuides}
+          onChange={() => props.onToggleShowGuides?.()}
+          disabled={!props.onToggleShowGuides}
+        />
+        <span className="smallLabel">Guides</span>
+      </label>
+      <label style={{ display: "flex", alignItems: "center", gap: 6, userSelect: "none" }} title="Lock/unlock guides">
+        <input
+          type="checkbox"
+          checked={!!props.guidesLocked}
+          onChange={() => props.onToggleGuidesLocked?.()}
+          disabled={!props.onToggleGuidesLocked}
+        />
+        <span className="smallLabel">Lock</span>
+      </label>
+    </div>
+  );
+
   // helper to compute fit bounds for plan view (exported)
   return (
     <PanelFrame
       title="Plan View"
+      center={guideCenter}
       headerHint={
         <span className="muted">
           Boundary: {specs.boundaryWidthIn}" × {specs.boundaryHeightIn}"  •  Grid {specs.gridSpacingIn}"  •  Holes {specs.strandHoleDiameterIn}"/{specs.fastenerHoleDiameterIn}"
@@ -301,6 +359,14 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
                 props.onMovePile(props.selectedPileId, p.x, p.y);
                 return;
               }
+              if (props.selectedGuideId && props.onMoveGuide && !props.guidesLocked) {
+                const g = (props.guides ?? []).find((x) => x.id === props.selectedGuideId) ?? null;
+                if (g) {
+                  const pos = g.orientation === "v" ? p.x : p.y;
+                  props.onMoveGuide(g.id, pos);
+                  return;
+                }
+              }
               return;
             }
             // select mode: clear selection on empty background click
@@ -321,6 +387,75 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
 
         {/* Boundary */}
         <rect x={0} y={0} width={specs.boundaryWidthIn} height={specs.boundaryHeightIn} fill="none" stroke="#111" strokeWidth={0.08} />
+
+        {/* Guides */}
+        {props.showGuides ? (
+          <g>
+            {(props.guides ?? []).map((g) => {
+              const isSelected = !!props.selectedGuideId && g.id === props.selectedGuideId;
+              const stroke = isSelected ? "#ff6666" : "#00a3a3";
+              const strokeWidth = isSelected ? 0.12 : 0.06;
+              const hitWidth = 0.9;
+              const locked = !!props.guidesLocked;
+              const canDrag = !locked && props.mode === "move_anchor" && typeof props.onMoveGuide === "function";
+
+              const x1 = g.orientation === "v" ? g.posIn : 0;
+              const x2 = g.orientation === "v" ? g.posIn : specs.boundaryWidthIn;
+              const y1 = g.orientation === "h" ? g.posIn : 0;
+              const y2 = g.orientation === "h" ? g.posIn : specs.boundaryHeightIn;
+
+              return (
+                <g key={g.id}>
+                  <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={stroke} strokeWidth={strokeWidth} opacity={0.9} />
+                  <line
+                    x1={x1}
+                    y1={y1}
+                    x2={x2}
+                    y2={y2}
+                    stroke="transparent"
+                    strokeWidth={hitWidth}
+                    style={{ cursor: canDrag ? "grab" : "pointer" }}
+                    onPointerDown={(ev) => {
+                      ev.stopPropagation();
+                      props.onSelectGuide?.(g.id);
+                      if (!canDrag) return;
+
+                      const svg = svgRef.current;
+                      if (!svg) return;
+                      (ev.target as Element).setPointerCapture(ev.pointerId);
+
+                      const onMove = (mev: PointerEvent) => {
+                        const p = clientToSvgCoords(svg, mev.clientX, mev.clientY);
+                        const next = g.orientation === "v" ? p.x : p.y;
+                        props.onMoveGuide?.(g.id, next);
+                      };
+
+                      const onUp = () => {
+                        try {
+                          (ev.target as Element).releasePointerCapture(ev.pointerId);
+                        } catch (_) {}
+                        window.removeEventListener("pointermove", onMove);
+                        window.removeEventListener("pointerup", onUp);
+                      };
+
+                      window.addEventListener("pointermove", onMove);
+                      window.addEventListener("pointerup", onUp);
+                    }}
+                  />
+                  <text
+                    x={g.orientation === "v" ? g.posIn + 0.15 : 0.15}
+                    y={g.orientation === "v" ? 0.8 : g.posIn - 0.15}
+                    fontSize={0.55}
+                    fill={stroke}
+                    opacity={0.85}
+                  >
+                    {g.orientation === "v" ? `X ${round(g.posIn, 2)}"` : `Y ${round(g.posIn, 2)}"`}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
+        ) : null}
 
         {/* Rubber-band preview for pending swoop start */}
         {props.pendingSwoopStartHoleId && props.planCursor ? (() => {

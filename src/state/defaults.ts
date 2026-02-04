@@ -95,6 +95,8 @@ export const DEFAULT_NOTES: NotesState = {
 export const DEFAULT_SELECTION: SelectionState = {
   selectedAnchorId: null,
   selectedPileId: null,
+  selectedSwoopId: null,
+  selectedGuideId: null,
 };
 
 export const DEFAULT_CURSOR: CursorState | null = null;

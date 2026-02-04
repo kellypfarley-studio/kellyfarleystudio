@@ -17,14 +17,15 @@ import type {
   ClusterStrandSpec,
   ClusterBuilderState,
   Pile,
-  PileSpec,
-  PileSphereSpec,
-  PileBuilderState,
-  Swoop,
-  SwoopSpec,
-  CustomStrand,
-  CustomStrandBuilderState,
-  CustomStrandNode,
+	  PileSpec,
+	  PileSphereSpec,
+	  PileBuilderState,
+	  Guide,
+	  Swoop,
+	  SwoopSpec,
+	  CustomStrand,
+	  CustomStrandBuilderState,
+	  CustomStrandNode,
   CustomStrandSpec,
   ToolMode,
   ViewTransform,
@@ -53,6 +54,9 @@ export type AppState = {
   clusters: Cluster[];
   swoops: Swoop[];
   customStrands: CustomStrand[];
+  guides: Guide[];
+  showGuides: boolean;
+  guidesLocked: boolean;
   selection: SelectionState;
   showLabels: boolean;
 
@@ -74,6 +78,9 @@ export function useAppState() {
   const [clusters, setClusters] = useState<Cluster[]>([]);
   const [swoops, setSwoops] = useState<Swoop[]>([]);
   const [customStrands, setCustomStrands] = useState<CustomStrand[]>([]);
+  const [guides, setGuides] = useState<Guide[]>([]);
+  const [showGuides, setShowGuides] = useState<boolean>(false);
+  const [guidesLocked, setGuidesLocked] = useState<boolean>(false);
   const [selection, setSelection] = useState<SelectionState>(DEFAULT_SELECTION);
   const [showLabels, setShowLabels] = useState<boolean>(true);
 
@@ -101,22 +108,57 @@ export function useAppState() {
   );
 
   const selectAnchor = useCallback((anchorId: string) => {
-    setSelection({ selectedAnchorId: anchorId, selectedSwoopId: null, selectedPileId: null });
+    setSelection({ selectedAnchorId: anchorId, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
   }, []);
 
   const selectSwoop = useCallback((swoopId: string) => {
-    setSelection({ selectedAnchorId: null, selectedSwoopId: swoopId, selectedPileId: null });
+    setSelection({ selectedAnchorId: null, selectedSwoopId: swoopId, selectedPileId: null, selectedGuideId: null });
   }, []);
 
   const selectPile = useCallback((pileId: string) => {
-    setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: pileId });
+    setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: pileId, selectedGuideId: null });
+  }, []);
+
+  const selectGuide = useCallback((guideId: string) => {
+    setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: null, selectedGuideId: guideId });
   }, []);
 
   const clearSelection = useCallback(() => {
-    setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: null });
+    setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
     // clear any pending swoop start when selection is cleared
     setPlanTools((prev) => ({ ...prev, pendingSwoopStartHoleId: null }));
   }, []);
+
+  const addGuide = useCallback(
+    (orientation: "v" | "h", posIn: number) => {
+      const clamped =
+        orientation === "v"
+          ? Math.max(0, Math.min(projectSpecs.boundaryWidthIn, posIn))
+          : Math.max(0, Math.min(projectSpecs.boundaryHeightIn, posIn));
+      const id = uid("g");
+      setGuides((prev) => [...prev, { id, orientation, posIn: clamped }]);
+      setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: null, selectedGuideId: id });
+      setShowGuides(true);
+      return id;
+    },
+    [projectSpecs.boundaryHeightIn, projectSpecs.boundaryWidthIn],
+  );
+
+  const moveGuide = useCallback(
+    (guideId: string, posIn: number) => {
+      setGuides((prev) =>
+        prev.map((g) => {
+          if (g.id !== guideId) return g;
+          const clamped =
+            g.orientation === "v"
+              ? Math.max(0, Math.min(projectSpecs.boundaryWidthIn, posIn))
+              : Math.max(0, Math.min(projectSpecs.boundaryHeightIn, posIn));
+          return { ...g, posIn: clamped };
+        }),
+      );
+    },
+    [projectSpecs.boundaryHeightIn, projectSpecs.boundaryWidthIn],
+  );
 
   const patchSwoopById = useCallback((swoopId: string, patch: Partial<SwoopSpec>) => {
     setSwoops((prev) => prev.map((sw) => (sw.id === swoopId ? { ...sw, spec: { ...sw.spec, ...patch } } : sw)));
@@ -159,7 +201,7 @@ export function useAppState() {
       // Remove cluster at same anchor (mutually exclusive)
       setClusters((prev) => prev.filter((c) => c.anchorId !== anchorId));
 
-      setSelection({ selectedAnchorId: anchorId });
+      setSelection({ selectedAnchorId: anchorId, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
       return anchorId;
     },
     [findAnchorAt, planTools.draftStrand, projectSpecs],
@@ -198,7 +240,7 @@ export function useAppState() {
       // Remove cluster at same anchor (mutually exclusive)
       setClusters((prev) => prev.filter((c) => c.anchorId !== anchorId));
 
-      setSelection({ selectedAnchorId: anchorId });
+      setSelection({ selectedAnchorId: anchorId, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
       return anchorId;
     },
     [findAnchorAt, planTools.draftStack, projectSpecs],
@@ -222,7 +264,7 @@ export function useAppState() {
 
       const pileId = uid("pl");
       setPiles((prev) => [...prev, { id: pileId, xIn: sx, yIn: sy, spec }]);
-      setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: pileId });
+      setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: pileId, selectedGuideId: null });
       return pileId;
     },
     [planTools.pileBuilder, projectSpecs],
@@ -269,7 +311,7 @@ export function useAppState() {
       setStacks((prev) => prev.filter((s) => s.anchorId !== anchorId));
       setCustomStrands((prev) => prev.filter((cs) => cs.anchorId !== anchorId));
 
-      setSelection({ selectedAnchorId: anchorId });
+      setSelection({ selectedAnchorId: anchorId, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
       return anchorId;
     },
     [findAnchorAt, planTools.clusterBuilder, projectSpecs],
@@ -316,7 +358,7 @@ export function useAppState() {
       setStacks((prev) => prev.filter((s) => s.anchorId !== anchorId));
       setClusters((prev) => prev.filter((c) => c.anchorId !== anchorId));
 
-      setSelection({ selectedAnchorId: anchorId });
+      setSelection({ selectedAnchorId: anchorId, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
       return anchorId;
     },
     [findAnchorAt, planTools.customBuilder, projectSpecs],
@@ -365,7 +407,7 @@ export function useAppState() {
         setStrands((prev) => [...prev, { id: uid("st"), anchorId: newAnchorId, spec: { ...srcStrand.spec } }]);
       }
 
-      setSelection({ selectedAnchorId: newAnchorId });
+      setSelection({ selectedAnchorId: newAnchorId, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
       setPlanTools((prev) => ({ ...prev, pendingCopyAnchorId: null }));
     },
     [anchors, clusters, customStrands, planTools.pendingCopyAnchorId, projectSpecs, stacks, strands],
@@ -404,7 +446,7 @@ export function useAppState() {
         const anchorId = uid("a");
         const newAnchor: Anchor = { id: anchorId, xIn: sx, yIn: sy, type: "canopy_fastener", holeType: "fastener", gridCol: col, gridRow: row };
         setAnchors((prev) => [...prev, newAnchor]);
-        setSelection({ selectedAnchorId: anchorId });
+        setSelection({ selectedAnchorId: anchorId, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
         return;
       }
 
@@ -420,7 +462,7 @@ export function useAppState() {
       setSwoops((prev) => prev.filter((sw) => sw.aHoleId !== existing.id && sw.bHoleId !== existing.id));
       // If a swoop was mid-placement using this hole as the start, clear the pending state
       setPlanTools((prev) => (prev.pendingSwoopStartHoleId === existing.id ? { ...prev, pendingSwoopStartHoleId: null } : prev));
-      setSelection({ selectedAnchorId: existing.id });
+      setSelection({ selectedAnchorId: existing.id, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
     },
     [findAnchorAt, projectSpecs],
   );
@@ -490,16 +532,23 @@ export function useAppState() {
     const anchorId = selection.selectedAnchorId ?? null;
     const swoopId = selection.selectedSwoopId ?? null;
     const pileId = selection.selectedPileId ?? null;
+    const guideId = selection.selectedGuideId ?? null;
 
     if (swoopId) {
       setSwoops((prev) => prev.filter((sw) => sw.id !== swoopId));
-      setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: null });
+      setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
       return;
     }
 
     if (pileId) {
       setPiles((prev) => prev.filter((p) => p.id !== pileId));
-      setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: null });
+      setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
+      return;
+    }
+
+    if (guideId) {
+      setGuides((prev) => prev.filter((g) => g.id !== guideId));
+      setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
       return;
     }
 
@@ -514,30 +563,33 @@ export function useAppState() {
     setSwoops((prev) => prev.filter((sw) => sw.aHoleId !== anchorId && sw.bHoleId !== anchorId));
     // Clear mid-placement swoop if needed
     setPlanTools((prev) => (prev.pendingSwoopStartHoleId === anchorId ? { ...prev, pendingSwoopStartHoleId: null } : prev));
-    setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: null });
+    setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
   }, [selection]);
 
   const onMenuAction = useCallback(
     (action: MenuAction) => {
       if (action === "save") {
-          const payload = {
-            projectSpecs,
-            planTools: { ...planTools, pendingSwoopStartHoleId: null },
-            palette,
-            anchors,
-            strands,
-            stacks,
-            piles,
-            clusters,
-            swoops,
-            customStrands,
-            notes,
-            showLabels,
-            // keep top-level copies for backwards compat with older saved files
-            planView,
-            frontView,
-            views: { planView, frontView },
-          };
+	          const payload = {
+	            projectSpecs,
+	            planTools: { ...planTools, pendingSwoopStartHoleId: null },
+	            palette,
+	            anchors,
+	            strands,
+	            stacks,
+	            piles,
+	            clusters,
+	            swoops,
+	            customStrands,
+	            guides,
+	            showGuides,
+	            guidesLocked,
+	            notes,
+	            showLabels,
+	            // keep top-level copies for backwards compat with older saved files
+	            planView,
+	            frontView,
+	            views: { planView, frontView },
+	          };
           exportProjectJson(payload, projectSpecs?.projectName ?? "untitled");
         return;
       }
@@ -572,7 +624,25 @@ export function useAppState() {
       // Export buttons will be implemented later.
       alert(`Not implemented yet: ${action.toUpperCase()}`);
     },
-      [anchors, clusters, customStrands, frontView, notes, palette, piles, planTools, planView, projectSpecs, showLabels, strands, stacks, swoops],
+      [
+        anchors,
+        clusters,
+        customStrands,
+        frontView,
+        guides,
+        guidesLocked,
+        notes,
+        palette,
+        piles,
+        planTools,
+        planView,
+        projectSpecs,
+        showGuides,
+        showLabels,
+        strands,
+        stacks,
+        swoops,
+      ],
     );
 
   const setProjectSpecs = useCallback((patch: Partial<ProjectSpecs>) => {
@@ -865,6 +935,9 @@ export function useAppState() {
       if (Array.isArray(snapshot.clusters)) setClusters(snapshot.clusters as Cluster[]);
       if (Array.isArray(snapshot.swoops)) setSwoops(snapshot.swoops as Swoop[]);
       if (Array.isArray(snapshot.customStrands)) setCustomStrands(snapshot.customStrands as CustomStrand[]);
+      if (Array.isArray(snapshot.guides)) setGuides(snapshot.guides as Guide[]);
+      if (typeof snapshot.showGuides === "boolean") setShowGuides(snapshot.showGuides);
+      if (typeof snapshot.guidesLocked === "boolean") setGuidesLocked(snapshot.guidesLocked);
       if (typeof snapshot.showLabels === "boolean") setShowLabels(snapshot.showLabels);
       const v = snapshot.views ?? {};
       const pv = v.planView ?? snapshot.planView;
@@ -873,7 +946,7 @@ export function useAppState() {
       if (fv) setFrontView(fv as ViewTransform);
       if (snapshot.notes) setNotes(snapshot.notes as NotesState);
       // Clear selection/undo history by resetting selection to default
-      setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: null });
+      setSelection({ selectedAnchorId: null, selectedSwoopId: null, selectedPileId: null, selectedGuideId: null });
     } catch (e) {
       console.error('loadSnapshot failed', e);
       throw e;
@@ -904,12 +977,15 @@ export function useAppState() {
     anchors,
     strands,
     stacks,
-    piles,
-    clusters,
-    swoops,
-    customStrands,
-    selection,
-    showLabels,
+	    piles,
+	    clusters,
+	    swoops,
+	    customStrands,
+	    guides,
+	    showGuides,
+	    guidesLocked,
+	    selection,
+	    showLabels,
     planView,
     frontView,
     planCursor,
@@ -942,11 +1018,17 @@ export function useAppState() {
     setClusters,
     setCustomStrands,
 
-    setShowLabels,
+	    setShowLabels,
 
-    selectAnchor,
-    clearSelection,
-    deleteSelected,
+	    selectAnchor,
+	    selectGuide,
+	    clearSelection,
+	    deleteSelected,
+
+	    addGuide,
+	    moveGuide,
+	    setShowGuides,
+	    setGuidesLocked,
 
     placeStrandAt,
     placeStackAt,
@@ -958,8 +1040,8 @@ export function useAppState() {
     placeCanopyFastenerAt,
     onSwoopAnchorClick,
     ensureStrandHoleAt,
-    selectSwoop,
-    selectPile,
+	    selectSwoop,
+	    selectPile,
     moveAnchor,
     movePile,
 
