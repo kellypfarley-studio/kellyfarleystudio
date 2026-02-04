@@ -59,6 +59,9 @@ export async function importProjectJson(file: File): Promise<any> {
   // anchors/strands
   candidate.anchors = Array.isArray(candidate.anchors) ? candidate.anchors : [];
   candidate.strands = Array.isArray(candidate.strands) ? candidate.strands : [];
+  candidate.stacks = Array.isArray(candidate.stacks) ? candidate.stacks : [];
+  candidate.customStrands = Array.isArray(candidate.customStrands) ? candidate.customStrands : [];
+  candidate.clusters = Array.isArray(candidate.clusters) ? candidate.clusters : [];
 
   // Migration: if anchors lack gridCol/gridRow, compute them by snapping existing xIn/yIn to current grid origin + spacing
   try {

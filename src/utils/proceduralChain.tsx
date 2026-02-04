@@ -102,6 +102,131 @@ export function renderChainAlongPolyline(args: {
 export default renderChainAlongPolyline;
 
 
+export function renderChainMound(args: {
+  keyPrefix: string;
+  center: Pt;
+  count: number;
+  linkHeightIn?: number;
+  linkWidthIn?: number;
+  strokeIn?: number;
+  strokeColor?: string;
+}): JSX.Element[] {
+  const {
+    keyPrefix,
+    center,
+    count,
+    linkHeightIn = 1,
+    linkWidthIn = 0.55,
+    strokeIn = 0.12,
+    strokeColor = "#111",
+  } = args;
+
+  const out: JSX.Element[] = [];
+  if (!count || count <= 0) return out;
+
+  // Simple deterministic packing: place links in a spiral with discrete tiers
+  const spacing = linkWidthIn * 0.95;
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  const wide = count >= 12;
+  const peaked = count >= 18;
+  // Treat 24 as a design-focused shallow, spread-out pyramid; larger counts use 'pyramid' behavior
+  const pyramid = count === 24;
+  // adjust scales: wider piles spread out, peaked piles are narrower and taller
+  let radialScale = wide ? 1.2 : 0.85;
+  let tierYScale = wide ? 0.22 : 0.5;
+  let verticalSpreadFactor = wide ? 0.08 : 0.14;
+  let jitterBase = 0.06;
+  if (peaked) {
+    radialScale = 0.9; // narrower radius for peaked mound
+    tierYScale = 0.6; // taller tiers
+    verticalSpreadFactor = 0.28; // allow more vertical variation
+    jitterBase = 0.04; // reduce jitter for tighter center
+  }
+  // For exactly 24 links, make a shallow, spread-out pyramid (design preference)
+  if (pyramid) {
+    radialScale = 1.2; // spread out
+    tierYScale = 0.35; // shallow stacking
+    verticalSpreadFactor = 0.12; // less vertical jitter
+    jitterBase = 0.04;
+  }
+  // Special-case 36 to be a shallow, spread-out pyramid (design preference)
+  if (count === 36) {
+    radialScale = 1.3; // spread out
+    tierYScale = 0.35; // shallow stacking
+    verticalSpreadFactor = 0.12; // less vertical jitter
+    jitterBase = 0.04;
+  }
+
+  // For very large piles (37+) make an even tighter, taller pyramid
+  const mega = count >= 37;
+  if (mega) {
+    radialScale = 0.58;
+    tierYScale = 1.15;
+    verticalSpreadFactor = 0.48;
+    jitterBase = 0.01;
+  }
+  // First compute max tier so we can invert stacking: outer tiers sit at the floor,
+  // inner tiers stack upward (peak at center). We'll collect entries and then
+  // sort by vertical position so lower links render first.
+  const maxTier = Math.floor(Math.sqrt(count));
+  type Item = {
+    key: string;
+    px: number;
+    py: number;
+    angDeg: number;
+    isFront: boolean;
+  };
+  const items: Item[] = [];
+  for (let i = 0; i < count; i++) {
+    const ring = Math.floor(Math.sqrt(i + 1));
+    // radius grows with sqrt(i) but scaled for larger mounds
+    const r = spacing * Math.sqrt(i + 1) * radialScale;
+    const ang = (i * golden) % (Math.PI * 2);
+    // slight deterministic jitter so pile looks natural but reproducible
+    const jitter = (Math.sin(i * 1.3) + Math.cos(i * 0.7)) * jitterBase * spacing;
+    const dx = (r + jitter) * Math.cos(ang);
+    const dy = (r + jitter) * Math.sin(ang);
+
+    // stack links so outer tiers are at the floor (yOffset = 0) and inner tiers
+    // rise upward. This flips the previous behavior that produced an inverted pile.
+    const tier = ring;
+    const yOffset = (maxTier - tier) * (linkHeightIn * tierYScale);
+
+    const px = center.x + dx;
+    const py = center.y - yOffset + dy * verticalSpreadFactor;
+
+    const isFront = i % 2 === 0;
+    const angDeg = (ang * 180) / Math.PI + 90 + (i * 11) % 60; // rotation variation
+    const key = `${keyPrefix}-mound-${i}`;
+
+    items.push({ key, px, py, angDeg, isFront });
+  }
+
+  // Render lower (larger y) items first so upper tiers draw on top.
+  items.sort((a, b) => b.py - a.py);
+  for (const it of items) {
+    const transform = `translate(${it.px} ${it.py}) rotate(${it.angDeg})`;
+    if (it.isFront) {
+      const rx = linkWidthIn / 2;
+      const ry = linkHeightIn / 2;
+      out.push(
+        <g key={it.key} transform={transform}>
+          <ellipse cx={0} cy={0} rx={rx} ry={ry} fill="none" stroke={strokeColor} strokeWidth={strokeIn} />
+        </g>
+      );
+    } else {
+      out.push(
+        <g key={it.key} transform={transform}>
+          <line x1={0} y1={-linkHeightIn / 2} x2={0} y2={linkHeightIn / 2} stroke={strokeColor} strokeWidth={strokeIn} />
+        </g>
+      );
+    }
+  }
+
+  return out;
+}
+
+
 export function renderClaspBetweenPoints(args: {
   key: string;
   // Either supply `x` with `yTop`/`yBot` for legacy vertical clasps,

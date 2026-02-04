@@ -2,12 +2,15 @@ export type ToolMode =
   | "select"
   | "move_anchor"
   | "place_strand"
+  | "place_stack"
+  | "place_cluster"
+  | "place_custom_strand"
   | "place_swoop"
   | "place_canopy_fastener";
 
 export type DepthLayer = "front" | "mid" | "back";
 
-export type MoundPreset = "none" | "small" | "medium" | "large";
+export type MoundPreset = "none" | "small" | "medium" | "large" | "6" | "12" | "18" | "24" | "36";
 
 export type ProjectSpecs = {
   projectName: string;
@@ -79,11 +82,55 @@ export type Strand = {
   spec: StrandSpec;
 };
 
-export type CustomStrandSpec = StrandSpec & {
-  // optional overrides for custom strand geometry
-  pitchIn?: number; // distance between spheres along strand
-  gapIn?: number; // gap at ends or between sections
-  turnbuckle?: boolean; // whether to include a turnbuckle/adjuster
+export type StackSpec = {
+  sphereCount: number;
+  topChainLengthIn: number;
+  bottomChainLengthIn: number;
+  moundPreset: MoundPreset;
+  colorId: string;
+  layer: DepthLayer;
+};
+
+export type Stack = {
+  id: string;
+  anchorId: string;
+  spec: StackSpec;
+};
+
+export type ClusterSpec = {
+  strands: ClusterStrandSpec[];
+  itemRadiusIn: number;
+  spreadIn: number;
+};
+
+export type ClusterStrandSpec = {
+  topChainLengthIn: number;
+  sphereCount: number;
+  bottomSphereCount: number;
+  colorId: string;
+  offsetXIn?: number;
+  offsetYIn?: number;
+};
+
+export type ClusterItem = {
+  xIn: number;
+  yIn: number;
+};
+
+export type Cluster = {
+  id: string;
+  anchorId: string;
+  spec: ClusterSpec;
+};
+
+export type CustomStrandNode =
+  | { type: "chain"; lengthIn: number }
+  | { type: "strand"; sphereCount: number; colorId: string }
+  | { type: "stack"; sphereCount: number; colorId: string };
+
+export type CustomStrandSpec = {
+  nodes: CustomStrandNode[];
+  layer: DepthLayer;
 };
 
 export type CustomStrand = {
@@ -115,9 +162,33 @@ export type NotesState = {
 export type PlanToolsState = {
   mode: ToolMode;
   draftStrand: StrandSpec;
+  draftStack: StackSpec;
+  clusterBuilder: ClusterBuilderState;
   draftSwoop?: SwoopSpec;
-  draftCustomStrand?: CustomStrandSpec;
+  customBuilder: CustomStrandBuilderState;
   pendingSwoopStartHoleId?: string | null;
+};
+
+export type CustomStrandBuilderState = {
+  nodes: CustomStrandNode[];
+  chainLengthIn: number;
+  strandSphereCount: number;
+  stackSphereCount: number;
+  strandColorId: string;
+  stackColorId: string;
+  layer: DepthLayer;
+};
+
+export type ClusterBuilderState = {
+  strands: ClusterStrandSpec[];
+  topChainLengthIn: number;
+  sphereCount: number;
+  bottomSphereCount: number;
+  colorId: string;
+  itemRadiusIn: number;
+  spreadIn: number;
+  selectedIndex: number | null;
+  showPreview: boolean;
 };
 
 export type SelectionState = {
@@ -171,6 +242,14 @@ export type ResourcesSummary = {
   strands: number;
   /** Breakdown of strand counts by sphere count (key is the sphereCount as a string) */
   strandsBySphereCount: Record<string, number>;
+  /** Count of stacks placed (not including strands/swoops) */
+  stacks?: number;
+  /** Breakdown of stack counts by sphere count (key is the sphereCount as a string) */
+  stacksBySphereCount?: Record<string, number>;
+  /** Count of custom strands placed */
+  customStrands?: number;
+  /** Count of clusters placed */
+  clusters?: number;
   hangingAnchors: number;
   canopyFasteners: number;
   chainFeet: number; // total linear feet of chain required

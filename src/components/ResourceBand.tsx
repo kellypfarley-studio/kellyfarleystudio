@@ -34,6 +34,11 @@ export default function ResourceBand({ resources, costs, pricing, quote, onPrici
     .sort((a, b) => Number(a[0]) - Number(b[0]))
     .map(([k, v]) => `${k}-sphere: ${v}`)
     .join("  •  ");
+  const stackBreakdown = Object.entries(resources.stacksBySphereCount ?? {})
+    .filter(([k, v]) => Number(k) > 0 && (v ?? 0) > 0)
+    .sort((a, b) => Number(a[0]) - Number(b[0]))
+    .map(([k, v]) => `${k}-sphere: ${v}`)
+    .join("  •  ");
 
   return (
     <div className="card bottomBand statusGrid" style={{ color: "#000", background: "#fff" }}>
@@ -43,6 +48,10 @@ export default function ResourceBand({ resources, costs, pricing, quote, onPrici
         <div className="smallLabel">Clasps: {resources.clasps}</div>
         <div className="smallLabel">Strands: {resources.strands}</div>
         {strandBreakdown ? <div className="smallLabel">{strandBreakdown}</div> : null}
+        <div className="smallLabel">Stacks: {resources.stacks ?? 0}</div>
+        {stackBreakdown ? <div className="smallLabel">{stackBreakdown}</div> : null}
+        <div className="smallLabel">Custom Strands: {resources.customStrands ?? 0}</div>
+        <div className="smallLabel">Clusters: {resources.clusters ?? 0}</div>
         <div className="smallLabel">Strand Holes: {resources.strandHoleCount ?? 0}</div>
         <div className="smallLabel">Fastener Holes: {resources.fastenerHoleCount ?? 0}</div>
         <div className="smallLabel">Total Chain Length (ft): {Number(resources.chainFeet.toFixed(2))}</div>

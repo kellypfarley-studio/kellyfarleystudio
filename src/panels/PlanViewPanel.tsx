@@ -1,10 +1,11 @@
 import { useMemo, useRef } from "react";
-import type { Anchor, ProjectSpecs, ToolMode, ViewTransform } from "../types/appTypes";
+import type { Anchor, Cluster, ProjectSpecs, ToolMode, ViewTransform } from "../types/appTypes";
 import type { Ref } from "react";
 import PanelFrame from "../components/PanelFrame";
 import ViewControls from "../components/ViewControls";
 import { gridCenterOffset } from "../utils/geometry";
 import { round } from "../utils/number";
+import { computeClusterLayout } from "../utils/clusterLayout";
 
 export function computePlanFitBounds(specs: ProjectSpecs) {
   const pad = 1.5;
@@ -24,9 +25,13 @@ export type PlanViewPanelProps = {
   mode: ToolMode;
 
   anchors: Anchor[];
+  clusters?: Cluster[];
   selectedAnchorId: string | null;
 
   onPlaceStrand: (xIn: number, yIn: number) => void;
+  onPlaceStack: (xIn: number, yIn: number) => void;
+  onPlaceCluster: (xIn: number, yIn: number) => void;
+  onPlaceCustomStrand: (xIn: number, yIn: number) => void;
   onPlaceCanopyFastener: (xIn: number, yIn: number) => void;
   onEnsureStrandHoleAt?: (xIn: number, yIn: number) => string | undefined;
   onSelectSwoop?: (swoopId: string) => void;
@@ -230,6 +235,18 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
               props.onPlaceStrand(p.x, p.y);
               return;
             }
+            if (props.mode === "place_stack") {
+              props.onPlaceStack(p.x, p.y);
+              return;
+            }
+            if (props.mode === "place_cluster") {
+              props.onPlaceCluster(p.x, p.y);
+              return;
+            }
+            if (props.mode === "place_custom_strand") {
+              props.onPlaceCustomStrand(p.x, p.y);
+              return;
+            }
             if (props.mode === "place_swoop") {
               // Swoop placement on background: ensure a *strand hole only* then feed it into the A→B swoop flow.
               if (!props.onEnsureStrandHoleAt || !props.onSwoopAnchorClick) {
@@ -303,6 +320,32 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
                 >
                   {`S${idx + 1}`}
                 </text>
+              </g>
+            );
+          })}
+        </g>
+
+        {/* Clusters (plan-only layout + chain angle) */}
+        <g>
+          {(props.clusters || []).map((c) => {
+            const anchor = props.anchors.find((a) => a.id === c.anchorId);
+            if (!anchor) return null;
+            const items = computeClusterLayout(c.spec);
+            const r = Math.max(0.08, c.spec.itemRadiusIn || 0.1);
+            return (
+              <g key={c.id}>
+                {items.map((it, idx) => {
+                  const offX = c.spec.strands?.[idx]?.offsetXIn ?? 0;
+                  const offY = c.spec.strands?.[idx]?.offsetYIn ?? 0;
+                  const x = anchor.xIn + it.xIn + offX;
+                  const y = anchor.yIn + it.yIn + offY;
+                  return (
+                    <g key={`${c.id}-${idx}`}>
+                      <line x1={anchor.xIn} y1={anchor.yIn} x2={x} y2={y} stroke="#0077cc" strokeWidth={0.05} />
+                      <circle cx={x} cy={y} r={r} fill="none" stroke="#0077cc" strokeWidth={0.08} />
+                    </g>
+                  );
+                })}
               </g>
             );
           })}

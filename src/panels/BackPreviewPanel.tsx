@@ -3,7 +3,7 @@ import type { Anchor, PaletteColor, ProjectSpecs, Strand, ViewTransform } from "
 import PanelFrame from "../components/PanelFrame";
 import ViewControls from "../components/ViewControls";
 import { computeStrandPreview, SPHERE_RADIUS_IN } from "../utils/previewGeometry";
-import renderChainAlongPolyline from "../utils/proceduralChain";
+import renderChainAlongPolyline, { renderChainMound } from "../utils/proceduralChain";
 import { projectPreview, computeYShift } from "../utils/rotationProjection";
 
 export type BackPreviewPanelProps = {
@@ -195,7 +195,7 @@ export default function BackPreviewPanel(props: BackPreviewPanelProps) {
 
 
                     {(() => {
-                      const bottomYStart = pv.sphereCentersY.length ? pv.sphereCentersY[pv.sphereCentersY.length - 1] - yShift : 0 - yShift;
+                      const bottomYStart = pv.sphereCentersY.length ? pv.sphereCentersY[pv.sphereCentersY.length - 1] + sphereR - yShift : 0 - yShift;
                       const bottomYEnd = specs.ceilingHeightIn - yShift;
                       return renderChainAlongPolyline({
                         keyPrefix: `strand-${strand.id}-botchain`,
@@ -209,20 +209,14 @@ export default function BackPreviewPanel(props: BackPreviewPanelProps) {
                     })()}
 
                     {strand.spec.moundPreset !== "none" ? (
-                      <path
-                        d={`
-                      M ${sx - 2} ${specs.ceilingHeightIn + 2}
-                      C ${sx - 1} ${specs.ceilingHeightIn + 0.5}, ${sx + 1} ${specs.ceilingHeightIn + 3.0}, ${sx + 2} ${
-                          specs.ceilingHeightIn + 2
-                        }
-                      C ${sx + 1} ${specs.ceilingHeightIn + 4.0}, ${sx - 1} ${specs.ceilingHeightIn + 4.0}, ${sx - 2} ${
-                          specs.ceilingHeightIn + 2
-                        }
-                      Z
-                    `}
-                        fill="#111"
-                        opacity={0.9}
-                      />
+                      (() => {
+                        const map: Record<string, number> = { small: 6, medium: 12, large: 24 };
+                        const raw = strand.spec.moundPreset ?? "small";
+                        const asNum = Number.isFinite(Number(raw)) ? parseInt(String(raw), 10) : undefined;
+                        const cnt = asNum && asNum > 0 ? asNum : map[raw] ?? 6;
+                        const center = { x: sx, y: specs.ceilingHeightIn - yShift };
+                        return renderChainMound({ keyPrefix: `mound-${strand.id}`, center, count: cnt, linkHeightIn: 1, linkWidthIn: 0.55, strokeIn: 0.12, strokeColor: col });
+                      })()
                     ) : null}
 
                     {pv.overCeiling ? (

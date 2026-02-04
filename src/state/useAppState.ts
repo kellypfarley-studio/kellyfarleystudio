@@ -10,16 +10,25 @@ import type {
   SelectionState,
   Strand,
   StrandSpec,
+  Stack,
+  StackSpec,
+  Cluster,
+  ClusterSpec,
+  ClusterStrandSpec,
+  ClusterBuilderState,
   Swoop,
   SwoopSpec,
   CustomStrand,
+  CustomStrandBuilderState,
+  CustomStrandNode,
+  CustomStrandSpec,
   ToolMode,
   ViewTransform,
   MaterialsDefaults,
   PricingDefaults,
   QuoteSettings,
 } from "../types/appTypes";
-import { DEFAULT_NOTES, DEFAULT_PALETTE, DEFAULT_SELECTION, DEFAULT_SPECS, DEFAULT_VIEW, makeDefaultPlanTools } from "./defaults";
+import { DEFAULT_NOTES, DEFAULT_PALETTE, DEFAULT_SELECTION, DEFAULT_SPECS, DEFAULT_VIEW, makeDefaultPlanTools, makeDefaultCustomBuilder, makeDefaultClusterBuilder } from "./defaults";
 import { exportProjectJson } from "../utils/export/exportProjectJson";
 import exportProjectCsv from "../utils/export/exportCsv";
 import exportProjectDxf from "../utils/export/exportDxf";
@@ -35,6 +44,8 @@ export type AppState = {
   planTools: PlanToolsState;
   anchors: Anchor[];
   strands: Strand[];
+  stacks: Stack[];
+  clusters: Cluster[];
   swoops: Swoop[];
   customStrands: CustomStrand[];
   selection: SelectionState;
@@ -53,6 +64,8 @@ export function useAppState() {
   const [planTools, setPlanTools] = useState<PlanToolsState>(() => makeDefaultPlanTools(DEFAULT_PALETTE));
   const [anchors, setAnchors] = useState<Anchor[]>([]);
   const [strands, setStrands] = useState<Strand[]>([]);
+  const [stacks, setStacks] = useState<Stack[]>([]);
+  const [clusters, setClusters] = useState<Cluster[]>([]);
   const [swoops, setSwoops] = useState<Swoop[]>([]);
   const [customStrands, setCustomStrands] = useState<CustomStrand[]>([]);
   const [selection, setSelection] = useState<SelectionState>(DEFAULT_SELECTION);
@@ -121,11 +134,150 @@ export function useAppState() {
         }
         return [...prev, { id: uid("st"), anchorId, spec: strandSpec }];
       });
+      // Remove stack at same anchor (mutually exclusive)
+      setStacks((prev) => prev.filter((st) => st.anchorId !== anchorId));
+      // Remove custom strand at same anchor (mutually exclusive)
+      setCustomStrands((prev) => prev.filter((cs) => cs.anchorId !== anchorId));
+      // Remove cluster at same anchor (mutually exclusive)
+      setClusters((prev) => prev.filter((c) => c.anchorId !== anchorId));
 
       setSelection({ selectedAnchorId: anchorId });
       return anchorId;
     },
     [findAnchorAt, planTools.draftStrand, projectSpecs],
+  );
+
+  const placeStackAt = useCallback(
+    (xIn: number, yIn: number) => {
+      const { col, row } = snapToGridIndex(xIn, yIn, projectSpecs);
+      const { xIn: sx, yIn: sy } = gridIndexToWorld(col, row, projectSpecs);
+      const existing = findAnchorAt(sx, sy);
+
+      let anchorId = existing?.id;
+      if (!anchorId) {
+        anchorId = uid("a");
+        const newAnchor: Anchor = { id: anchorId, xIn: sx, yIn: sy, type: "strand", holeType: "strand", gridCol: col, gridRow: row };
+        setAnchors((prev) => [...prev, newAnchor]);
+      } else {
+        // ensure type is strand for stack placement
+        setAnchors((prev) =>
+          prev.map((a) => (a.id === anchorId ? { ...a, type: "strand" as const, holeType: "strand", xIn: sx, yIn: sy, gridCol: col, gridRow: row } : a)),
+        );
+      }
+
+      const stackSpec: StackSpec = { ...planTools.draftStack };
+      setStacks((prev) => {
+        const existingStack = prev.find((s) => s.anchorId === anchorId);
+        if (existingStack) {
+          return prev.map((s) => (s.anchorId === anchorId ? { ...s, spec: stackSpec } : s));
+        }
+        return [...prev, { id: uid("stk"), anchorId, spec: stackSpec }];
+      });
+      // Remove strand at same anchor (mutually exclusive)
+      setStrands((prev) => prev.filter((s) => s.anchorId !== anchorId));
+      // Remove custom strand at same anchor (mutually exclusive)
+      setCustomStrands((prev) => prev.filter((cs) => cs.anchorId !== anchorId));
+      // Remove cluster at same anchor (mutually exclusive)
+      setClusters((prev) => prev.filter((c) => c.anchorId !== anchorId));
+
+      setSelection({ selectedAnchorId: anchorId });
+      return anchorId;
+    },
+    [findAnchorAt, planTools.draftStack, projectSpecs],
+  );
+
+  const placeClusterAt = useCallback(
+    (xIn: number, yIn: number) => {
+      const strands = planTools.clusterBuilder.strands ?? [];
+      if (!strands.length) {
+        alert("Cluster builder is empty. Add strands before placing.");
+        return undefined;
+      }
+
+      const { col, row } = snapToGridIndex(xIn, yIn, projectSpecs);
+      const { xIn: sx, yIn: sy } = gridIndexToWorld(col, row, projectSpecs);
+      const existing = findAnchorAt(sx, sy);
+
+      let anchorId = existing?.id;
+      if (!anchorId) {
+        anchorId = uid("a");
+        const newAnchor: Anchor = { id: anchorId, xIn: sx, yIn: sy, type: "strand", holeType: "strand", gridCol: col, gridRow: row };
+        setAnchors((prev) => [...prev, newAnchor]);
+      } else {
+        setAnchors((prev) =>
+          prev.map((a) => (a.id === anchorId ? { ...a, type: "strand" as const, holeType: "strand", xIn: sx, yIn: sy, gridCol: col, gridRow: row } : a)),
+        );
+      }
+
+      const spec: ClusterSpec = {
+        strands: [...strands],
+        itemRadiusIn: planTools.clusterBuilder.itemRadiusIn,
+        spreadIn: planTools.clusterBuilder.spreadIn,
+      };
+      setClusters((prev) => {
+        const existingCluster = prev.find((c) => c.anchorId === anchorId);
+        if (existingCluster) {
+          return prev.map((c) => (c.anchorId === anchorId ? { ...c, spec } : c));
+        }
+        return [...prev, { id: uid("cl"), anchorId, spec }];
+      });
+
+      // Remove strand/stack/custom at same anchor (mutually exclusive)
+      setStrands((prev) => prev.filter((s) => s.anchorId !== anchorId));
+      setStacks((prev) => prev.filter((s) => s.anchorId !== anchorId));
+      setClusters((prev) => prev.filter((c) => c.anchorId !== anchorId));
+      setCustomStrands((prev) => prev.filter((cs) => cs.anchorId !== anchorId));
+
+      setSelection({ selectedAnchorId: anchorId });
+      return anchorId;
+    },
+    [findAnchorAt, planTools.clusterBuilder, projectSpecs],
+  );
+
+  const placeCustomStrandAt = useCallback(
+    (xIn: number, yIn: number) => {
+      const nodes = planTools.customBuilder.nodes ?? [];
+      if (!nodes.length) {
+        alert("Custom strand builder is empty. Add nodes before placing.");
+        return undefined;
+      }
+
+      const { col, row } = snapToGridIndex(xIn, yIn, projectSpecs);
+      const { xIn: sx, yIn: sy } = gridIndexToWorld(col, row, projectSpecs);
+      const existing = findAnchorAt(sx, sy);
+
+      let anchorId = existing?.id;
+      if (!anchorId) {
+        anchorId = uid("a");
+        const newAnchor: Anchor = { id: anchorId, xIn: sx, yIn: sy, type: "strand", holeType: "strand", gridCol: col, gridRow: row };
+        setAnchors((prev) => [...prev, newAnchor]);
+      } else {
+        setAnchors((prev) =>
+          prev.map((a) => (a.id === anchorId ? { ...a, type: "strand" as const, holeType: "strand", xIn: sx, yIn: sy, gridCol: col, gridRow: row } : a)),
+        );
+      }
+
+      const spec: CustomStrandSpec = {
+        nodes: [...nodes],
+        layer: planTools.customBuilder.layer ?? "mid",
+      };
+
+      setCustomStrands((prev) => {
+        const existingCs = prev.find((s) => s.anchorId === anchorId);
+        if (existingCs) {
+          return prev.map((s) => (s.anchorId === anchorId ? { ...s, spec } : s));
+        }
+        return [...prev, { id: uid("cs"), anchorId, spec }];
+      });
+
+      // Remove strand/stack at same anchor (mutually exclusive)
+      setStrands((prev) => prev.filter((s) => s.anchorId !== anchorId));
+      setStacks((prev) => prev.filter((s) => s.anchorId !== anchorId));
+
+      setSelection({ selectedAnchorId: anchorId });
+      return anchorId;
+    },
+    [findAnchorAt, planTools.customBuilder, projectSpecs],
   );
 
   const ensureStrandHoleAt = useCallback((xIn: number, yIn: number): string | undefined => {
@@ -170,6 +322,9 @@ export function useAppState() {
         prev.map((a) => (a.id === existing.id ? { ...a, type: "canopy_fastener" as const, holeType: "fastener", xIn: sx, yIn: sy, gridCol: col, gridRow: row } : a)),
       );
       setStrands((prev) => prev.filter((s) => s.anchorId !== existing.id));
+      setStacks((prev) => prev.filter((s) => s.anchorId !== existing.id));
+      setCustomStrands((prev) => prev.filter((s) => s.anchorId !== existing.id));
+      setClusters((prev) => prev.filter((c) => c.anchorId !== existing.id));
       // Also remove any swoops that reference this hole; fastener holes cannot be swoop endpoints
       setSwoops((prev) => prev.filter((sw) => sw.aHoleId !== existing.id && sw.bHoleId !== existing.id));
       // If a swoop was mid-placement using this hole as the start, clear the pending state
@@ -245,6 +400,9 @@ export function useAppState() {
 
     setAnchors((prev) => prev.filter((a) => a.id !== anchorId));
     setStrands((prev) => prev.filter((s) => s.anchorId !== anchorId));
+    setStacks((prev) => prev.filter((s) => s.anchorId !== anchorId));
+    setCustomStrands((prev) => prev.filter((s) => s.anchorId !== anchorId));
+    setClusters((prev) => prev.filter((c) => c.anchorId !== anchorId));
     // Remove any swoops that reference this anchor
     setSwoops((prev) => prev.filter((sw) => sw.aHoleId !== anchorId && sw.bHoleId !== anchorId));
     // Clear mid-placement swoop if needed
@@ -261,6 +419,8 @@ export function useAppState() {
             palette,
             anchors,
             strands,
+            stacks,
+            clusters,
             swoops,
             customStrands,
             notes,
@@ -275,7 +435,7 @@ export function useAppState() {
       }
         if (action === "csv") {
           try {
-            exportProjectCsv({ projectName: projectSpecs?.projectName, projectSpecs, anchors, strands, notes });
+            exportProjectCsv({ projectName: projectSpecs?.projectName, projectSpecs, anchors, strands, stacks, customStrands, clusters, notes });
                 } catch (e) {
                   console.error('CSV export failed', e);
                   alert('CSV export failed: ' + String((e as any)?.message || e));
@@ -294,7 +454,7 @@ export function useAppState() {
         if (action === "export_3d_zip") {
           try {
             // Export ZIP containing layout JSON + GLB (use default filename when project name missing)
-            export3dZip({ projectSpecs, anchors, strands });
+          export3dZip({ projectSpecs, anchors, strands, stacks, customStrands });
           } catch (e) {
             console.error('3D export failed', e);
             alert('3D export failed: ' + String((e as any)?.message || e));
@@ -304,7 +464,7 @@ export function useAppState() {
       // Export buttons will be implemented later.
       alert(`Not implemented yet: ${action.toUpperCase()}`);
     },
-      [anchors, customStrands, frontView, notes, palette, planTools, planView, projectSpecs, showLabels, strands, swoops],
+      [anchors, clusters, customStrands, frontView, notes, palette, planTools, planView, projectSpecs, showLabels, strands, stacks, swoops],
   );
 
   const setProjectSpecs = useCallback((patch: Partial<ProjectSpecs>) => {
@@ -394,12 +554,89 @@ export function useAppState() {
     setPlanTools((prev) => ({ ...prev, draftStrand: { ...prev.draftStrand, ...patch } }));
   }, []);
 
+  const setDraftStack = useCallback((patch: Partial<StackSpec>) => {
+    setPlanTools((prev) => ({ ...prev, draftStack: { ...prev.draftStack, ...patch } }));
+  }, []);
+
+  const setClusterBuilderPatch = useCallback((patch: Partial<ClusterBuilderState>) => {
+    setPlanTools((prev) => ({ ...prev, clusterBuilder: { ...prev.clusterBuilder, ...patch } }));
+  }, []);
+
   const setDraftSwoop = useCallback((patch: Partial<SwoopSpec>) => {
     setPlanTools((prev) => ({ ...prev, draftSwoop: { ...prev.draftSwoop, ...patch } }));
   }, []);
 
+  const setCustomBuilderPatch = useCallback((patch: Partial<CustomStrandBuilderState>) => {
+    setPlanTools((prev) => ({ ...prev, customBuilder: { ...prev.customBuilder, ...patch } }));
+  }, []);
+
+  const appendCustomNode = useCallback((node: CustomStrandNode) => {
+    setPlanTools((prev) => ({
+      ...prev,
+      customBuilder: {
+        ...prev.customBuilder,
+        nodes: [...(prev.customBuilder?.nodes ?? []), node],
+      },
+    }));
+  }, []);
+
+  const removeLastCustomNode = useCallback(() => {
+    setPlanTools((prev) => ({
+      ...prev,
+      customBuilder: {
+        ...prev.customBuilder,
+        nodes: (prev.customBuilder?.nodes ?? []).slice(0, -1),
+      },
+    }));
+  }, []);
+
+
   const patchStrandAtAnchor = useCallback((anchorId: string, patch: Partial<StrandSpec>) => {
     setStrands((prev) => prev.map((s) => (s.anchorId === anchorId ? { ...s, spec: { ...s.spec, ...patch } } : s)));
+  }, []);
+
+  const patchStackAtAnchor = useCallback((anchorId: string, patch: Partial<StackSpec>) => {
+    setStacks((prev) => prev.map((s) => (s.anchorId === anchorId ? { ...s, spec: { ...s.spec, ...patch } } : s)));
+  }, []);
+
+  const patchClusterAtAnchor = useCallback((anchorId: string, patch: Partial<ClusterSpec>) => {
+    setClusters((prev) => prev.map((c) => (c.anchorId === anchorId ? { ...c, spec: { ...c.spec, ...patch } } : c)));
+  }, []);
+
+  const appendClusterStrand = useCallback((strand: ClusterStrandSpec) => {
+    setPlanTools((prev) => ({
+      ...prev,
+      clusterBuilder: {
+        ...prev.clusterBuilder,
+        strands: [...(prev.clusterBuilder?.strands ?? []), strand],
+        selectedIndex: (prev.clusterBuilder?.strands ?? []).length,
+      },
+    }));
+  }, []);
+
+  const updateClusterStrand = useCallback((index: number, patch: Partial<ClusterStrandSpec>) => {
+    setPlanTools((prev) => ({
+      ...prev,
+      clusterBuilder: {
+        ...prev.clusterBuilder,
+        strands: (prev.clusterBuilder?.strands ?? []).map((s, i) => (i === index ? { ...s, ...patch } : s)),
+      },
+    }));
+  }, []);
+
+  const removeClusterStrand = useCallback((index: number) => {
+    setPlanTools((prev) => ({
+      ...prev,
+      clusterBuilder: {
+        ...prev.clusterBuilder,
+        strands: (prev.clusterBuilder?.strands ?? []).filter((_, i) => i !== index),
+        selectedIndex: prev.clusterBuilder.selectedIndex === index ? null : (prev.clusterBuilder.selectedIndex != null && prev.clusterBuilder.selectedIndex > index ? prev.clusterBuilder.selectedIndex - 1 : prev.clusterBuilder.selectedIndex),
+      },
+    }));
+  }, []);
+
+  const patchCustomStrandAtAnchor = useCallback((anchorId: string, patch: Partial<CustomStrandSpec>) => {
+    setCustomStrands((prev) => prev.map((s) => (s.anchorId === anchorId ? { ...s, spec: { ...s.spec, ...patch } } : s)));
   }, []);
 
   const setMode = useCallback((mode: ToolMode) => {
@@ -421,10 +658,20 @@ export function useAppState() {
           ...(snapshot.planTools as PlanToolsState),
           // Never resume mid-click swoop placement from a saved file
           pendingSwoopStartHoleId: null,
+          customBuilder: {
+            ...(prev.customBuilder ?? makeDefaultCustomBuilder(snapshot.palette ?? DEFAULT_PALETTE)),
+            ...((snapshot.planTools as any)?.customBuilder ?? {}),
+          },
+          clusterBuilder: {
+            ...(prev.clusterBuilder ?? makeDefaultClusterBuilder(snapshot.palette ?? DEFAULT_PALETTE)),
+            ...((snapshot.planTools as any)?.clusterBuilder ?? {}),
+          },
         }));
       }
       if (Array.isArray(snapshot.anchors)) setAnchors(snapshot.anchors as Anchor[]);
       if (Array.isArray(snapshot.strands)) setStrands(snapshot.strands as Strand[]);
+      if (Array.isArray(snapshot.stacks)) setStacks(snapshot.stacks as Stack[]);
+      if (Array.isArray(snapshot.clusters)) setClusters(snapshot.clusters as Cluster[]);
       if (Array.isArray(snapshot.swoops)) setSwoops(snapshot.swoops as Swoop[]);
       if (Array.isArray(snapshot.customStrands)) setCustomStrands(snapshot.customStrands as CustomStrand[]);
       if (typeof snapshot.showLabels === "boolean") setShowLabels(snapshot.showLabels);
@@ -465,6 +712,8 @@ export function useAppState() {
     planTools,
     anchors,
     strands,
+    stacks,
+    clusters,
     swoops,
     customStrands,
     selection,
@@ -482,11 +731,19 @@ export function useAppState() {
     onMenuAction,
     setProjectSpecs,
     setDraftStrand,
+    setDraftStack,
+    setClusterBuilderPatch,
+    setCustomBuilderPatch,
     setDraftSwoop,
     patchStrandAtAnchor,
+    patchStackAtAnchor,
+    patchClusterAtAnchor,
+    patchCustomStrandAtAnchor,
     setMode,
     setPlanTools,
     setSwoops,
+    setStacks,
+    setClusters,
     setCustomStrands,
 
     setShowLabels,
@@ -496,6 +753,9 @@ export function useAppState() {
     deleteSelected,
 
     placeStrandAt,
+    placeStackAt,
+    placeClusterAt,
+    placeCustomStrandAt,
     placeCanopyFastenerAt,
     onSwoopAnchorClick,
     ensureStrandHoleAt,
@@ -517,5 +777,10 @@ export function useAppState() {
     setQuotePatch,
     setDueDate,
     loadSnapshot,
+    appendCustomNode,
+    removeLastCustomNode,
+    appendClusterStrand,
+    updateClusterStrand,
+    removeClusterStrand,
   };
 }

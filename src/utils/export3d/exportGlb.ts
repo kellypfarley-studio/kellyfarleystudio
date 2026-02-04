@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import { downloadBlob } from '../export/download';
-import type { Anchor, ProjectSpecs, Strand } from '../../types/appTypes';
-import { computeStrandPreview } from '../../utils/previewGeometry';
+import type { Anchor, CustomStrand, ProjectSpecs, Stack, Strand } from '../../types/appTypes';
+import { computeCustomStrandPreview, computeStackPreview, computeStrandPreview } from '../../utils/previewGeometry';
 
 const UNIT_SCALE = 0.0254; // inch -> meters
 
@@ -32,8 +32,8 @@ function createCylinderBetweenPoints(start: THREE.Vector3, end: THREE.Vector3, r
   return mesh;
 }
 
-export async function exportGlb(state: { projectSpecs: ProjectSpecs; anchors: Anchor[]; strands: Strand[] }, filename = 'project_3d.glb') {
-  const { projectSpecs, anchors, strands } = state;
+export async function exportGlb(state: { projectSpecs: ProjectSpecs; anchors: Anchor[]; strands: Strand[]; stacks: Stack[]; customStrands: CustomStrand[] }, filename = 'project_3d.glb') {
+  const { projectSpecs, anchors, strands, stacks, customStrands } = state;
 
   const scene = new THREE.Scene();
 
@@ -86,6 +86,62 @@ export async function exportGlb(state: { projectSpecs: ProjectSpecs; anchors: An
     const bottomEnd = new THREE.Vector3(ax, -pv.bottomChainY2 * UNIT_SCALE, ay);
     const bottomCylinder = createCylinderBetweenPoints(bottomStart, bottomEnd, 0.004);
     if (bottomCylinder) scene.add(bottomCylinder);
+  }
+
+  for (const s of stacks) {
+    const anchor = anchors.find((a) => a.id === s.anchorId) ?? null;
+    const ax = anchor ? (anchor.xIn - centerX) * UNIT_SCALE : 0;
+    const ay = anchor ? (anchor.yIn - centerY) * UNIT_SCALE : 0;
+
+    const pv = computeStackPreview(projectSpecs, s.spec, { sphereDiameterIn: projectSpecs.materials?.sphereDiameterIn });
+    const sphereDiameterIn = projectSpecs.materials?.sphereDiameterIn ?? 0;
+    const sphereDiameterM = sphereDiameterIn * UNIT_SCALE;
+    (pv.sphereCentersY || []).forEach((centerYIn) => {
+      const x = ax;
+      const z = ay;
+      const y = -centerYIn * UNIT_SCALE;
+      const mesh = createSphereMesh(sphereDiameterM, 0xffffff);
+      mesh.position.set(x, y, z);
+      scene.add(mesh);
+    });
+
+    const topStart = new THREE.Vector3(ax, 0, ay);
+    const topEnd = new THREE.Vector3(ax, -pv.topChainY2 * UNIT_SCALE, ay);
+    const topCylinder = createCylinderBetweenPoints(topStart, topEnd, 0.004);
+    if (topCylinder) scene.add(topCylinder);
+
+    const bottomStart = new THREE.Vector3(ax, -pv.bottomChainY1 * UNIT_SCALE, ay);
+    const bottomEnd = new THREE.Vector3(ax, -pv.bottomChainY2 * UNIT_SCALE, ay);
+    const bottomCylinder = createCylinderBetweenPoints(bottomStart, bottomEnd, 0.004);
+    if (bottomCylinder) scene.add(bottomCylinder);
+  }
+
+  for (const s of customStrands) {
+    const anchor = anchors.find((a) => a.id === s.anchorId) ?? null;
+    const ax = anchor ? (anchor.xIn - centerX) * UNIT_SCALE : 0;
+    const ay = anchor ? (anchor.yIn - centerY) * UNIT_SCALE : 0;
+
+    const pv = computeCustomStrandPreview(projectSpecs, s.spec, { sphereDiameterIn: projectSpecs.materials?.sphereDiameterIn });
+    const sphereDiameterIn = projectSpecs.materials?.sphereDiameterIn ?? 0;
+    const sphereDiameterM = sphereDiameterIn * UNIT_SCALE;
+
+    for (const seg of pv.segments) {
+      if (seg.type === "chain") {
+        const start = new THREE.Vector3(ax, -seg.y1 * UNIT_SCALE, ay);
+        const end = new THREE.Vector3(ax, -seg.y2 * UNIT_SCALE, ay);
+        const cyl = createCylinderBetweenPoints(start, end, 0.004);
+        if (cyl) scene.add(cyl);
+      } else if (seg.type === "strand" || seg.type === "stack") {
+        (seg.centersY || []).forEach((centerYIn) => {
+          const x = ax;
+          const z = ay;
+          const y = -centerYIn * UNIT_SCALE;
+          const mesh = createSphereMesh(sphereDiameterM, 0xffffff);
+          mesh.position.set(x, y, z);
+          scene.add(mesh);
+        });
+      }
+    }
   }
 
   // export using GLTFExporter

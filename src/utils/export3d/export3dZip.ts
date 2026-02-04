@@ -1,20 +1,20 @@
 import { zipSync, strToU8 } from 'fflate';
 import build3dLayoutJson from './export3dJson';
 import { createGlbBufferFromScene } from './exportGlb';
-import type { Anchor, ProjectSpecs, Strand } from '../../types/appTypes';
+import type { Anchor, CustomStrand, ProjectSpecs, Stack, Strand } from '../../types/appTypes';
 import * as THREE from 'three';
-import { computeStrandPreview } from '../../utils/previewGeometry';
+import { computeCustomStrandPreview, computeStackPreview, computeStrandPreview } from '../../utils/previewGeometry';
 import { downloadBlob } from '../export/download';
 
 /**
  * Build GLB ArrayBuffer from state by constructing the same scene as exportGlb,
  * then package layout JSON + GLB into a ZIP and trigger download (Safari-friendly).
  */
-export async function export3dZip(state: { projectSpecs: ProjectSpecs; anchors: Anchor[]; strands: Strand[] }, zipFilename?: string) {
-  const { projectSpecs, anchors, strands } = state;
+export async function export3dZip(state: { projectSpecs: ProjectSpecs; anchors: Anchor[]; strands: Strand[]; stacks: Stack[]; customStrands: CustomStrand[] }, zipFilename?: string) {
+  const { projectSpecs, anchors, strands, stacks, customStrands } = state;
 
   // Build layout JSON
-  const layout = build3dLayoutJson({ projectSpecs, anchors, strands });
+  const layout = build3dLayoutJson({ projectSpecs, anchors, strands, stacks, customStrands });
   const layoutStr = JSON.stringify(layout, null, 2);
 
   // Build THREE scene similarly to exportGlb, then get GLB ArrayBuffer
@@ -47,6 +47,49 @@ export async function export3dZip(state: { projectSpecs: ProjectSpecs; anchors: 
       const mesh = new THREE.Mesh(new THREE.SphereGeometry(sphereDiameterM / 2, 24, 16), new THREE.MeshStandardMaterial({ color: 0xffffff }));
       mesh.position.set(ax, -centerYIn * UNIT_SCALE, ay);
       scene.add(mesh);
+    });
+  }
+
+  for (const s of stacks) {
+    const anchor = anchors.find((a) => a.id === s.anchorId) ?? null;
+    const ax = anchor ? (anchor.xIn - centerX) * UNIT_SCALE : 0;
+    const ay = anchor ? (anchor.yIn - centerY) * UNIT_SCALE : 0;
+    const pv = computeStackPreview(projectSpecs, s.spec, { sphereDiameterIn: projectSpecs.materials?.sphereDiameterIn });
+    const sphereDiameterIn = projectSpecs.materials?.sphereDiameterIn ?? 0;
+    const sphereDiameterM = sphereDiameterIn * UNIT_SCALE;
+    (pv.sphereCentersY || []).forEach((centerYIn) => {
+      const mesh = new THREE.Mesh(new THREE.SphereGeometry(sphereDiameterM / 2, 24, 16), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+      mesh.position.set(ax, -centerYIn * UNIT_SCALE, ay);
+      scene.add(mesh);
+    });
+  }
+
+  for (const s of customStrands) {
+    const anchor = anchors.find((a) => a.id === s.anchorId) ?? null;
+    const ax = anchor ? (anchor.xIn - centerX) * UNIT_SCALE : 0;
+    const ay = anchor ? (anchor.yIn - centerY) * UNIT_SCALE : 0;
+    const pv = computeCustomStrandPreview(projectSpecs, s.spec, { sphereDiameterIn: projectSpecs.materials?.sphereDiameterIn });
+    const sphereDiameterIn = projectSpecs.materials?.sphereDiameterIn ?? 0;
+    const sphereDiameterM = sphereDiameterIn * UNIT_SCALE;
+
+    pv.segments.forEach((seg) => {
+      if (seg.type === "chain") {
+        const top = new THREE.Vector3(ax, -seg.y1 * UNIT_SCALE, ay);
+        const bot = new THREE.Vector3(ax, -seg.y2 * UNIT_SCALE, ay);
+        const len = bot.clone().sub(top).length();
+        if (len > 1e-6) {
+          const cyl = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, len, 12), new THREE.MeshStandardMaterial({ color: 0x888888 }));
+          cyl.position.copy(top).addScaledVector(bot.clone().sub(top), 0.5);
+          cyl.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), bot.clone().sub(top).normalize());
+          scene.add(cyl);
+        }
+      } else if (seg.type === "strand" || seg.type === "stack") {
+        (seg.centersY || []).forEach((centerYIn) => {
+          const mesh = new THREE.Mesh(new THREE.SphereGeometry(sphereDiameterM / 2, 24, 16), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+          mesh.position.set(ax, -centerYIn * UNIT_SCALE, ay);
+          scene.add(mesh);
+        });
+      }
     });
   }
 

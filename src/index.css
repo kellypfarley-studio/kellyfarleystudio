@@ -193,6 +193,8 @@ button, input, select, textarea {
 
 /* Additional requested utility rules */
 .pvToolsRow--strand,
+.pvToolsRow--stack,
+.pvToolsRow--cluster,
 .pvToolsRow--swoop,
 .pvToolsRow--custom {
   border-top: 1px solid #000;

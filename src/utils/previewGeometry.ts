@@ -1,4 +1,4 @@
-import type { ProjectSpecs, StrandSpec } from "../types/appTypes";
+import type { CustomStrandNode, CustomStrandSpec, ProjectSpecs, StackSpec, StrandSpec } from "../types/appTypes";
 
 export type StrandPreview = {
   sphereCentersY: number[];
@@ -8,6 +8,16 @@ export type StrandPreview = {
   bottomChainY2: number;
   lastSphereBottomY: number;
   sphereSectionHeight: number;
+  totalDropIn: number;
+  overCeiling: boolean;
+};
+
+export type CustomStrandPreview = {
+  segments: Array<
+    | { type: "chain"; y1: number; y2: number }
+    | { type: "strand"; centersY: number[]; colorId: string }
+    | { type: "stack"; centersY: number[]; colorId: string }
+  >;
   totalDropIn: number;
   overCeiling: boolean;
 };
@@ -71,4 +81,68 @@ export function computeStrandPreview(
     totalDropIn,
     overCeiling,
   };
+}
+
+/**
+ * Computes vertical geometry for a stack (touching spheres, no clasp spacing).
+ */
+export function computeStackPreview(
+  project: ProjectSpecs,
+  spec: StackSpec,
+  opts?: { sphereDiameterIn?: number },
+): StrandPreview {
+  return computeStrandPreview(project, spec as StrandSpec, {
+    sphereDiameterIn: opts?.sphereDiameterIn,
+    hardwareSpacingIn: 0,
+  });
+}
+
+export function computeCustomStrandPreview(
+  project: ProjectSpecs,
+  spec: CustomStrandSpec,
+  opts?: { sphereDiameterIn?: number; hardwareSpacingIn?: number },
+): CustomStrandPreview {
+  const sphereD = opts?.sphereDiameterIn ?? DEFAULT_SPHERE_DIAMETER_IN;
+  const r = sphereD / 2;
+  const gapStrand = opts?.hardwareSpacingIn ?? DEFAULT_HARDWARE_SPACING_IN;
+
+  let y = 0;
+  const segments: CustomStrandPreview["segments"] = [];
+
+  const nodes: CustomStrandNode[] = spec.nodes ?? [];
+  for (const node of nodes) {
+    if (node.type === "chain") {
+      const len = Math.max(0, node.lengthIn || 0);
+      const y1 = y;
+      const y2 = y + len;
+      segments.push({ type: "chain", y1, y2 });
+      y = y2;
+    } else if (node.type === "strand") {
+      const count = Math.max(0, Math.floor(node.sphereCount || 0));
+      const pitch = sphereD + gapStrand;
+      const centers: number[] = [];
+      for (let i = 0; i < count; i++) {
+        centers.push(y + r + i * pitch);
+      }
+      if (centers.length) {
+        y = centers[centers.length - 1] + r;
+      }
+      segments.push({ type: "strand", centersY: centers, colorId: node.colorId });
+    } else if (node.type === "stack") {
+      const count = Math.max(0, Math.floor(node.sphereCount || 0));
+      const pitch = sphereD;
+      const centers: number[] = [];
+      for (let i = 0; i < count; i++) {
+        centers.push(y + r + i * pitch);
+      }
+      if (centers.length) {
+        y = centers[centers.length - 1] + r;
+      }
+      segments.push({ type: "stack", centersY: centers, colorId: node.colorId });
+    }
+  }
+
+  const totalDropIn = y;
+  const overCeiling = totalDropIn > project.ceilingHeightIn;
+  return { segments, totalDropIn, overCeiling };
 }

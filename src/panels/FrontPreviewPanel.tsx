@@ -1,76 +1,17 @@
 import { useMemo, useRef } from "react";
-import type { Anchor, DepthLayer, PaletteColor, ProjectSpecs, Strand, ViewTransform, Swoop } from "../types/appTypes";
+import type { Anchor, Cluster, ClusterBuilderState, CustomStrand, DepthLayer, PaletteColor, ProjectSpecs, Stack, Strand, ViewTransform, Swoop } from "../types/appTypes";
 import type { Ref } from "react";
 import PanelFrame from "../components/PanelFrame";
 import ViewControls from "../components/ViewControls";
-import { computeStrandPreview, SPHERE_PITCH_IN, SPHERE_RADIUS_IN, SPHERE_DIAMETER_IN, SPHERE_GAP_IN } from "../utils/previewGeometry";
-import { renderChainAlongPolyline, renderClaspBetweenPoints } from "../utils/proceduralChain";
+import { computeCustomStrandPreview, computeStackPreview, computeStrandPreview, SPHERE_PITCH_IN, SPHERE_RADIUS_IN, SPHERE_DIAMETER_IN, SPHERE_GAP_IN } from "../utils/previewGeometry";
+import { renderChainAlongPolyline, renderClaspBetweenPoints, renderChainMound } from "../utils/proceduralChain";
+import { buildHangingPolyline } from "../utils/previewBounds";
 import { solveCatenaryByLength, pointAtArcLength } from "../utils/catenary";
 import { projectPreview, computeYShift } from "../utils/rotationProjection";
+import { computeClusterLayout } from "../utils/clusterLayout";
 
-export function computePreviewFitBounds(specs: ProjectSpecs, strands: Strand[], anchors: Anchor[], swoops: Swoop[] = []) {
-  const previews = strands.map((s) => {
-    const a = anchors.find((x) => x.id === s.anchorId) ?? null;
-    const pv = computeStrandPreview(specs, s.spec);
-    return { strand: s, anchor: a, pv };
-  });
-
-  const r = SPHERE_RADIUS_IN;
-  const padX = r + 2;
-  const padTop = 2;
-  const padBottom = 12;
-
-  let maxDrop = specs.ceilingHeightIn;
-  for (const p of previews) {
-    maxDrop = Math.max(maxDrop, p.pv.totalDropIn);
-  }
-
-  // consider swoops: compute deepest relaxed point (plus sphere radius)
-  const pvView = specs.previewView ?? { rotationDeg: 0, rotationStrength: 1 };
-  for (const s of swoops) {
-    const a = anchors.find((x) => x.id === s.aHoleId) ?? null;
-    const b = anchors.find((x) => x.id === s.bHoleId) ?? null;
-    if (!a || !b) {
-      const ctrlY = (s.spec.chainAIn + s.spec.chainBIn) / 2 + s.spec.sagIn;
-      maxDrop = Math.max(maxDrop, ctrlY);
-      continue;
-    }
-
-    const pa = projectPreview(specs, a, pvView.rotationDeg, pvView.rotationStrength);
-    const pb = projectPreview(specs, b, pvView.rotationDeg, pvView.rotationStrength);
-    const xA = pa.xIn;
-    const xB = pb.xIn;
-    const yA = Math.max(0, s.spec.chainAIn || 0);
-    const yB = Math.max(0, s.spec.chainBIn || 0);
-
-    const sphereR = SPHERE_RADIUS_IN;
-    const sphereCount = Math.max(0, Math.floor(s.spec.sphereCount || 0));
-    const baseLen = sphereCount <= 1 ? 0 : (sphereCount - 1) * SPHERE_PITCH_IN;
-    const breathingRoom = 2 * sphereR;
-    const slackIn = Math.max(0, s.spec.sagIn || 0);
-    const desiredTotalLen = baseLen + breathingRoom + slackIn;
-
-    const chord = Math.hypot(xB - xA, yB - yA);
-    const totalLen = Math.max(chord, desiredTotalLen);
-    const nSegments = Math.max(1, Math.ceil(totalLen / SPHERE_PITCH_IN));
-    const pointCount = nSegments + 1;
-
-    try {
-      const hanging = buildHangingPolyline({ x: xA, y: yA }, { x: xB, y: yB }, totalLen, pointCount, 60);
-      const deepest = hanging.pts.reduce((m, p) => Math.max(m, p.y), -Infinity);
-      if (isFinite(deepest)) maxDrop = Math.max(maxDrop, deepest + sphereR);
-    } catch (e) {
-      const ctrlY = (s.spec.chainAIn + s.spec.chainBIn) / 2 + s.spec.sagIn;
-      maxDrop = Math.max(maxDrop, ctrlY);
-    }
-  }
-
-  const minX = -padX;
-  const maxX = specs.boundaryWidthIn + padX;
-  const minY = -padTop;
-  const maxY = maxDrop + padBottom;
-  return { minX, maxX, minY, maxY, w: maxX - minX, h: maxY - minY };
-}
+// computePreviewFitBounds moved to src/utils/previewBounds.ts to avoid exporting
+// non-component helpers from this module and improve Fast Refresh stability.
 
 export type FrontPreviewPanelProps = {
   specs: ProjectSpecs;
@@ -80,7 +21,11 @@ export type FrontPreviewPanelProps = {
 
   anchors: Anchor[];
   strands: Strand[];
+  stacks: Stack[];
+  clusters: Cluster[];
+  customStrands: CustomStrand[];
   swoops?: Swoop[];
+  previewClusterBuilder?: ClusterBuilderState;
   palette: PaletteColor[];
   selectedAnchorId: string | null;
   panEnabled?: boolean;
@@ -111,88 +56,6 @@ function layerOpacity(layer: string): number {
 }
 
 type Pt = { x: number; y: number };
-
-function buildHangingPolyline(
-  p0: Pt,
-  p1: Pt,
-  totalLength: number,
-  pointCount: number,
-  iterations: number = 90,
-): { pts: Pt[]; cum: number[] } {
-  const n = Math.max(2, Math.floor(pointCount));
-  const L = Math.max(0, totalLength);
-  const segLen = n > 1 ? L / (n - 1) : 0;
-
-  // Seed points on a gently sagging curve so the relaxation converges quickly.
-  const pts: Pt[] = new Array(n);
-  for (let i = 0; i < n; i += 1) {
-    const t = n === 1 ? 0 : i / (n - 1);
-    const x = p0.x + (p1.x - p0.x) * t;
-    const y = p0.y + (p1.y - p0.y) * t + Math.sin(Math.PI * t) * 0.25 * segLen;
-    pts[i] = { x, y };
-  }
-  // Pin endpoints
-  pts[0].x = p0.x;
-  pts[0].y = p0.y;
-  pts[n - 1].x = p1.x;
-  pts[n - 1].y = p1.y;
-
-  if (segLen > 0) {
-    const g = 0.35; // visual gravity; larger = more sag for the same slack
-    const constraintPasses = 6;
-    for (let iter = 0; iter < iterations; iter += 1) {
-      // Apply gravity to internal points
-      for (let i = 1; i < n - 1; i += 1) {
-        pts[i].y += g;
-      }
-
-      // Satisfy distance constraints
-      for (let pass = 0; pass < constraintPasses; pass += 1) {
-        for (let i = 0; i < n - 1; i += 1) {
-          const p = pts[i];
-          const q = pts[i + 1];
-          const dx = q.x - p.x;
-          const dy = q.y - p.y;
-          const dist = Math.hypot(dx, dy) || 1e-9;
-          const diff = (dist - segLen) / dist;
-
-          // Split correction between the two points unless it's an endpoint.
-          const wP = i === 0 ? 0 : 0.5;
-          const wQ = i + 1 === n - 1 ? 0 : 0.5;
-          const wSum = wP + wQ;
-          if (wSum <= 0) continue;
-
-          const corrX = dx * diff;
-          const corrY = dy * diff;
-          if (wP > 0) {
-            p.x += corrX * (wP / wSum);
-            p.y += corrY * (wP / wSum);
-          }
-          if (wQ > 0) {
-            q.x -= corrX * (wQ / wSum);
-            q.y -= corrY * (wQ / wSum);
-          }
-        }
-
-        // Re-pin endpoints each pass
-        pts[0].x = p0.x;
-        pts[0].y = p0.y;
-        pts[n - 1].x = p1.x;
-        pts[n - 1].y = p1.y;
-      }
-    }
-  }
-
-  // Cumulative arc-length table for sampling
-  const cum: number[] = new Array(n);
-  cum[0] = 0;
-  for (let i = 1; i < n; i += 1) {
-    const dx = pts[i].x - pts[i - 1].x;
-    const dy = pts[i].y - pts[i - 1].y;
-    cum[i] = cum[i - 1] + Math.hypot(dx, dy);
-  }
-  return { pts, cum };
-}
 
 // Sample a polyline by arc-length `s` (in the same units as pts/cum).
 function samplePolylineAtLength(pts: Pt[], cum: number[], s: number): Pt {
@@ -283,8 +146,10 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
   const layerByAnchorId = useMemo(() => {
     const m = new Map<string, DepthLayer>();
     for (const st of props.strands) m.set(st.anchorId, st.spec.layer as DepthLayer);
+    for (const st of props.stacks) m.set(st.anchorId, st.spec.layer as DepthLayer);
+    for (const st of props.customStrands) m.set(st.anchorId, st.spec.layer as DepthLayer);
     return m;
-  }, [props.strands]);
+  }, [props.strands, props.stacks, props.customStrands]);
 
   const getLayerForAnchor = (anchorId: string): DepthLayer => layerByAnchorId.get(anchorId) ?? "mid";
 
@@ -295,6 +160,32 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
       return { strand: s, anchor: a ?? null, pv };
     });
   }, [anchorById, props.strands, specs]);
+
+  const stackPreviews = useMemo(() => {
+    const sphereD = specs.materials?.sphereDiameterIn ?? SPHERE_DIAMETER_IN;
+    return props.stacks.map((s) => {
+      const a = anchorById.get(s.anchorId);
+      const pv = computeStackPreview(specs, s.spec, { sphereDiameterIn: sphereD });
+      return { stack: s, anchor: a ?? null, pv };
+    });
+  }, [anchorById, props.stacks, specs, specs.materials?.sphereDiameterIn]);
+
+  const customPreviews = useMemo(() => {
+    const sphereD = specs.materials?.sphereDiameterIn ?? SPHERE_DIAMETER_IN;
+    return props.customStrands.map((s) => {
+      const a = anchorById.get(s.anchorId);
+      const pv = computeCustomStrandPreview(specs, s.spec, { sphereDiameterIn: sphereD, hardwareSpacingIn: SPHERE_GAP_IN });
+      return { custom: s, anchor: a ?? null, pv };
+    });
+  }, [anchorById, props.customStrands, specs, specs.materials?.sphereDiameterIn]);
+
+  const clusterPreviews = useMemo(() => {
+    return props.clusters.map((c) => {
+      const a = anchorById.get(c.anchorId);
+      const items = computeClusterLayout(c.spec);
+      return { cluster: c, anchor: a ?? null, items };
+    });
+  }, [anchorById, props.clusters]);
 
   const swoopPreviews = useMemo(() => {
     return (props.swoops ?? []).map((sw) => {
@@ -312,6 +203,12 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
 
     let maxDrop = specs.ceilingHeightIn;
     for (const p of previews) {
+      maxDrop = Math.max(maxDrop, p.pv.totalDropIn);
+    }
+    for (const p of stackPreviews) {
+      maxDrop = Math.max(maxDrop, p.pv.totalDropIn);
+    }
+    for (const p of customPreviews) {
       maxDrop = Math.max(maxDrop, p.pv.totalDropIn);
     }
     for (const s of swoopPreviews) {
@@ -356,7 +253,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
     const minY = -padTop;
     const maxY = maxDrop + padBottom;
     return { minX, maxX, minY, maxY, w: maxX - minX, h: maxY - minY };
-  }, [previews, swoopPreviews, specs.boundaryWidthIn, specs.ceilingHeightIn]);
+  }, [previews, stackPreviews, customPreviews, swoopPreviews, specs.boundaryWidthIn, specs.ceilingHeightIn]);
 
   // Camera
   const viewZoom = Math.max(0.0001, view.zoom);
@@ -554,7 +451,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                 strokeColor: isSelected ? "#ff6666" : "#111",
               });
 
-              const bottomYStart = p.pv.sphereCentersY.length ? p.pv.sphereCentersY[p.pv.sphereCentersY.length - 1] - yShift : 0 - yShift;
+              const bottomYStart = p.pv.sphereCentersY.length ? p.pv.sphereCentersY[p.pv.sphereCentersY.length - 1] + sphereR - yShift : 0 - yShift;
               const bottomYEnd = specs.ceilingHeightIn - yShift;
               const bottomChainEls = renderChainAlongPolyline({
                 keyPrefix: `strand-${p.strand?.id}-botchain`,
@@ -573,15 +470,15 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                   {sphereEls}
                   {bottomChainEls}
                   {p.strand?.spec.moundPreset !== "none" ? (
-                    <path
-                      d={`M ${sx - 2} ${specs.ceilingHeightIn + 2} C ${sx - 1} ${specs.ceilingHeightIn + 0.5}, ${sx + 1} ${specs.ceilingHeightIn + 3.0}, ${sx + 2} ${
-                        specs.ceilingHeightIn + 2
-                      } C ${sx + 1} ${specs.ceilingHeightIn + 4.0}, ${sx - 1} ${specs.ceilingHeightIn + 4.0}, ${sx - 2} ${
-                        specs.ceilingHeightIn + 2
-                      } Z`}
-                      fill="#111"
-                      opacity={0.9}
-                    />
+                    (() => {
+                      // map preset to counts: small=6, medium=12, large=24
+                      const map: Record<string, number> = { small: 6, medium: 12, large: 24 };
+                      const raw = p.strand?.spec.moundPreset ?? "small";
+                      const asNum = Number.isFinite(Number(raw)) ? parseInt(String(raw), 10) : undefined;
+                      const cnt = asNum && asNum > 0 ? asNum : map[raw] ?? 6;
+                      const center = { x: sx, y: specs.ceilingHeightIn - yShift };
+                      return renderChainMound({ keyPrefix: `mound-${p.strand?.id}`, center, count: cnt, linkHeightIn: 1, linkWidthIn: 0.55, strokeIn: 0.12, strokeColor: "#111" });
+                    })()
                   ) : null}
                   {p.pv.overCeiling ? (
                     <text x={sx + 1.0} y={specs.ceilingHeightIn - 1.0} fontSize={2.5} fill="#ff6666">
@@ -592,6 +489,312 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
               );
 
               drawables.push({ key: `strand-${p.strand?.id}`, depth: depthEff, jsx });
+            }
+
+            // 1b) stack drawables (touching spheres, no clasps between)
+            for (const p of stackPreviews) {
+              if (!p.anchor) continue;
+              const proj = projectPreview(specs, p.anchor, pvView.rotationDeg, pvView.rotationStrength);
+              const layer = p.stack?.spec.layer ?? "mid";
+              const depthEff = proj.depthKey + layerDepthOffset(layer as DepthLayer);
+              const sx = proj.xIn;
+              const perspective = specs.previewDepth?.perspectiveFactor ?? 0;
+              const yShift = computeYShift(specs, depthEff, perspective);
+              const isSelected = p.anchor.id === props.selectedAnchorId;
+              const col = colorHex(props.palette, p.stack?.spec.colorId ?? "");
+              const op = layerOpacity(p.stack?.spec.layer ?? "mid");
+              const sphereR = SPHERE_RADIUS_IN;
+
+              const sphereEls: JSX.Element[] = p.pv.sphereCentersY.map((cy, idx) => (
+                <circle key={`stack-${p.stack?.id}-sp-${idx}`} cx={sx} cy={cy - yShift} r={sphereR} fill={col} stroke={isSelected ? "#ff6666" : "#111"} strokeWidth={isSelected ? 0.18 : 0.1} />
+              ));
+
+              const topYStart = 0 - yShift;
+              const topYEnd = p.pv.sphereCentersY.length ? p.pv.sphereCentersY[0] - yShift : specs.ceilingHeightIn - yShift;
+              const topChainEls = renderChainAlongPolyline({
+                keyPrefix: `stack-${p.stack?.id}-topchain`,
+                points: [{ x: sx, y: topYStart }, { x: sx, y: topYEnd }],
+                linkHeightIn: 1,
+                strokeIn: isSelected ? 0.18 : 0.1,
+                linkWidthIn: 0.55,
+                startPhase: 0,
+                strokeColor: isSelected ? "#ff6666" : "#111",
+              });
+
+              const bottomYStart = p.pv.sphereCentersY.length ? p.pv.sphereCentersY[p.pv.sphereCentersY.length - 1] + sphereR - yShift : 0 - yShift;
+              const bottomYEnd = specs.ceilingHeightIn - yShift;
+              const bottomChainEls = renderChainAlongPolyline({
+                keyPrefix: `stack-${p.stack?.id}-botchain`,
+                points: [{ x: sx, y: bottomYStart }, { x: sx, y: bottomYEnd }],
+                linkHeightIn: 1,
+                strokeIn: isSelected ? 0.18 : 0.1,
+                linkWidthIn: 0.55,
+                startPhase: 1,
+                strokeColor: isSelected ? "#ff6666" : "#111",
+              });
+
+              const jsx = (
+                <g key={`stack-${p.stack?.id}`} opacity={op}>
+                  {topChainEls}
+                  {sphereEls}
+                  {bottomChainEls}
+                  {p.stack?.spec.moundPreset !== "none" ? (
+                    (() => {
+                      const map: Record<string, number> = { small: 6, medium: 12, large: 24 };
+                      const raw = p.stack?.spec.moundPreset ?? "small";
+                      const asNum = Number.isFinite(Number(raw)) ? parseInt(String(raw), 10) : undefined;
+                      const cnt = asNum && asNum > 0 ? asNum : map[raw] ?? 6;
+                      const center = { x: sx, y: specs.ceilingHeightIn - yShift };
+                      return renderChainMound({ keyPrefix: `stack-mound-${p.stack?.id}`, center, count: cnt, linkHeightIn: 1, linkWidthIn: 0.55, strokeIn: 0.12, strokeColor: "#111" });
+                    })()
+                  ) : null}
+                  {p.pv.overCeiling ? (
+                    <text x={sx + 1.0} y={specs.ceilingHeightIn - 1.0} fontSize={2.5} fill="#ff6666">
+                      !
+                    </text>
+                  ) : null}
+                </g>
+              );
+
+              drawables.push({ key: `stack-${p.stack?.id}`, depth: depthEff, jsx });
+            }
+
+            // 1c) custom strand drawables (mixed chain/strand/stack nodes)
+            for (const p of customPreviews) {
+              if (!p.anchor) continue;
+              const proj = projectPreview(specs, p.anchor, pvView.rotationDeg, pvView.rotationStrength);
+              const layer = p.custom?.spec.layer ?? "mid";
+              const depthEff = proj.depthKey + layerDepthOffset(layer as DepthLayer);
+              const sx = proj.xIn;
+              const perspective = specs.previewDepth?.perspectiveFactor ?? 0;
+              const yShift = computeYShift(specs, depthEff, perspective);
+              const isSelected = p.anchor.id === props.selectedAnchorId;
+              const op = layerOpacity(p.custom?.spec.layer ?? "mid");
+              const sphereR = SPHERE_RADIUS_IN;
+
+              const segmentEls: JSX.Element[] = [];
+
+              p.pv.segments.forEach((seg, segIdx) => {
+                if (seg.type === "chain") {
+                  const chainEls = renderChainAlongPolyline({
+                    keyPrefix: `custom-${p.custom?.id}-chain-${segIdx}`,
+                    points: [{ x: sx, y: seg.y1 - yShift }, { x: sx, y: seg.y2 - yShift }],
+                    linkHeightIn: 1,
+                    strokeIn: isSelected ? 0.18 : 0.1,
+                    linkWidthIn: 0.55,
+                    startPhase: segIdx % 2,
+                    strokeColor: isSelected ? "#ff6666" : "#111",
+                  });
+                  segmentEls.push(...chainEls);
+                } else if (seg.type === "strand" || seg.type === "stack") {
+                  const col = colorHex(props.palette, seg.colorId ?? "");
+                  const centers = seg.centersY ?? [];
+                  const sphereEls = centers.map((cy, idx) => (
+                    <circle
+                      key={`custom-${p.custom?.id}-${segIdx}-sp-${idx}`}
+                      cx={sx}
+                      cy={cy - yShift}
+                      r={sphereR}
+                      fill={col}
+                      stroke={isSelected ? "#ff6666" : "#111"}
+                      strokeWidth={isSelected ? 0.18 : seg.type === "stack" ? 0.14 : 0.1}
+                    />
+                  ));
+                  segmentEls.push(...sphereEls);
+
+                  // clasp between spheres for strand segments only
+                  if (seg.type === "strand" && centers.length > 1) {
+                    for (let i = 0; i < centers.length - 1; i++) {
+                      const yTop = centers[i] - yShift;
+                      const yBot = centers[i + 1] - yShift;
+                      segmentEls.push(
+                        ...renderClaspBetweenPoints({
+                          key: `custom-${p.custom?.id}-clasp-${segIdx}-${i}`,
+                          xTop: sx,
+                          yTop,
+                          xBot: sx,
+                          yBot,
+                          strokeColor: isSelected ? "#ff6666" : "#111",
+                          strokeIn: 0.1875,
+                          chainHeightIn: 1.0,
+                          chainWidthIn: 0.55,
+                          eyeDiaIn: 0.75,
+                          gapIn: 2.5,
+                        }),
+                      );
+                    }
+                  }
+                }
+              });
+
+              const jsx = (
+                <g key={`custom-${p.custom?.id}`} opacity={op}>
+                  {segmentEls}
+                  {p.pv.overCeiling ? (
+                    <text x={sx + 1.0} y={specs.ceilingHeightIn - 1.0} fontSize={2.5} fill="#ff6666">
+                      !
+                    </text>
+                  ) : null}
+                </g>
+              );
+
+              drawables.push({ key: `custom-${p.custom?.id}`, depth: depthEff, jsx });
+            }
+
+            // 1d) clusters (fan-out strands from shared anchor)
+            for (const p of clusterPreviews) {
+              if (!p.anchor) continue;
+              const layer: DepthLayer = "mid";
+              const depthEff = projectPreview(specs, p.anchor, pvView.rotationDeg, pvView.rotationStrength).depthKey + layerDepthOffset(layer);
+              const perspective = specs.previewDepth?.perspectiveFactor ?? 0;
+              const yShift = computeYShift(specs, depthEff, perspective);
+              const isSelected = p.anchor.id === props.selectedAnchorId;
+              const sphereD = specs.materials?.sphereDiameterIn ?? SPHERE_DIAMETER_IN;
+              const sphereR = sphereD / 2;
+              const pitch = sphereD + SPHERE_GAP_IN;
+
+              const parts: JSX.Element[] = [];
+              const anchorProj = projectPreview(specs, p.anchor, pvView.rotationDeg, pvView.rotationStrength);
+              const ax = anchorProj.xIn;
+              const ay = 0 - yShift;
+
+              const strands = p.cluster.spec.strands ?? [];
+              const itemCount = Math.min(strands.length, p.items.length);
+              for (let idx = 0; idx < itemCount; idx++) {
+                const it = p.items[idx];
+                const st = strands[idx];
+                const offX = st.offsetXIn ?? 0;
+                const offY = st.offsetYIn ?? 0;
+                const pseudo: Anchor = { id: "cluster-item", xIn: p.anchor!.xIn + it.xIn + offX, yIn: p.anchor!.yIn + it.yIn + offY, type: "strand" };
+                const proj = projectPreview(specs, pseudo, pvView.rotationDeg, pvView.rotationStrength);
+                const x = proj.xIn;
+                const y0 = 0 - yShift;
+
+                // angled chain from shared anchor toward the strand direction
+                const dx = x - ax;
+                const dy = y0 - ay;
+                const dist = Math.hypot(dx, dy) || 1e-6;
+                const ux = dx / dist;
+                const uy = dy / dist;
+                const chainLen = Math.max(0, st.topChainLengthIn || 0);
+                const chainEndX = ax + ux * chainLen;
+                const chainEndY = ay + uy * chainLen;
+                const chainEls = renderChainAlongPolyline({
+                  keyPrefix: `cluster-${p.cluster.id}-${idx}-chain`,
+                  points: [{ x: ax, y: ay }, { x: chainEndX, y: chainEndY }],
+                  linkHeightIn: 1,
+                  strokeIn: isSelected ? 0.18 : 0.1,
+                  linkWidthIn: 0.55,
+                  startPhase: idx % 2,
+                  strokeColor: isSelected ? "#ff6666" : "#111",
+                });
+                parts.push(...chainEls);
+
+                const mainCount = Math.max(0, Math.floor(st.sphereCount || 0));
+                const bottomCount = Math.max(0, Math.floor(st.bottomSphereCount || 0));
+                const totalCount = mainCount + bottomCount;
+
+                for (let i = 0; i < totalCount; i++) {
+                  const cy = chainEndY + sphereR + i * pitch;
+                  const col = colorHex(props.palette, st.colorId ?? "");
+                  parts.push(
+                    <circle
+                      key={`cluster-${p.cluster.id}-${idx}-sp-${i}`}
+                      cx={chainEndX}
+                      cy={cy}
+                      r={sphereR}
+                      fill={col}
+                      stroke={isSelected ? "#ff6666" : "#111"}
+                      strokeWidth={isSelected ? 0.18 : 0.1}
+                    />,
+                  );
+                }
+              }
+
+              const jsx = (
+                <g key={`cluster-${p.cluster.id}`} opacity={0.9}>
+                  {parts}
+                </g>
+              );
+              drawables.push({ key: `cluster-${p.cluster.id}`, depth: depthEff, jsx });
+            }
+
+            // 1e) cluster builder preview (ghost)
+            if (props.previewClusterBuilder?.showPreview) {
+              const b = props.previewClusterBuilder;
+              const strands = b.strands ?? [];
+              if (strands.length > 0) {
+                const pseudoAnchor: Anchor = { id: "cluster-preview", xIn: specs.boundaryWidthIn / 2, yIn: specs.boundaryHeightIn / 2, type: "strand" };
+                const items = computeClusterLayout({ strands, itemRadiusIn: b.itemRadiusIn, spreadIn: b.spreadIn });
+                const anchorProj = projectPreview(specs, pseudoAnchor, pvView.rotationDeg, pvView.rotationStrength);
+                const depthEff = anchorProj.depthKey;
+                const yShift = computeYShift(specs, depthEff, specs.previewDepth?.perspectiveFactor ?? 0);
+
+                const parts: JSX.Element[] = [];
+                const ax = anchorProj.xIn;
+                const ay = 0 - yShift;
+
+                const sphereD = specs.materials?.sphereDiameterIn ?? SPHERE_DIAMETER_IN;
+                const sphereR = sphereD / 2;
+                const pitch = sphereD + SPHERE_GAP_IN;
+
+                const itemCount = Math.min(strands.length, items.length);
+                for (let idx = 0; idx < itemCount; idx++) {
+                  const it = items[idx];
+                  const st = strands[idx];
+                  const offX = st.offsetXIn ?? 0;
+                  const offY = st.offsetYIn ?? 0;
+                  const pseudo: Anchor = { id: "cluster-item-preview", xIn: pseudoAnchor.xIn + it.xIn + offX, yIn: pseudoAnchor.yIn + it.yIn + offY, type: "strand" };
+                  const proj = projectPreview(specs, pseudo, pvView.rotationDeg, pvView.rotationStrength);
+                  const x = proj.xIn;
+                  const y0 = 0 - yShift;
+
+                  const dx = x - ax;
+                  const dy = y0 - ay;
+                  const dist = Math.hypot(dx, dy) || 1e-6;
+                  const ux = dx / dist;
+                  const uy = dy / dist;
+                  const chainLen = Math.max(0, st.topChainLengthIn || 0);
+                  const chainEndX = ax + ux * chainLen;
+                  const chainEndY = ay + uy * chainLen;
+                  const chainEls = renderChainAlongPolyline({
+                    keyPrefix: `cluster-prev-${idx}-chain`,
+                    points: [{ x: ax, y: ay }, { x: chainEndX, y: chainEndY }],
+                    linkHeightIn: 1,
+                    strokeIn: 0.08,
+                    linkWidthIn: 0.45,
+                    startPhase: idx % 2,
+                    strokeColor: "#66a3ff",
+                  });
+                  parts.push(...chainEls);
+
+                  const mainCount = Math.max(0, Math.floor(st.sphereCount || 0));
+                  const bottomCount = Math.max(0, Math.floor(st.bottomSphereCount || 0));
+                  const totalCount = mainCount + bottomCount;
+
+                  for (let i = 0; i < totalCount; i++) {
+                    const cy = chainEndY + sphereR + i * pitch;
+                    parts.push(
+                      <circle
+                        key={`cluster-prev-${idx}-sp-${i}`}
+                        cx={chainEndX}
+                        cy={cy}
+                        r={sphereR}
+                        fill="none"
+                        stroke="#66a3ff"
+                        strokeWidth={0.1}
+                      />,
+                    );
+                  }
+                }
+
+                const jsx = (
+                  <g key="cluster-builder-preview" opacity={0.7}>
+                    {parts}
+                  </g>
+                );
+                drawables.push({ key: "cluster-builder-preview", depth: depthEff, jsx });
+              }
             }
 
             // 2) swoop segment + sphere drawables
@@ -816,4 +1019,3 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
     </PanelFrame>
   );
 }
-

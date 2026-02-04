@@ -6,6 +6,10 @@ import type {
   ProjectSpecs,
   SelectionState,
   StrandSpec,
+  CustomStrandBuilderState,
+  StackSpec,
+  ClusterSpec,
+  ClusterBuilderState,
   ViewTransform,
   MaterialsDefaults,
   PricingDefaults,
@@ -103,12 +107,61 @@ export function makeDefaultStrandSpec(palette: PaletteColor[]): StrandSpec {
   };
 }
 
+export function makeDefaultStackSpec(palette: PaletteColor[]): StackSpec {
+  return {
+    sphereCount: 8,
+    topChainLengthIn: 12,
+    bottomChainLengthIn: 8,
+    moundPreset: "none",
+    colorId: palette[0]?.id ?? "c1",
+    layer: "front",
+  };
+}
+
+export function makeDefaultClusterSpec(): ClusterSpec {
+  return {
+    strands: [],
+    itemRadiusIn: 2.25,
+    spreadIn: 10,
+  };
+}
+
+export function makeDefaultCustomBuilder(palette: PaletteColor[]): CustomStrandBuilderState {
+  const defaultColor = palette[0]?.id ?? "c1";
+  return {
+    nodes: [],
+    chainLengthIn: 8,
+    strandSphereCount: 6,
+    stackSphereCount: 6,
+    strandColorId: defaultColor,
+    stackColorId: defaultColor,
+    layer: "front",
+  };
+}
+
+export function makeDefaultClusterBuilder(palette: PaletteColor[]): ClusterBuilderState {
+  const defaultColor = palette[0]?.id ?? "c1";
+  return {
+    strands: [],
+    topChainLengthIn: 12,
+    sphereCount: 10,
+    bottomSphereCount: 0,
+    colorId: defaultColor,
+    itemRadiusIn: 2.25,
+    spreadIn: 10,
+    selectedIndex: null,
+    showPreview: false,
+  };
+}
+
 export function makeDefaultPlanTools(palette: PaletteColor[]): PlanToolsState {
   return {
     mode: "place_strand",
     draftStrand: makeDefaultStrandSpec(palette),
+    draftStack: makeDefaultStackSpec(palette),
+    clusterBuilder: makeDefaultClusterBuilder(palette),
     draftSwoop: { sphereCount: 6, chainAIn: 12, chainBIn: 12, sagIn: 4, colorId: palette[0]?.id ?? "c1" },
-    draftCustomStrand: undefined,
+    customBuilder: makeDefaultCustomBuilder(palette),
     pendingSwoopStartHoleId: null,
   };
 }

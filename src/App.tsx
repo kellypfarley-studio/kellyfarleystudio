@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import MenuBar from "./components/MenuBar";
 import exportSvgElementToPng from "./utils/export/exportPng";
 import { computePlanFitBounds } from "./panels/PlanViewPanel";
-import { computePreviewFitBounds } from "./panels/FrontPreviewPanel";
+import { computePreviewFitBounds } from "./utils/previewBounds";
 import importProjectJson from "./utils/export/importProjectJson";
 import NotesSection from "./components/NotesSection";
 import PlanViewToolsBar from "./components/PlanViewToolsBar";
@@ -13,7 +13,10 @@ import { calcResources, calcCosts } from "./utils/calcProjectTotals";
 import FrontPreviewPanel from "./panels/FrontPreviewPanel";
 import PlanViewPanel from "./panels/PlanViewPanel";
 import { useAppState } from "./state/useAppState";
+import type { MenuAction } from "./types/appTypes";
 // resize handles moved into panels to keep canvasStack children limited to panels
+
+const DEBUG_LAYOUT = false;
 
 export default function App() {
   const s = useAppState();
@@ -105,6 +108,7 @@ export default function App() {
   // Debug logger: automatically prints positioning and stacking info for
   // front canvas and below-stack cards to help diagnose overlap issues.
   useEffect(() => {
+    if (!DEBUG_LAYOUT) return;
     let t: number | undefined;
     const logProps = () => {
       try {
@@ -192,12 +196,14 @@ export default function App() {
       } else {
         below.style.marginTop = `12px`;
       }
-      console.log('DEBUG apply:', {
-        canvasRectY: canvasRect.y,
-        canvasRectH: canvasRect.height,
-        belowRectY: belowRect.y,
-        belowStyleMarginTop: below.style.marginTop,
-      });
+      if (DEBUG_LAYOUT) {
+        console.log('DEBUG apply:', {
+          canvasRectY: canvasRect.y,
+          canvasRectH: canvasRect.height,
+          belowRectY: belowRect.y,
+          belowStyleMarginTop: below.style.marginTop,
+        });
+      }
       // debug log
       // console.debug('apply below margin', { canvasRect, belowRect, desired });
     };
@@ -220,7 +226,7 @@ export default function App() {
     };
   }, []);
 
-  const handleMenuAction = async (action: string) => {
+  const handleMenuAction = async (action: MenuAction) => {
     if (action === "png") {
       try {
         // export plan
@@ -232,7 +238,7 @@ export default function App() {
         // export preview
         const previewEl = previewSvgRef.current;
         if (previewEl) {
-          const previewBounds = computePreviewFitBounds(s.projectSpecs, s.strands, s.anchors, s.swoops);
+          const previewBounds = computePreviewFitBounds(s.projectSpecs, s.strands, s.anchors, s.swoops, s.stacks, s.customStrands, s.clusters);
           await exportSvgElementToPng(previewEl, previewBounds, "preview.png");
         }
       } catch (e: any) {
@@ -241,7 +247,7 @@ export default function App() {
       }
       return;
     }
-    s.onMenuAction(action as any);
+    s.onMenuAction(action);
   };
 
   const selectedAnchorId = s.selection.selectedAnchorId ?? null;
@@ -252,6 +258,18 @@ export default function App() {
   const selectedStrand = useMemo(
     () => (selectedAnchorId ? s.strands.find((st) => st.anchorId === selectedAnchorId) ?? null : null),
     [selectedAnchorId, s.strands],
+  );
+  const selectedStack = useMemo(
+    () => (selectedAnchorId ? s.stacks.find((st) => st.anchorId === selectedAnchorId) ?? null : null),
+    [selectedAnchorId, s.stacks],
+  );
+  const selectedCluster = useMemo(
+    () => (selectedAnchorId ? s.clusters.find((cl) => cl.anchorId === selectedAnchorId) ?? null : null),
+    [selectedAnchorId, s.clusters],
+  );
+  const selectedCustomStrand = useMemo(
+    () => (selectedAnchorId ? s.customStrands.find((cs) => cs.anchorId === selectedAnchorId) ?? null : null),
+    [selectedAnchorId, s.customStrands],
   );
 
   return (
@@ -278,17 +296,42 @@ export default function App() {
         cursorText={s.formatCursor(s.planCursor)}
         selectedAnchor={selectedAnchor}
         selectedStrand={selectedStrand}
+        selectedStack={selectedStack}
+        selectedCluster={selectedCluster}
+        selectedCustomStrand={selectedCustomStrand}
         onPatchSelectedStrand={
           selectedAnchorId && selectedStrand
             ? (patch) => s.patchStrandAtAnchor(selectedAnchorId, patch)
             : undefined
         }
+        onPatchSelectedStack={
+          selectedAnchorId && selectedStack
+            ? (patch) => s.patchStackAtAnchor(selectedAnchorId, patch)
+            : undefined
+        }
+        onPatchSelectedCluster={
+          selectedAnchorId && selectedCluster
+            ? (patch) => s.patchClusterAtAnchor(selectedAnchorId, patch)
+            : undefined
+        }
+        onPatchSelectedCustomStrand={
+          selectedAnchorId && selectedCustomStrand
+            ? (patch) => s.patchCustomStrandAtAnchor(selectedAnchorId, patch)
+            : undefined
+        }
         onMode={s.setMode}
         onDraftPatch={s.setDraftStrand}
+        onDraftStackPatch={s.setDraftStack}
+        clusterBuilder={s.planTools.clusterBuilder}
+        onClusterBuilderPatch={s.setClusterBuilderPatch}
+        onAppendClusterStrand={s.appendClusterStrand}
+        onUpdateClusterStrand={s.updateClusterStrand}
+        onRemoveClusterStrand={s.removeClusterStrand}
+        customBuilder={s.planTools.customBuilder}
+        onCustomBuilderPatch={s.setCustomBuilderPatch}
+        onAppendCustomNode={s.appendCustomNode}
+        onRemoveLastCustomNode={s.removeLastCustomNode}
         onDraftSwoopPatch={s.setDraftSwoop}
-        onPalette={s.setPaletteColor}
-        onToggleLabels={() => s.setShowLabels((v) => !v)}
-        showLabels={s.showLabels}
       />
 
       <div className="canvasStack" style={{ minHeight: 0 }} ref={canvasStackRef}>
@@ -299,6 +342,7 @@ export default function App() {
           svgRef={planSvgRef}
           mode={s.planTools.mode}
           anchors={s.anchors}
+          clusters={s.clusters}
           selectedAnchorId={s.selection.selectedAnchorId}
           swoops={s.swoops}
           onSwoopAnchorClick={s.onSwoopAnchorClick}
@@ -306,6 +350,9 @@ export default function App() {
           pendingSwoopStartHoleId={s.planTools.pendingSwoopStartHoleId}
           planCursor={s.planCursor}
           onPlaceStrand={s.placeStrandAt}
+          onPlaceStack={s.placeStackAt}
+          onPlaceCluster={s.placeClusterAt}
+          onPlaceCustomStrand={s.placeCustomStrandAt}
           onEnsureStrandHoleAt={s.ensureStrandHoleAt}
           onPlaceCanopyFastener={s.placeCanopyFastenerAt}
           onSelectAnchor={s.selectAnchor}
@@ -328,7 +375,11 @@ export default function App() {
           svgRef={previewSvgRef}
           anchors={s.anchors}
           strands={s.strands}
+          stacks={s.stacks}
+          clusters={s.clusters}
+          customStrands={s.customStrands}
           swoops={s.swoops}
+          previewClusterBuilder={s.planTools.clusterBuilder}
           palette={s.palette}
           selectedAnchorId={s.selection.selectedAnchorId}
           panEnabled={frontPan}
@@ -348,10 +399,10 @@ export default function App() {
           // compute totals from the app state (pure functions)
         }
         <ResourceBand
-          resources={calcResources({ strands: s.strands, anchors: s.anchors, swoops: s.swoops, projectSpecs: s.projectSpecs })}
+          resources={calcResources({ strands: s.strands, stacks: s.stacks, customStrands: s.customStrands, clusters: s.clusters, anchors: s.anchors, swoops: s.swoops, projectSpecs: s.projectSpecs })}
           costs={calcCosts(
-            { strands: s.strands, anchors: s.anchors, projectSpecs: s.projectSpecs },
-            calcResources({ strands: s.strands, anchors: s.anchors, swoops: s.swoops, projectSpecs: s.projectSpecs }),
+            { strands: s.strands, stacks: s.stacks, customStrands: s.customStrands, clusters: s.clusters, anchors: s.anchors, projectSpecs: s.projectSpecs },
+            calcResources({ strands: s.strands, stacks: s.stacks, customStrands: s.customStrands, clusters: s.clusters, anchors: s.anchors, swoops: s.swoops, projectSpecs: s.projectSpecs }),
           )}
           pricing={s.projectSpecs.pricing}
           quote={s.projectSpecs.quote}
