@@ -267,21 +267,207 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
   const pileSpherePxR = Math.max(3, Math.min(20, (props.sphereDiameterIn / 2) * pileScale));
   const pileZMax = Math.max(12, props.sphereDiameterIn * 12);
 
-  const settleZFor = (index: number, xIn: number, yIn: number) => {
-    const D = Math.max(0.0001, props.sphereDiameterIn);
-    let z = 0;
-    for (let j = 0; j < pileSpheres.length; j++) {
-      if (j === index) continue;
-      const o = pileSpheres[j];
-      const dx = xIn - (o.offsetXIn ?? 0);
-      const dy = yIn - (o.offsetYIn ?? 0);
-      const d = Math.hypot(dx, dy);
-      if (d >= D) continue;
-      const lift = Math.sqrt(Math.max(0, D * D - d * d));
-      z = Math.max(z, Math.max(0, o.zIn ?? 0) + lift);
-    }
-    return z;
+  const pendingPileSettleRef = useRef(false);
+  const pileLiveRef = useRef<{ spheres: PileSphereSpec[]; radiusIn: number; auto: boolean }>({
+    spheres: pileSpheres,
+    radiusIn: props.pileBuilder.radiusIn,
+    auto: props.pileBuilder.autoSettleZ,
+  });
+
+  useEffect(() => {
+    pileLiveRef.current = {
+      spheres: pileSpheres,
+      radiusIn: props.pileBuilder.radiusIn,
+      auto: props.pileBuilder.autoSettleZ,
+    };
+  }, [pileSpheres, props.pileBuilder.radiusIn, props.pileBuilder.autoSettleZ]);
+
+  const clampXYToRadius = (x: number, y: number, radiusIn: number) => {
+    const r = Math.max(0, radiusIn);
+    const d = Math.hypot(x, y);
+    if (d <= r || d <= 1e-9) return { x, y };
+    const k = r / d;
+    return { x: x * k, y: y * k };
   };
+
+  const settlePilePhysics = (
+    spheresIn: PileSphereSpec[],
+    args: {
+      radiusIn: number;
+      pinnedIndex?: number | null;
+      pinnedXY?: { x: number; y: number } | null;
+      pinnedZ?: number | null;
+      iterations?: number;
+      gravityIn?: number;
+    },
+  ): PileSphereSpec[] => {
+    const D = Math.max(0.0001, props.sphereDiameterIn);
+    const R = Math.max(0, args.radiusIn);
+    const iters = Math.max(0, Math.floor(args.iterations ?? 60));
+    const g = Math.max(0, args.gravityIn ?? D * 0.06);
+
+    const pinnedIndex = args.pinnedIndex ?? null;
+    const pinnedXY = args.pinnedXY ?? null;
+    const pinnedZ = args.pinnedZ;
+
+    const xs = spheresIn.map((s) => (Number.isFinite(s.offsetXIn) ? s.offsetXIn : 0));
+    const ys = spheresIn.map((s) => (Number.isFinite(s.offsetYIn) ? s.offsetYIn : 0));
+    const zs = spheresIn.map((s) => Math.max(0, Number.isFinite(s.zIn) ? (s.zIn as number) : 0));
+
+    const settleZFor = (index: number) => {
+      const x = xs[index] ?? 0;
+      const y = ys[index] ?? 0;
+      let z = 0;
+      for (let j = 0; j < spheresIn.length; j++) {
+        if (j === index) continue;
+        const dx = x - (xs[j] ?? 0);
+        const dy = y - (ys[j] ?? 0);
+        const d = Math.hypot(dx, dy);
+        if (d >= D) continue;
+        const lift = Math.sqrt(Math.max(0, D * D - d * d));
+        z = Math.max(z, Math.max(0, zs[j] ?? 0) + lift);
+      }
+      return z;
+    };
+
+    const enforcePinned = () => {
+      if (pinnedIndex == null) return;
+      if (pinnedXY) {
+        const cl = clampXYToRadius(pinnedXY.x, pinnedXY.y, R);
+        xs[pinnedIndex] = cl.x;
+        ys[pinnedIndex] = cl.y;
+      }
+      if (typeof pinnedZ === "number") {
+        zs[pinnedIndex] = Math.max(0, pinnedZ);
+      } else if (pinnedXY) {
+        // If z isn't pinned, automatically settle the pinned sphere on top of others.
+        zs[pinnedIndex] = settleZFor(pinnedIndex);
+      }
+    };
+
+    const clampAll = () => {
+      for (let i = 0; i < spheresIn.length; i++) {
+        zs[i] = Math.max(0, zs[i] ?? 0);
+        const cl = clampXYToRadius(xs[i] ?? 0, ys[i] ?? 0, R);
+        xs[i] = cl.x;
+        ys[i] = cl.y;
+      }
+    };
+
+    enforcePinned();
+    clampAll();
+
+    const eps = 1e-6;
+    for (let iter = 0; iter < iters; iter++) {
+      // Gravity pass (skip the pinned sphere; it uses settleZFor/pinnedZ instead).
+      for (let i = 0; i < spheresIn.length; i++) {
+        if (i === pinnedIndex && pinnedXY) continue;
+        zs[i] = Math.max(0, (zs[i] ?? 0) - g);
+      }
+
+      enforcePinned();
+
+      // Collision pass (3D) — resolve overlaps between spheres.
+      for (let i = 0; i < spheresIn.length; i++) {
+        for (let j = i + 1; j < spheresIn.length; j++) {
+          let dx = (xs[j] ?? 0) - (xs[i] ?? 0);
+          let dy = (ys[j] ?? 0) - (ys[i] ?? 0);
+          let dz = (zs[j] ?? 0) - (zs[i] ?? 0);
+          let dist = Math.hypot(dx, dy, dz);
+          if (!Number.isFinite(dist) || dist >= D) continue;
+
+          if (dist < eps) {
+            dx = (Math.random() - 0.5) || 0.1;
+            dy = (Math.random() - 0.5) || -0.1;
+            dz = (Math.random() - 0.5) || 0.2;
+            dist = Math.hypot(dx, dy, dz);
+          }
+
+          const overlap = D - dist;
+          const nx = dx / dist;
+          const ny = dy / dist;
+          const nz = dz / dist;
+
+          const iPinned = pinnedIndex === i && pinnedXY;
+          const jPinned = pinnedIndex === j && pinnedXY;
+
+          if (iPinned && !jPinned) {
+            xs[j] = (xs[j] ?? 0) + nx * overlap;
+            ys[j] = (ys[j] ?? 0) + ny * overlap;
+            zs[j] = (zs[j] ?? 0) + nz * overlap;
+          } else if (jPinned && !iPinned) {
+            xs[i] = (xs[i] ?? 0) - nx * overlap;
+            ys[i] = (ys[i] ?? 0) - ny * overlap;
+            zs[i] = (zs[i] ?? 0) - nz * overlap;
+          } else {
+            const half = overlap * 0.5;
+            xs[i] = (xs[i] ?? 0) - nx * half;
+            ys[i] = (ys[i] ?? 0) - ny * half;
+            zs[i] = (zs[i] ?? 0) - nz * half;
+            xs[j] = (xs[j] ?? 0) + nx * half;
+            ys[j] = (ys[j] ?? 0) + ny * half;
+            zs[j] = (zs[j] ?? 0) + nz * half;
+          }
+        }
+      }
+
+      clampAll();
+      enforcePinned();
+    }
+
+    return spheresIn.map((s, i) => ({
+      ...s,
+      offsetXIn: xs[i] ?? 0,
+      offsetYIn: ys[i] ?? 0,
+      zIn: zs[i] ?? 0,
+    }));
+  };
+
+  const applyPileSpherePatch = (
+    index: number,
+    patch: Partial<PileSphereSpec>,
+    opts?: { pinZ?: boolean; iterations?: number },
+  ) => {
+    const live = pileLiveRef.current;
+    const base = live.spheres.map((s) => ({ ...s }));
+    if (!base[index]) return;
+
+    let next = base.map((s, i) => (i === index ? { ...s, ...patch } : s));
+
+    // Even with physics off, keep the edited sphere inside the pile footprint.
+    if ("offsetXIn" in patch || "offsetYIn" in patch) {
+      const sp = next[index];
+      const cl = clampXYToRadius(sp.offsetXIn ?? 0, sp.offsetYIn ?? 0, live.radiusIn);
+      next = next.map((s, i) => (i === index ? { ...s, offsetXIn: cl.x, offsetYIn: cl.y } : s));
+    }
+
+    const touchesPos = "offsetXIn" in patch || "offsetYIn" in patch || "zIn" in patch;
+    if (!live.auto || !touchesPos) {
+      props.onPileBuilderPatch({ spheres: next });
+      return;
+    }
+
+    const pinned = next[index];
+    const pinnedXY = { x: pinned.offsetXIn ?? 0, y: pinned.offsetYIn ?? 0 };
+    const pinnedZ = opts?.pinZ ? (pinned.zIn ?? 0) : null;
+    const settled = settlePilePhysics(next, {
+      radiusIn: live.radiusIn,
+      pinnedIndex: index,
+      pinnedXY,
+      pinnedZ,
+      iterations: Math.max(0, Math.floor(opts?.iterations ?? 40)),
+    });
+    props.onPileBuilderPatch({ spheres: settled });
+  };
+
+  useEffect(() => {
+    if (!pendingPileSettleRef.current) return;
+    pendingPileSettleRef.current = false;
+    if (!props.pileBuilder.autoSettleZ) return;
+    if (!pileSpheres.length) return;
+    const settled = settlePilePhysics(pileSpheres, { radiusIn: props.pileBuilder.radiusIn, iterations: 120 });
+    props.onPileBuilderPatch({ spheres: settled });
+  }, [pileSpheres, props.pileBuilder.autoSettleZ, props.pileBuilder.radiusIn, props.onPileBuilderPatch, props.sphereDiameterIn]);
 
   useEffect(() => {
     const onKeyDown = (ev: KeyboardEvent) => {
@@ -321,7 +507,14 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [props.clusterBuilder.selectedIndex, props.onRemoveClusterStrand, props.onMode]);
+  }, [
+    tools.mode,
+    props.clusterBuilder.selectedIndex,
+    props.pileBuilder.selectedIndex,
+    props.onRemoveClusterStrand,
+    props.onRemovePileSphere,
+    props.onMode,
+  ]);
 
   return (
     <div className="card toolsBar pvTools" style={{ paddingBottom: 0 }}>
@@ -809,7 +1002,15 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
           <span className="smallLabel">Radius</span>
           <input
             value={props.pileBuilder.radiusIn}
-            onChange={(e) => props.onPileBuilderPatch({ radiusIn: Math.max(0, num(e.target.value)) })}
+            onChange={(e) => {
+              const r = Math.max(0, num(e.target.value));
+              const clamped = pileSpheres.map((s) => {
+                const cl = clampXYToRadius(s.offsetXIn ?? 0, s.offsetYIn ?? 0, r);
+                return { ...s, offsetXIn: cl.x, offsetYIn: cl.y };
+              });
+              pendingPileSettleRef.current = true;
+              props.onPileBuilderPatch({ radiusIn: r, spheres: clamped });
+            }}
             style={{ width: 62, borderColor: pileRadiusInvalid ? "#ff6666" : undefined }}
           />
           <span className="smallLabel">"</span>
@@ -820,9 +1021,12 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
             <input
               type="checkbox"
               checked={props.pileBuilder.autoSettleZ}
-              onChange={(e) => props.onPileBuilderPatch({ autoSettleZ: e.target.checked })}
+              onChange={(e) => {
+                pendingPileSettleRef.current = true;
+                props.onPileBuilderPatch({ autoSettleZ: e.target.checked });
+              }}
             />
-            <span className="smallLabel">Auto Z</span>
+            <span className="smallLabel">Physics</span>
           </label>
         </div>
 
@@ -832,8 +1036,12 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
             value={pileSelectedSphere?.colorId ?? props.pileBuilder.colorId}
             onChange={(e) => {
               const id = e.target.value;
-              props.onPileBuilderPatch({ colorId: id });
-              if (pileSelectedIndex != null) props.onUpdatePileSphere(pileSelectedIndex, { colorId: id });
+              if (pileSelectedIndex == null) {
+                props.onPileBuilderPatch({ colorId: id });
+                return;
+              }
+              const next = pileSpheres.map((s, i) => (i === pileSelectedIndex ? { ...s, colorId: id } : s));
+              props.onPileBuilderPatch({ colorId: id, spheres: next });
             }}
           >
             {props.palette.map((c) => (
@@ -845,13 +1053,28 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
         </div>
 
         <div className="field">
-          <button className="btn" onClick={props.onGeneratePileSpheres} disabled={pileCountInvalid || pileRadiusInvalid}>
+          <button
+            className="btn"
+            onClick={() => {
+              pendingPileSettleRef.current = true;
+              props.onGeneratePileSpheres();
+              props.onPileBuilderPatch({ showPreview: true });
+            }}
+            disabled={pileCountInvalid || pileRadiusInvalid}
+          >
             Generate
           </button>
         </div>
 
         <div className="field">
-          <button className="btn" onClick={props.onAppendPileSphere}>
+          <button
+            className="btn"
+            onClick={() => {
+              pendingPileSettleRef.current = true;
+              props.onAppendPileSphere();
+              props.onPileBuilderPatch({ showPreview: true });
+            }}
+          >
             Add Sphere
           </button>
         </div>
@@ -861,6 +1084,7 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
             className="btn"
             onClick={() => {
               if (pileSelectedIndex == null) return;
+              pendingPileSettleRef.current = true;
               props.onRemovePileSphere(pileSelectedIndex);
             }}
             disabled={pileSelectedIndex == null}
@@ -891,7 +1115,7 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
                     fill={colorHex(sp.colorId)}
                     stroke={sel ? "#ff6666" : "#111"}
                     strokeWidth={sel ? 2 : 1}
-                    opacity={0.95}
+                    opacity={1}
                     onPointerDown={(ev) => {
                       ev.stopPropagation();
                       props.onPileBuilderPatch({ selectedIndex: idx, showPreview: true });
@@ -920,13 +1144,22 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
                         const dy = (my - d.startY) / pileScale;
                         const nextX = d.baseX + dx;
                         const nextY = d.baseY + dy;
-                        const patch: Partial<PileSphereSpec> = { offsetXIn: nextX, offsetYIn: nextY };
-                        if (props.pileBuilder.autoSettleZ) patch.zIn = settleZFor(d.index, nextX, nextY);
-                        props.onUpdatePileSphere(d.index, patch);
+                        applyPileSpherePatch(d.index, { offsetXIn: nextX, offsetYIn: nextY }, { iterations: 12 });
                       };
 
-                      const onUp = () => {
-                        if (pileDragRef.current) pileDragRef.current.active = false;
+                      const onUp = (uev: PointerEvent) => {
+                        const d = pileDragRef.current;
+                        if (d && d.active) {
+                          const rr = svgEl.getBoundingClientRect();
+                          const mx = uev.clientX - rr.left - rr.width / 2;
+                          const my = uev.clientY - rr.top - rr.height / 2;
+                          const dx = (mx - d.startX) / pileScale;
+                          const dy = (my - d.startY) / pileScale;
+                          const nextX = d.baseX + dx;
+                          const nextY = d.baseY + dy;
+                          applyPileSpherePatch(d.index, { offsetXIn: nextX, offsetYIn: nextY }, { iterations: 160 });
+                          d.active = false;
+                        }
                         window.removeEventListener("pointermove", onMove);
                         window.removeEventListener("pointerup", onUp);
                       };
@@ -957,7 +1190,7 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
                 value={pileSelectedSphere?.offsetXIn ?? 0}
                 onChange={(e) => {
                   if (pileSelectedIndex == null) return;
-                  props.onUpdatePileSphere(pileSelectedIndex, { offsetXIn: num(e.target.value) });
+                  applyPileSpherePatch(pileSelectedIndex, { offsetXIn: num(e.target.value) }, { iterations: 80 });
                 }}
                 style={{ width: 62 }}
                 disabled={pileSelectedIndex == null}
@@ -971,7 +1204,7 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
                 value={pileSelectedSphere?.offsetYIn ?? 0}
                 onChange={(e) => {
                   if (pileSelectedIndex == null) return;
-                  props.onUpdatePileSphere(pileSelectedIndex, { offsetYIn: num(e.target.value) });
+                  applyPileSpherePatch(pileSelectedIndex, { offsetYIn: num(e.target.value) }, { iterations: 80 });
                 }}
                 style={{ width: 62 }}
                 disabled={pileSelectedIndex == null}
@@ -989,7 +1222,11 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
                 value={pileSelectedSphere?.zIn ?? 0}
                 onChange={(e) => {
                   if (pileSelectedIndex == null) return;
-                  props.onUpdatePileSphere(pileSelectedIndex, { zIn: Math.max(0, num(e.target.value)) });
+                  applyPileSpherePatch(
+                    pileSelectedIndex,
+                    { zIn: Math.max(0, num(e.target.value)) },
+                    { pinZ: true, iterations: 80 },
+                  );
                 }}
                 style={{ width: 140 }}
                 disabled={pileSelectedIndex == null}
@@ -1000,7 +1237,11 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
                 step={0.25}
                 onChange={(e) => {
                   if (pileSelectedIndex == null) return;
-                  props.onUpdatePileSphere(pileSelectedIndex, { zIn: Math.max(0, num(e.target.value)) });
+                  applyPileSpherePatch(
+                    pileSelectedIndex,
+                    { zIn: Math.max(0, num(e.target.value)) },
+                    { pinZ: true, iterations: 80 },
+                  );
                 }}
                 style={{ width: 62 }}
                 disabled={pileSelectedIndex == null}
@@ -1012,13 +1253,16 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
               <button
                 className="btn"
                 onClick={() => {
-                  if (pileSelectedIndex == null || !pileSelectedSphere) return;
-                  const z = settleZFor(pileSelectedIndex, pileSelectedSphere.offsetXIn ?? 0, pileSelectedSphere.offsetYIn ?? 0);
-                  props.onUpdatePileSphere(pileSelectedIndex, { zIn: z });
+                  if (!pileSpheres.length) return;
+                  const settled = settlePilePhysics(pileSpheres, {
+                    radiusIn: props.pileBuilder.radiusIn,
+                    iterations: 200,
+                  });
+                  props.onPileBuilderPatch({ spheres: settled });
                 }}
-                disabled={pileSelectedIndex == null}
+                disabled={!pileSpheres.length}
               >
-                Settle Selected
+                Settle Pile
               </button>
             </div>
           </div>

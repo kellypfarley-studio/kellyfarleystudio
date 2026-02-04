@@ -876,9 +876,8 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                         cy={cy}
                         r={sphereR}
                         fill={col}
-                        stroke="#0077cc"
-                        strokeWidth={0.08}
-                        opacity={0.6}
+                        stroke="#111"
+                        strokeWidth={0.1}
                       />
                     ),
                   });
