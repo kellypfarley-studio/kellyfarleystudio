@@ -484,7 +484,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
 
               // procedural chain rendering for top and bottom segments
               const topYStart = 0 - yShift;
-              const topYEnd = p.pv.sphereCentersY.length ? p.pv.sphereCentersY[0] - yShift : specs.ceilingHeightIn - yShift;
+              const topYEnd = p.pv.topChainY2 - yShift;
               const topChainEls = renderChainAlongPolyline({
                 keyPrefix: `strand-${p.strand?.id}-topchain`,
                 points: [{ x: sx, y: topYStart }, { x: sx, y: topYEnd }],
@@ -495,8 +495,8 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                 strokeColor: isSelected ? "#ff6666" : "#111",
               });
 
-              const bottomYStart = p.pv.sphereCentersY.length ? p.pv.sphereCentersY[p.pv.sphereCentersY.length - 1] + sphereR - yShift : 0 - yShift;
-              const bottomYEnd = specs.ceilingHeightIn - yShift;
+              const bottomYStart = p.pv.bottomChainY1 - yShift;
+              const bottomYEnd = p.pv.bottomChainY2 - yShift;
               const bottomChainEls = renderChainAlongPolyline({
                 keyPrefix: `strand-${p.strand?.id}-botchain`,
                 points: [{ x: sx, y: bottomYStart }, { x: sx, y: bottomYEnd }],
@@ -554,7 +554,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
               ));
 
               const topYStart = 0 - yShift;
-              const topYEnd = p.pv.sphereCentersY.length ? p.pv.sphereCentersY[0] - yShift : specs.ceilingHeightIn - yShift;
+              const topYEnd = p.pv.topChainY2 - yShift;
               const topChainEls = renderChainAlongPolyline({
                 keyPrefix: `stack-${p.stack?.id}-topchain`,
                 points: [{ x: sx, y: topYStart }, { x: sx, y: topYEnd }],
@@ -565,8 +565,8 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                 strokeColor: isSelected ? "#ff6666" : "#111",
               });
 
-              const bottomYStart = p.pv.sphereCentersY.length ? p.pv.sphereCentersY[p.pv.sphereCentersY.length - 1] + sphereR - yShift : 0 - yShift;
-              const bottomYEnd = specs.ceilingHeightIn - yShift;
+              const bottomYStart = p.pv.bottomChainY1 - yShift;
+              const bottomYEnd = p.pv.bottomChainY2 - yShift;
               const bottomChainEls = renderChainAlongPolyline({
                 keyPrefix: `stack-${p.stack?.id}-botchain`,
                 points: [{ x: sx, y: bottomYStart }, { x: sx, y: bottomYEnd }],
