@@ -290,21 +290,21 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
     return { x: x * k, y: y * k };
   };
 
-  const settlePilePhysics = (
-    spheresIn: PileSphereSpec[],
-    args: {
-      radiusIn: number;
-      pinnedIndex?: number | null;
-      pinnedXY?: { x: number; y: number } | null;
-      pinnedZ?: number | null;
-      iterations?: number;
-      gravityIn?: number;
-    },
-  ): PileSphereSpec[] => {
-    const D = Math.max(0.0001, props.sphereDiameterIn);
-    const R = Math.max(0, args.radiusIn);
-    const iters = Math.max(0, Math.floor(args.iterations ?? 60));
-    const g = Math.max(0, args.gravityIn ?? D * 0.06);
+	  const settlePilePhysics = (
+	    spheresIn: PileSphereSpec[],
+	    args: {
+	      radiusIn: number;
+	      pinnedIndex?: number | null;
+	      pinnedXY?: { x: number; y: number } | null;
+	      pinnedZ?: number | null;
+	      iterations?: number;
+	      gravityIn?: number;
+	    },
+	  ): PileSphereSpec[] => {
+	    const D = Math.max(0.0001, props.sphereDiameterIn);
+	    const R = Math.max(0, args.radiusIn);
+	    const iters = Math.max(0, Math.floor(args.iterations ?? 60));
+	    const g = Math.max(0, args.gravityIn ?? D * 0.06);
 
     const pinnedIndex = args.pinnedIndex ?? null;
     const pinnedXY = args.pinnedXY ?? null;
@@ -345,23 +345,67 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
       }
     };
 
-    const clampAll = () => {
-      for (let i = 0; i < spheresIn.length; i++) {
-        zs[i] = Math.max(0, zs[i] ?? 0);
-        const cl = clampXYToRadius(xs[i] ?? 0, ys[i] ?? 0, R);
-        xs[i] = cl.x;
-        ys[i] = cl.y;
-      }
-    };
+	    const clampAll = () => {
+	      for (let i = 0; i < spheresIn.length; i++) {
+	        zs[i] = Math.max(0, zs[i] ?? 0);
+	        const cl = clampXYToRadius(xs[i] ?? 0, ys[i] ?? 0, R);
+	        xs[i] = cl.x;
+	        ys[i] = cl.y;
+	      }
+	    };
 
-    enforcePinned();
-    clampAll();
+	    const enforceStacking = () => {
+	      const eps = 1e-9;
+	      for (let i = 0; i < spheresIn.length; i++) {
+	        for (let j = i + 1; j < spheresIn.length; j++) {
+	          const dx = (xs[j] ?? 0) - (xs[i] ?? 0);
+	          const dy = (ys[j] ?? 0) - (ys[i] ?? 0);
+	          const dxy = Math.hypot(dx, dy);
+	          if (!Number.isFinite(dxy) || dxy >= D) continue;
 
-    const eps = 1e-6;
-    for (let iter = 0; iter < iters; iter++) {
-      // Gravity pass (skip the pinned sphere; it uses settleZFor/pinnedZ instead).
-      for (let i = 0; i < spheresIn.length; i++) {
-        if (i === pinnedIndex && pinnedXY) continue;
+	          const need = Math.sqrt(Math.max(0, D * D - dxy * dxy));
+	          if (need <= eps) continue;
+
+	          const zi = zs[i] ?? 0;
+	          const zj = zs[j] ?? 0;
+	          if (Math.abs(zj - zi) >= need) continue;
+
+	          const iZFixed = pinnedIndex === i && typeof pinnedZ === "number";
+	          const jZFixed = pinnedIndex === j && typeof pinnedZ === "number";
+	          if (iZFixed && jZFixed) continue;
+
+	          if (iZFixed && !jZFixed) {
+	            zs[j] = Math.max(zj, zi + need);
+	            continue;
+	          }
+	          if (jZFixed && !iZFixed) {
+	            zs[i] = Math.max(zi, zj + need);
+	            continue;
+	          }
+
+	          // Neither z is fixed: keep the lower one low and lift the higher one.
+	          let low = i;
+	          let high = j;
+	          if (zi > zj) {
+	            low = j;
+	            high = i;
+	          } else if (zi === zj) {
+	            low = i; // tie-breaker for deterministic stacking
+	            high = j;
+	          }
+	          zs[high] = Math.max(zs[high] ?? 0, (zs[low] ?? 0) + need);
+	        }
+	      }
+	    };
+
+	    enforcePinned();
+	    clampAll();
+
+	    const eps = 1e-6;
+	    for (let iter = 0; iter < iters; iter++) {
+	      // Gravity pass (skip the pinned sphere; it uses settleZFor/pinnedZ instead).
+	      for (let i = 0; i < spheresIn.length; i++) {
+	        if (i === pinnedIndex && pinnedXY) continue;
         zs[i] = Math.max(0, (zs[i] ?? 0) - g);
       }
 
@@ -411,9 +455,15 @@ export default function PlanViewToolsBar(props: PlanViewToolsBarProps) {
         }
       }
 
-      clampAll();
-      enforcePinned();
-    }
+	      clampAll();
+	      enforcePinned();
+
+	      // If we couldn't fully resolve overlaps in XY (e.g. dense pack in a small radius),
+	      // lift spheres into Z so they stack instead of intersecting on the floor.
+	      enforceStacking();
+	      clampAll();
+	      enforcePinned();
+	    }
 
     return spheresIn.map((s, i) => ({
       ...s,
