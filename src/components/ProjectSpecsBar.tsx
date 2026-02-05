@@ -14,6 +14,35 @@ function num(v: string): number {
   return Number.isFinite(n) ? n : 0;
 }
 
+function parseIsoDate(value: string): Date | null {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!m) return null;
+  const y = Number(m[1]);
+  const mo = Number(m[2]) - 1;
+  const d = Number(m[3]);
+  const dt = new Date(y, mo, d);
+  if (Number.isNaN(dt.getTime())) return null;
+  return dt;
+}
+
+function formatIsoDate(dt: Date): string {
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, "0");
+  const d = String(dt.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function addMonthsClamped(base: Date, months: number): Date {
+  const y = base.getFullYear();
+  const m = base.getMonth();
+  const d = base.getDate();
+  const targetM = m + months;
+  const firstOfTarget = new Date(y, targetM, 1);
+  const lastDay = new Date(firstOfTarget.getFullYear(), firstOfTarget.getMonth() + 1, 0).getDate();
+  const clampedDay = Math.min(d, lastDay);
+  return new Date(firstOfTarget.getFullYear(), firstOfTarget.getMonth(), clampedDay);
+}
+
 export default function ProjectSpecsBar({ specs, onChange, dueDate, onDueDateChange }: ProjectSpecsBarProps) {
   // Let users type freely (including decimals, intermediate states, and empty string)
   // without pushing invalid values into global state (which can freeze grid rendering).
@@ -36,6 +65,20 @@ export default function ProjectSpecsBar({ specs, onChange, dueDate, onDueDateCha
 
   const viewerUrl = (specs.clientViewerUrl ?? "").trim();
   const [qrDataUrl, setQrDataUrl] = useState<string>("");
+  const acceptedDate = (specs.dateAccepted ?? "").trim();
+  const leadMonths = Math.min(12, Math.max(1, Math.floor(specs.leadTimeMonths ?? 3)));
+  const acceptedParsed = acceptedDate ? parseIsoDate(acceptedDate) : null;
+  const computedDue = acceptedParsed ? addMonthsClamped(acceptedParsed, leadMonths) : null;
+  const computedDueIso = computedDue ? formatIsoDate(computedDue) : "";
+
+  useEffect(() => {
+    if (!acceptedDate || !computedDueIso) return;
+    const currentDue = (specs.dueDate ?? "").trim();
+    if (currentDue !== computedDueIso) {
+      if (onDueDateChange) onDueDateChange(computedDueIso);
+      else onChange({ dueDate: computedDueIso });
+    }
+  }, [acceptedDate, computedDueIso, onChange, onDueDateChange, specs.dueDate]);
 
   useEffect(() => {
     let active = true;
@@ -173,16 +216,55 @@ export default function ProjectSpecsBar({ specs, onChange, dueDate, onDueDateCha
         </div>
 
         <div className="field">
-          <span className="smallLabel">Due Date</span>
+          <span className="smallLabel">Date Accepted</span>
           <input
             type="date"
-            value={dueDate ?? specs.dueDate ?? ""}
-            onChange={(e) => {
-              if (onDueDateChange) onDueDateChange(e.target.value);
-              else onChange({ dueDate: e.target.value });
-            }}
+            value={acceptedDate}
+            onChange={(e) => onChange({ dateAccepted: e.target.value })}
             style={{ width: 140 }}
           />
+        </div>
+
+        <div className="field">
+          <span className="smallLabel">Lead Time</span>
+          <select
+            value={leadMonths}
+            onChange={(e) => onChange({ leadTimeMonths: Math.max(1, Math.min(12, Math.floor(num(e.target.value)))) })}
+          >
+            {Array.from({ length: 12 }).map((_, idx) => {
+              const v = idx + 1;
+              return (
+                <option key={`lead-${v}`} value={v}>
+                  {v} month{v === 1 ? "" : "s"}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+
+        <div className="field">
+          <span className="smallLabel">Due Date</span>
+          <span className="smallLabel" style={{ minWidth: 110 }}>
+            {computedDueIso || (dueDate ?? specs.dueDate ?? "") || "—"}
+          </span>
+        </div>
+
+        <div className="field">
+          <span className="smallLabel">Days Left</span>
+          <span className="smallLabel" style={{ minWidth: 90 }}>
+            {(() => {
+              const dueStr = computedDueIso || (dueDate ?? specs.dueDate ?? "");
+              const dueDt = dueStr ? parseIsoDate(dueStr) : null;
+              if (!dueDt) return "—";
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const dd = new Date(dueDt);
+              dd.setHours(0, 0, 0, 0);
+              const diff = Math.round((dd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+              if (diff < 0) return `Overdue ${Math.abs(diff)}d`;
+              return `${diff}d`;
+            })()}
+          </span>
         </div>
       </div>
 

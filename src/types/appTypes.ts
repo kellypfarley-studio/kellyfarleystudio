@@ -26,6 +26,8 @@ export type ProjectSpecs = {
   boundaryHeightIn: number;
   boundaryShape?: BoundaryShape;
   ceilingFixtureType?: CeilingFixtureType;
+  dateAccepted?: string; // ISO date string (YYYY-MM-DD)
+  leadTimeMonths?: number; // 1-12
   snapToBoundary?: boolean;
   snapToGuides?: boolean;
   maskOutsideBoundary?: boolean;

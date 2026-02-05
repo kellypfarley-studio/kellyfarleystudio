@@ -38,6 +38,8 @@ export const DEFAULT_SPECS: ProjectSpecs = {
   boundaryHeightIn: 12,
   boundaryShape: "rect",
   ceilingFixtureType: "sheetrock",
+  dateAccepted: "",
+  leadTimeMonths: 3,
   snapToBoundary: true,
   snapToGuides: true,
   maskOutsideBoundary: false,
