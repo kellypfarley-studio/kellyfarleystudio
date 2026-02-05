@@ -16,6 +16,7 @@ export type DepthLayer = "front" | "mid" | "back";
 export type MoundPreset = "none" | "small" | "medium" | "large" | "6" | "12" | "18" | "24" | "36";
 
 export type BoundaryShape = "rect" | "circle" | "oval";
+export type CeilingFixtureType = "sheetrock" | "decorative_metal_plate" | "decorative_wood_slab";
 
 export type ProjectSpecs = {
   projectName: string;
@@ -24,6 +25,7 @@ export type ProjectSpecs = {
   boundaryWidthIn: number;
   boundaryHeightIn: number;
   boundaryShape?: BoundaryShape;
+  ceilingFixtureType?: CeilingFixtureType;
   snapToBoundary?: boolean;
   snapToGuides?: boolean;
   maskOutsideBoundary?: boolean;

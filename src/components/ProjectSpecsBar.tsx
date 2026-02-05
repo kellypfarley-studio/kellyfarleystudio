@@ -81,6 +81,18 @@ export default function ProjectSpecsBar({ specs, onChange, dueDate, onDueDateCha
         </div>
 
         <div className="field">
+          <span className="smallLabel">Ceiling Fixture</span>
+          <select
+            value={specs.ceilingFixtureType ?? "sheetrock"}
+            onChange={(e) => onChange({ ceilingFixtureType: e.target.value as any })}
+          >
+            <option value="sheetrock">Sheetrock</option>
+            <option value="decorative_metal_plate">Decorative Metal Plate</option>
+            <option value="decorative_wood_slab">Decorative Wood Slab</option>
+          </select>
+        </div>
+
+        <div className="field">
           <span className="smallLabel">Boundary x=</span>
           <input
             value={specs.boundaryWidthIn}
