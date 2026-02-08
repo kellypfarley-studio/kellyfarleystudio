@@ -1,6 +1,6 @@
 import { useMemo, useRef } from "react";
+import type { ReactElement, Ref } from "react";
 import type { Anchor, Cluster, ClusterBuilderState, CustomStrand, DepthLayer, PaletteColor, Pile, PileBuilderState, ProjectSpecs, Stack, Strand, ViewTransform, Swoop } from "../types/appTypes";
-import type { Ref } from "react";
 import PanelFrame from "../components/PanelFrame";
 import ViewControls from "../components/ViewControls";
 import { computeCustomStrandPreview, computeStackPreview, computeStrandPreview, SPHERE_PITCH_IN, SPHERE_RADIUS_IN, SPHERE_DIAMETER_IN, SPHERE_GAP_IN } from "../utils/previewGeometry";
@@ -18,6 +18,7 @@ export type FrontPreviewPanelProps = {
   view: ViewTransform;
   onViewChange: (next: ViewTransform) => void;
   svgRef?: Ref<SVGSVGElement>;
+  viewerMode?: boolean;
 
   anchors: Anchor[];
   strands: Strand[];
@@ -79,46 +80,6 @@ function samplePolylineAtLength(pts: Pt[], cum: number[], s: number): Pt {
   };
 }
 
-// Discrete rope relaxation solver — relaxes a polyline to approximate a hanging rope.
-function solveHangingRope(points: Pt[], segLen: number, iterations = 40, gravity = 0.15) {
-  const n = points.length;
-  if (n <= 2) return points.map(p => ({ ...p }));
-
-  const pts = points.map(p => ({ ...p }));
-  const p0 = { ...pts[0] };
-  const pN = { ...pts[n - 1] };
-
-  for (let it = 0; it < iterations; it++) {
-    // gravity on interior nodes (y increases downward in this app)
-    for (let i = 1; i < n - 1; i++) pts[i].y += gravity;
-
-    // enforce segment lengths a few passes per iteration
-    for (let pass = 0; pass < 2; pass++) {
-      for (let i = 0; i < n - 1; i++) {
-        const a = pts[i];
-        const b = pts[i + 1];
-        const dx = b.x - a.x;
-        const dy = b.y - a.y;
-        const d = Math.hypot(dx, dy) || 1e-6;
-        const diff = (d - segLen) / d;
-
-        const wA = i === 0 ? 0 : 0.5;
-        const wB = i + 1 === n - 1 ? 0 : 0.5;
-
-        a.x += dx * diff * wA;
-        a.y += dy * diff * wA;
-        b.x -= dx * diff * wB;
-        b.y -= dy * diff * wB;
-      }
-
-      // re-pin endpoints
-      pts[0].x = p0.x; pts[0].y = p0.y;
-      pts[n - 1].x = pN.x; pts[n - 1].y = pN.y;
-    }
-  }
-
-  return pts;
-}
 
 export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
   const { specs, view } = props;
@@ -139,6 +100,14 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
   };
 
   const panRef = useRef<{ active: boolean; start: { x: number; y: number }; initPan: { x: number; y: number } }>({ active: false, start: { x: 0, y: 0 }, initPan: { x: 0, y: 0 } });
+  const rotateRef = useRef<{ active: boolean; startX: number; startDeg: number }>({ active: false, startX: 0, startDeg: 0 });
+
+  const normalizeRotation = (deg: number) => {
+    let d = deg % 360;
+    if (d < 0) d += 360;
+    return d;
+  };
+  const currentRotation = () => props.previewView?.rotationDeg ?? props.specs.previewView?.rotationDeg ?? 0;
 
   const anchorById = useMemo(() => {
     const m = new Map<string, Anchor>();
@@ -277,7 +246,8 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
   const zoomMax = 4.0;
   const panRange = Math.max(1, bounds.h / 2);
 
-  const left = (
+  const showControls = !props.viewerMode;
+  const left = showControls ? (
     <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
       <ViewControls
         view={view}
@@ -312,15 +282,15 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
           style={{
             height: 120,
             width: 24,
-            writingMode: "bt-lr",
+            writingMode: "bt-lr" as any,
             WebkitAppearance: "slider-vertical",
           }}
         />
       </div>
     </div>
-  );
+  ) : undefined;
 
-  const centerControls = (
+  const centerControls = showControls ? (
     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
       <div className="field" style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <span className="smallLabel">Perspective</span>
@@ -378,14 +348,15 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
         </div>
       </div>
     </div>
-  );
+  ) : undefined;
 
   return (
     <PanelFrame
       title="Preview"
-      headerHint={<span className="muted">Read-only preview (generated from Plan View)</span>}
+      headerHint={showControls ? <span className="muted">Read-only preview (generated from Plan View)</span> : undefined}
       left={left}
       center={centerControls}
+      hideHeader={!showControls}
     >
       <div className="frontPreviewWrap">
         <svg
@@ -394,40 +365,74 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
           width="100%"
           viewBox={`${vbX} ${vbY} ${vbW} ${vbH}`}
           preserveAspectRatio="xMidYMid meet"
-          style={{ background: "#fff", touchAction: "none", cursor: props.panEnabled ? "grab" : undefined }}
+          style={{
+            background: props.viewerMode ? "var(--viewerCanvasBg, #f6efe4)" : "#fff",
+            touchAction: "none",
+            cursor: props.panEnabled ? "grab" : props.viewerMode ? "ew-resize" : undefined,
+          }}
           onPointerDown={(ev) => {
-            if (!props.panEnabled) return;
-            ev.preventDefault();
             const svg = svgRef.current;
             if (!svg) return;
-            const start = clientToSvgCoords(svg, ev.clientX, ev.clientY);
-            panRef.current.active = true;
-            panRef.current.start = start;
-            panRef.current.initPan = { x: props.view.panX || 0, y: props.view.panY || 0 };
+
+            if (props.panEnabled) {
+              ev.preventDefault();
+              const start = clientToSvgCoords(svg, ev.clientX, ev.clientY);
+              panRef.current.active = true;
+              panRef.current.start = start;
+              panRef.current.initPan = { x: props.view.panX || 0, y: props.view.panY || 0 };
+
+              const onMove = (mev: PointerEvent) => {
+                if (!panRef.current.active) return;
+                const cur = clientToSvgCoords(svg, mev.clientX, mev.clientY);
+                const dx = panRef.current.start.x - cur.x;
+                const dy = panRef.current.start.y - cur.y;
+                props.onViewChange({ zoom: props.view.zoom, panX: panRef.current.initPan.x + dx, panY: panRef.current.initPan.y + dy });
+              };
+
+              const onUp = () => {
+                panRef.current.active = false;
+                window.removeEventListener("pointermove", onMove);
+                window.removeEventListener("pointerup", onUp);
+                try {
+                  if (svg) svg.style.cursor = props.panEnabled ? "grab" : props.viewerMode ? "ew-resize" : "default";
+                } catch (_) {}
+              };
+
+              window.addEventListener("pointermove", onMove);
+              window.addEventListener("pointerup", onUp);
+              (ev.target as Element).setPointerCapture(ev.pointerId);
+              try {
+                svg.style.cursor = "grabbing";
+              } catch (_) {}
+              return;
+            }
+
+            if (!props.viewerMode || !props.onPreviewViewPatch) return;
+            ev.preventDefault();
+            const ROTATE_DEG_PER_PX = 0.35;
+            rotateRef.current.active = true;
+            rotateRef.current.startX = ev.clientX;
+            rotateRef.current.startDeg = currentRotation();
 
             const onMove = (mev: PointerEvent) => {
-              if (!panRef.current.active) return;
-              const cur = clientToSvgCoords(svg, mev.clientX, mev.clientY);
-              const dx = panRef.current.start.x - cur.x;
-              const dy = panRef.current.start.y - cur.y;
-              props.onViewChange({ zoom: props.view.zoom, panX: panRef.current.initPan.x + dx, panY: panRef.current.initPan.y + dy });
+              if (!rotateRef.current.active) return;
+              const dx = mev.clientX - rotateRef.current.startX;
+              const nextDeg = normalizeRotation(rotateRef.current.startDeg + dx * ROTATE_DEG_PER_PX);
+              props.onPreviewViewPatch?.({ rotationDeg: nextDeg });
             };
 
             const onUp = () => {
-              panRef.current.active = false;
-              window.removeEventListener('pointermove', onMove);
-              window.removeEventListener('pointerup', onUp);
+              rotateRef.current.active = false;
+              window.removeEventListener("pointermove", onMove);
+              window.removeEventListener("pointerup", onUp);
               try {
-                if (svg) svg.style.cursor = props.panEnabled ? "grab" : "default";
+                if (svg) svg.style.cursor = props.panEnabled ? "grab" : props.viewerMode ? "ew-resize" : "default";
               } catch (_) {}
             };
 
-            window.addEventListener('pointermove', onMove);
-            window.addEventListener('pointerup', onUp);
+            window.addEventListener("pointermove", onMove);
+            window.addEventListener("pointerup", onUp);
             (ev.target as Element).setPointerCapture(ev.pointerId);
-            try {
-              svg.style.cursor = "grabbing";
-            } catch (_) {}
           }}
         >
           {/* Ceiling and floor */}
@@ -436,7 +441,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
 
           {/* Combined drawables: strands + swoop segments + swoop spheres */}
           {(() => {
-            type Drawable = { key: string; depth: number; jsx: JSX.Element };
+            type Drawable = { key: string; depth: number; jsx: ReactElement };
             const drawables: Drawable[] = [];
 
             const pvView = props.previewView ?? specs.previewView ?? { rotationDeg: 0, rotationStrength: 1, detail: "simple" };
@@ -459,7 +464,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
               const op = layerOpacity(p.strand?.spec.layer ?? "mid");
               const sphereR = SPHERE_RADIUS_IN;
 
-              const claspEls: JSX.Element[] = [];
+              const claspEls: ReactElement[] = [];
               for (let i = 0; i < p.pv.sphereCentersY.length - 1; i++) {
                 const yTop = p.pv.sphereCentersY[i] - yShift;
                 const yBot = p.pv.sphereCentersY[i + 1] - yShift;
@@ -478,7 +483,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                 }));
               }
 
-              const sphereEls: JSX.Element[] = p.pv.sphereCentersY.map((cy, idx) => (
+              const sphereEls: ReactElement[] = p.pv.sphereCentersY.map((cy, idx) => (
                 <circle key={`strand-${p.strand?.id}-sp-${idx}`} cx={sx} cy={cy - yShift} r={sphereR} fill={col} stroke={isSelected ? "#ff6666" : "#111"} strokeWidth={isSelected ? 0.18 : 0.1} />
               ));
 
@@ -549,7 +554,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
               const op = layerOpacity(p.stack?.spec.layer ?? "mid");
               const sphereR = SPHERE_RADIUS_IN;
 
-              const sphereEls: JSX.Element[] = p.pv.sphereCentersY.map((cy, idx) => (
+              const sphereEls: ReactElement[] = p.pv.sphereCentersY.map((cy, idx) => (
                 <circle key={`stack-${p.stack?.id}-sp-${idx}`} cx={sx} cy={cy - yShift} r={sphereR} fill={col} stroke={isSelected ? "#ff6666" : "#111"} strokeWidth={isSelected ? 0.18 : 0.1} />
               ));
 
@@ -616,7 +621,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
               const op = layerOpacity(p.custom?.spec.layer ?? "mid");
               const sphereR = SPHERE_RADIUS_IN;
 
-              const segmentEls: JSX.Element[] = [];
+              const segmentEls: ReactElement[] = [];
 
               p.pv.segments.forEach((seg, segIdx) => {
                 if (seg.type === "chain") {
@@ -697,7 +702,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
               const sphereR = sphereD / 2;
               const pitch = sphereD + SPHERE_GAP_IN;
 
-              const parts: JSX.Element[] = [];
+              const parts: ReactElement[] = [];
               const anchorProj = projectPreview(specs, p.anchor, pvView.rotationDeg, pvView.rotationStrength);
               const ax = anchorProj.xIn;
               const ay = 0 - yShift;
@@ -712,7 +717,6 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                 const pseudo: Anchor = { id: "cluster-item", xIn: p.anchor!.xIn + it.xIn + offX, yIn: p.anchor!.yIn + it.yIn + offY, type: "strand" };
                 const proj = projectPreview(specs, pseudo, pvView.rotationDeg, pvView.rotationStrength);
                 const x = proj.xIn;
-                const y0 = 0 - yShift;
 
                 // angled chain from shared anchor toward the strand direction
                 const chainLen = Math.max(0, st.topChainLengthIn || 0);
@@ -896,7 +900,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                 const depthEff = anchorProj.depthKey;
                 const yShift = computeYShift(specs, depthEff, specs.previewDepth?.perspectiveFactor ?? 0);
 
-                const parts: JSX.Element[] = [];
+                const parts: ReactElement[] = [];
                 const ax = anchorProj.xIn;
                 const ay = 0 - yShift;
 
@@ -913,7 +917,6 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                   const pseudo: Anchor = { id: "cluster-item-preview", xIn: pseudoAnchor.xIn + it.xIn + offX, yIn: pseudoAnchor.yIn + it.yIn + offY, type: "strand" };
                   const proj = projectPreview(specs, pseudo, pvView.rotationDeg, pvView.rotationStrength);
                   const x = proj.xIn;
-                  const y0 = 0 - yShift;
 
                   const chainLen = Math.max(0, st.topChainLengthIn || 0);
                   const dx = x - ax;
@@ -1012,11 +1015,11 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
               const pitchReal = sphereD + gap;
               const yAcenter = Math.max(0, sp.swoop.spec.chainAIn || 0) + sphereR;
               const yBcenter = Math.max(0, sp.swoop.spec.chainBIn || 0) + sphereR;
-              const chainLen = Math.max(0, (sphereCount - 1) * pitchReal);
+              const slackIn = Math.max(0, sp.swoop.spec.sagIn || 0);
+              const chainLen = Math.max(0, (sphereCount - 1) * pitchReal + slackIn);
 
               // sample path points (world coords) into sampledPts
               let sampledPts: { x: number; y: number }[] = [];
-              let Lc = 0;
               const samples = Math.max(60, Math.min(240, sphereCount * 20));
 
               if (chainLen > 0) {
@@ -1028,7 +1031,6 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                     const lp = samplePolylineAtLength(localStraight as any, scum, s);
                     sampledPts.push({ x: xA, y: lp.y });
                   }
-                  Lc = scum[1];
                 } else {
                   const yAUp = -yAcenter;
                   const yBUp = -yBcenter;
@@ -1040,7 +1042,6 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                       const xWorld = xA + dir * pUp.x;
                       sampledPts.push({ x: xWorld, y: -pUp.y });
                     }
-                    Lc = cat.length;
                   } else {
                     const localStraight: { x: number; y: number }[] = [{ x: 0, y: yAcenter }, { x: span, y: yBcenter }];
                     const scum: number[] = [0, Math.hypot(span, yBcenter - yAcenter)];
@@ -1050,14 +1051,12 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
                       const xWorld = xA + dir * lp.x;
                       sampledPts.push({ x: xWorld, y: lp.y });
                     }
-                    Lc = scum[1];
                   }
                 }
               } else {
                 const midX = 0.5 * (xA + xB);
                 const midY = 0.5 * (yAcenter + yBcenter);
                 for (let i = 0; i <= samples; i++) sampledPts.push({ x: midX, y: midY });
-                Lc = 0;
               }
 
               // build cumulative length for sampledPts

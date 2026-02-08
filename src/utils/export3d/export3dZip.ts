@@ -10,7 +10,11 @@ import { downloadBlob } from '../export/download';
  * Build GLB ArrayBuffer from state by constructing the same scene as exportGlb,
  * then package layout JSON + GLB into a ZIP and trigger download (Safari-friendly).
  */
-export async function export3dZip(state: { projectSpecs: ProjectSpecs; anchors: Anchor[]; strands: Strand[]; stacks: Stack[]; customStrands: CustomStrand[] }, zipFilename?: string) {
+export async function export3dZip(
+  state: { projectSpecs: ProjectSpecs; anchors: Anchor[]; strands: Strand[]; stacks: Stack[]; customStrands: CustomStrand[] },
+  zipFilename?: string,
+  opts?: { returnBytes?: boolean },
+) {
   const { projectSpecs, anchors, strands, stacks, customStrands } = state;
 
   // Build layout JSON
@@ -104,8 +108,9 @@ export async function export3dZip(state: { projectSpecs: ProjectSpecs; anchors: 
   files[`${baseFolder}/model.glb`] = new Uint8Array(glbBuffer);
 
   const zipped = zipSync(files, { level: 6 });
+  if (opts?.returnBytes) return zipped as Uint8Array;
   const blob = new Blob([zipped as any], { type: 'application/zip' });
-  const name = zipFilename ?? `${baseFolder}.zip`;
+  const name = zipFilename ?? `${baseFolder}_3D.zip`;
   downloadBlob(name, blob);
 }
 

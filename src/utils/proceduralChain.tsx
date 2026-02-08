@@ -1,4 +1,4 @@
-import React from "react";
+import type { ReactElement } from "react";
 import { SPHERE_RADIUS_IN } from "./previewGeometry";
 
 export type Pt = { x: number; y: number };
@@ -38,7 +38,7 @@ export function renderChainAlongPolyline(args: {
   linkWidthIn?: number;
   startPhase?: number;
   strokeColor?: string;
-}): JSX.Element[] {
+}): ReactElement[] {
   const {
     keyPrefix,
     points,
@@ -57,7 +57,7 @@ export function renderChainAlongPolyline(args: {
   if (total <= 1e-6) return [];
 
   const step = linkHeightIn;
-  const out: JSX.Element[] = [];
+  const out: ReactElement[] = [];
   let idx = 0;
   for (let s = 0; s <= total + 1e-9; s += step) {
     const p = sampleAt(points, cum, Math.min(s, total));
@@ -110,7 +110,7 @@ export function renderChainMound(args: {
   linkWidthIn?: number;
   strokeIn?: number;
   strokeColor?: string;
-}): JSX.Element[] {
+}): ReactElement[] {
   const {
     keyPrefix,
     center,
@@ -121,7 +121,7 @@ export function renderChainMound(args: {
     strokeColor = "#111",
   } = args;
 
-  const out: JSX.Element[] = [];
+  const out: ReactElement[] = [];
   if (!count || count <= 0) return out;
 
   // Simple deterministic packing: place links in a spiral with discrete tiers
@@ -243,7 +243,7 @@ export function renderClaspBetweenPoints(args: {
   eyeDiaIn?: number; // 0.75
   gapIn?: number; // 2.5
   rotationOffsetDeg?: number; // optional extra rotation applied to the ellipse
-}): JSX.Element[] {
+}): ReactElement[] {
   const {
     key,
     x,
@@ -261,10 +261,10 @@ export function renderClaspBetweenPoints(args: {
   const eyeR = eyeDiaIn / 2;
 
   // Determine endpoint coordinates (support legacy x + yTop/yBot)
-  let xTopActual = args.xTop ?? args.x ?? 0;
-  let xBotActual = args.xBot ?? args.x ?? 0;
-  let yTopActual = args.yTop;
-  let yBotActual = args.yBot;
+  let xTopActual = args.xTop ?? x ?? 0;
+  let xBotActual = args.xBot ?? x ?? 0;
+  let yTopActual = yTop;
+  let yBotActual = yBot;
 
   // If y ordering swapped, keep endpoints as provided (we'll compute vector)
   const dx = xBotActual - xTopActual;
@@ -291,7 +291,7 @@ export function renderClaspBetweenPoints(args: {
     }
   }
 
-  const elems: JSX.Element[] = [];
+  const elems: ReactElement[] = [];
 
   // Top eye at top surface point
   elems.push(

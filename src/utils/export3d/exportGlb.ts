@@ -18,7 +18,7 @@ function createBoxPlane(widthM: number, depthM: number, thicknessM = 0.02, color
   return new THREE.Mesh(geom, mat);
 }
 
-function createCylinderBetweenPoints(start: THREE.Vector3, end: THREE.Vector3, radius: number, color = 0x888888) {
+function createCylinderBetweenPoints(start: any, end: any, radius: number, color = 0x888888) {
   const dir = new THREE.Vector3().subVectors(end, start);
   const len = dir.length();
   if (len <= 1e-6) return null;
@@ -151,7 +151,7 @@ export async function exportGlb(state: { projectSpecs: ProjectSpecs; anchors: An
   });
 }
 
-export function createGlbBufferFromScene(scene: THREE.Scene): Promise<ArrayBuffer> {
+export function createGlbBufferFromScene(scene: any): Promise<ArrayBuffer> {
   const exporter = new GLTFExporter();
   return new Promise<ArrayBuffer>((resolve, reject) => {
     // GLTFExporter types can be loose across three versions; cast to any to call parse with options.

@@ -1,0 +1,896 @@
+{
+  "schemaVersion": "1.0.0",
+  "savedAt": "2026-02-07T04:47:48.792Z",
+  "state": {
+    "projectSpecs": {
+      "projectName": "Canyon Point",
+      "clientViewerUrl": "",
+      "poNumber": "",
+      "ceilingHeightIn": 140,
+      "boundaryWidthIn": 72,
+      "boundaryHeightIn": 24,
+      "boundaryShape": "rect",
+      "ceilingFixtureType": "sheetrock",
+      "dateAccepted": "",
+      "leadTimeMonths": 3,
+      "snapToBoundary": true,
+      "snapToGuides": true,
+      "maskOutsideBoundary": false,
+      "gridSpacingIn": 4.5,
+      "strandHoleDiameterIn": 0.28,
+      "fastenerHoleDiameterIn": 0.5,
+      "dueDate": "2026-10-12",
+      "showPolarGuides": false,
+      "previewDepth": {
+        "depthSpreadIn": 3,
+        "layerSpreadIn": 1,
+        "jitterIn": 0.25,
+        "perspectiveFactor": -1
+      },
+      "previewView": {
+        "rotationDeg": 190,
+        "rotationStrength": 1
+      },
+      "materials": {
+        "sphereDiameterIn": 4.5,
+        "sphereWeightLb": 1.5,
+        "chainWeightLbPerFoot": 0.5,
+        "eyeScrewWeightLb": 0.005,
+        "claspWeightLb": 0.01,
+        "plateWeightLb": 0.02
+      },
+      "pricing": {
+        "sphereUnitCost": 180,
+        "claspUnitCost": 0.5,
+        "eyeScrewUnitCost": 0.25,
+        "fastenerUnitCost": 1.25,
+        "chainCostPerFoot": 8,
+        "decorativePlateCost": 2.5,
+        "laborCost": 15
+      },
+      "quote": {
+        "showroomMultiplier": 1.4,
+        "designerMultiplier": 1.2
+      }
+    },
+    "planTools": {
+      "mode": "place_strand",
+      "draftStrand": {
+        "sphereCount": 16,
+        "topChainLengthIn": 16,
+        "bottomChainLengthIn": 10,
+        "moundPreset": "none",
+        "colorId": "c4",
+        "layer": "front"
+      },
+      "draftStack": {
+        "sphereCount": 8,
+        "topChainLengthIn": 12,
+        "bottomChainLengthIn": 8,
+        "moundPreset": "none",
+        "colorId": "c0",
+        "layer": "front"
+      },
+      "pileBuilder": {
+        "spheres": [],
+        "sphereCount": 12,
+        "radiusIn": 6,
+        "colorId": "c0",
+        "selectedIndex": null,
+        "showPreview": false,
+        "autoSettleZ": true
+      },
+      "clusterBuilder": {
+        "strands": [],
+        "topChainLengthIn": 12,
+        "sphereCount": 10,
+        "bottomSphereCount": 0,
+        "colorId": "c0",
+        "itemRadiusIn": 2.25,
+        "spreadIn": 10,
+        "selectedIndex": null,
+        "showPreview": false
+      },
+      "draftSwoop": {
+        "sphereCount": 16,
+        "chainAIn": 12,
+        "chainBIn": 12,
+        "sagIn": 4,
+        "gapIn": 0.5,
+        "colorId": "c0"
+      },
+      "customBuilder": {
+        "nodes": [],
+        "chainLengthIn": 8,
+        "strandSphereCount": 6,
+        "stackSphereCount": 6,
+        "strandColorId": "c0",
+        "stackColorId": "c0",
+        "layer": "front"
+      },
+      "pendingSwoopStartHoleId": null,
+      "pendingCopyAnchorId": null
+    },
+    "palette": [
+      {
+        "id": "c0",
+        "name": "White",
+        "hex": "#ffffff"
+      },
+      {
+        "id": "c0a",
+        "name": "Ultra Light",
+        "hex": "#f5f5f5"
+      },
+      {
+        "id": "c6",
+        "name": "Very Light",
+        "hex": "#bbbbbb"
+      },
+      {
+        "id": "c5",
+        "name": "Light Gray",
+        "hex": "#999999"
+      },
+      {
+        "id": "c4",
+        "name": "Mid Gray",
+        "hex": "#777777"
+      },
+      {
+        "id": "c3",
+        "name": "Gray",
+        "hex": "#555555"
+      },
+      {
+        "id": "c2",
+        "name": "Dark Gray",
+        "hex": "#333333"
+      },
+      {
+        "id": "c1",
+        "name": "Black",
+        "hex": "#111111"
+      },
+      {
+        "id": "c7",
+        "name": "Warm Gray",
+        "hex": "#7a6f66"
+      },
+      {
+        "id": "c8",
+        "name": "Neutral Brown",
+        "hex": "#6f5e4a"
+      }
+    ],
+    "anchors": [
+      {
+        "id": "a_3b4eddc1b2cac8_19c0b0f81be",
+        "xIn": 36,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 9,
+        "gridRow": 2
+      },
+      {
+        "id": "a_f6c81ed50aae_19c0b0f9ded",
+        "xIn": 36,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 9,
+        "gridRow": 4
+      },
+      {
+        "id": "a_c396f2cc84d648_19c0b0fecf7",
+        "xIn": 36,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 9,
+        "gridRow": 3
+      },
+      {
+        "id": "a_7abd1d7fc41b9_19c0b100cfe",
+        "xIn": 40.5,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 10,
+        "gridRow": 2
+      },
+      {
+        "id": "a_8b08131a9ebb4_19c0b10533d",
+        "xIn": 31.5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 8,
+        "gridRow": 4
+      },
+      {
+        "id": "a_6cfa6390e0c05_19c0b105cef",
+        "xIn": 40.5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 10,
+        "gridRow": 4
+      },
+      {
+        "id": "a_5d193d58b0974_19c0b108fb6",
+        "xIn": 31.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 8,
+        "gridRow": 3
+      },
+      {
+        "id": "a_c06c4edca09888_19c0b1094ca",
+        "xIn": 40.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 10,
+        "gridRow": 3
+      },
+      {
+        "id": "a_543a63be799cf8_19c0b109c03",
+        "xIn": 31.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 8,
+        "gridRow": 5
+      },
+      {
+        "id": "a_5461db3643c558_19c0b10a1f0",
+        "xIn": 40.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 10,
+        "gridRow": 5
+      },
+      {
+        "id": "a_df7bfb3b8b819_19c0b110ecb",
+        "xIn": 27,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 7,
+        "gridRow": 2
+      },
+      {
+        "id": "a_b72eea55ef7b98_19c0b114b77",
+        "xIn": 27,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 7,
+        "gridRow": 3
+      },
+      {
+        "id": "a_d389b0bf9da77_19c0b115f24",
+        "xIn": 27,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 7,
+        "gridRow": 5
+      },
+      {
+        "id": "a_f632768f7e0f98_19c0b12d057",
+        "xIn": 49.5,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 12,
+        "gridRow": 2
+      },
+      {
+        "id": "a_972c482ab64df8_19c0b12d973",
+        "xIn": 49.5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 12,
+        "gridRow": 4
+      },
+      {
+        "id": "a_a4884fd3fd025_19c0b139c5c",
+        "xIn": 22.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 6,
+        "gridRow": 3
+      },
+      {
+        "id": "a_4b515f207d75b8_19c0b13a0ab",
+        "xIn": 22.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 6,
+        "gridRow": 5
+      },
+      {
+        "id": "a_2af82f7c57a33_19c0b13a8ff",
+        "xIn": 49.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 12,
+        "gridRow": 3
+      },
+      {
+        "id": "a_9810ae05128f4_19c0b13b017",
+        "xIn": 49.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 12,
+        "gridRow": 5
+      },
+      {
+        "id": "a_73c7f38fe9fe68_19c0b15cfb6",
+        "xIn": 18,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 5,
+        "gridRow": 4
+      },
+      {
+        "id": "a_222ccce091e308_19c0b15d83b",
+        "xIn": 54,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 13,
+        "gridRow": 2
+      },
+      {
+        "id": "a_5de453d111011_19c0b17032e",
+        "xIn": 13.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 4,
+        "gridRow": 3
+      },
+      {
+        "id": "a_02235abec194e_19c0b171099",
+        "xIn": 13.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 4,
+        "gridRow": 5
+      },
+      {
+        "id": "a_34aff2aca8c77_19c0b171bef",
+        "xIn": 58.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 14,
+        "gridRow": 3
+      },
+      {
+        "id": "a_a161b42017441_19c0b174cc2",
+        "xIn": 63,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 15,
+        "gridRow": 2
+      },
+      {
+        "id": "a_b7063ed94ae678_19c0b17594f",
+        "xIn": 63,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 15,
+        "gridRow": 4
+      },
+      {
+        "id": "a_bcec0c2ce2c07_19c0b176507",
+        "xIn": 9,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 3,
+        "gridRow": 4
+      },
+      {
+        "id": "a_17434e163fb248_19c0b17a770",
+        "xIn": 4.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 2,
+        "gridRow": 3
+      },
+      {
+        "id": "a_7b3fd96065211_19c0b17ade1",
+        "xIn": 4.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 2,
+        "gridRow": 5
+      },
+      {
+        "id": "a_7b3af4c502f5e_19c0b17b8e2",
+        "xIn": 67.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 16,
+        "gridRow": 3
+      },
+      {
+        "id": "a_bd83d2e9fa8fb8_19c0b17c119",
+        "xIn": 67.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 16,
+        "gridRow": 5
+      },
+      {
+        "id": "a_61d5ed6cb27ce_19c0b591627",
+        "xIn": 9,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 3,
+        "gridRow": 2
+      },
+      {
+        "id": "a_05c3f88697a35_19c16cb1a73",
+        "xIn": 54,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 13,
+        "gridRow": 4
+      }
+    ],
+    "strands": [
+      {
+        "id": "st_3b72363bd2be38_19c0b0f81be",
+        "anchorId": "a_3b4eddc1b2cac8_19c0b0f81be",
+        "spec": {
+          "sphereCount": 13,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_0c360187182e68_19c0b0f9ded",
+        "anchorId": "a_f6c81ed50aae_19c0b0f9ded",
+        "spec": {
+          "sphereCount": 17,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c4",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_d34b1f43227b28_19c0b0fecf7",
+        "anchorId": "a_c396f2cc84d648_19c0b0fecf7",
+        "spec": {
+          "sphereCount": 13,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c5",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_c481af75ffb538_19c0b100cfe",
+        "anchorId": "a_7abd1d7fc41b9_19c0b100cfe",
+        "spec": {
+          "sphereCount": 16,
+          "topChainLengthIn": 20,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_478a8f5e3ab428_19c0b10533d",
+        "anchorId": "a_8b08131a9ebb4_19c0b10533d",
+        "spec": {
+          "sphereCount": 16,
+          "topChainLengthIn": 20,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c4",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_1db860d7e2b17_19c0b105cef",
+        "anchorId": "a_6cfa6390e0c05_19c0b105cef",
+        "spec": {
+          "sphereCount": 13,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c4",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_a8c966d42119b8_19c0b108fb6",
+        "anchorId": "a_5d193d58b0974_19c0b108fb6",
+        "spec": {
+          "sphereCount": 17,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c5",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_c7bdf7bb81e548_19c0b1094ca",
+        "anchorId": "a_c06c4edca09888_19c0b1094ca",
+        "spec": {
+          "sphereCount": 17,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c5",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_3a5f5d5136edd8_19c0b109c04",
+        "anchorId": "a_543a63be799cf8_19c0b109c03",
+        "spec": {
+          "sphereCount": 17,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_2e4bfab5fe6bf8_19c0b10a1f0",
+        "anchorId": "a_5461db3643c558_19c0b10a1f0",
+        "spec": {
+          "sphereCount": 13,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_0e8d17d1ef4e2_19c0b110ecc",
+        "anchorId": "a_df7bfb3b8b819_19c0b110ecb",
+        "spec": {
+          "sphereCount": 17,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_ae66d7ad61ead8_19c0b114b77",
+        "anchorId": "a_b72eea55ef7b98_19c0b114b77",
+        "spec": {
+          "sphereCount": 13,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c5",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_16b921465354a_19c0b115f24",
+        "anchorId": "a_d389b0bf9da77_19c0b115f24",
+        "spec": {
+          "sphereCount": 16,
+          "topChainLengthIn": 20,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_568355a88c2a08_19c0b12d057",
+        "anchorId": "a_f632768f7e0f98_19c0b12d057",
+        "spec": {
+          "sphereCount": 16,
+          "topChainLengthIn": 20,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_543e63af06a8_19c0b12d973",
+        "anchorId": "a_972c482ab64df8_19c0b12d973",
+        "spec": {
+          "sphereCount": 16,
+          "topChainLengthIn": 20,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c4",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_2c127f24bbbd78_19c0b139c5d",
+        "anchorId": "a_a4884fd3fd025_19c0b139c5c",
+        "spec": {
+          "sphereCount": 17,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c5",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_4c32a901ada438_19c0b13a0ab",
+        "anchorId": "a_4b515f207d75b8_19c0b13a0ab",
+        "spec": {
+          "sphereCount": 17,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_eee5ae39ecb9f_19c0b13a8ff",
+        "anchorId": "a_2af82f7c57a33_19c0b13a8ff",
+        "spec": {
+          "sphereCount": 17,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c5",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_c75eb792ba327_19c0b13b017",
+        "anchorId": "a_9810ae05128f4_19c0b13b017",
+        "spec": {
+          "sphereCount": 17,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_a5611a5e3b0878_19c0b15cfb7",
+        "anchorId": "a_73c7f38fe9fe68_19c0b15cfb6",
+        "spec": {
+          "sphereCount": 13,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c3",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_d5bb21b426922_19c0b15d83b",
+        "anchorId": "a_222ccce091e308_19c0b15d83b",
+        "spec": {
+          "sphereCount": 16,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_1591731e83bd78_19c0b17032e",
+        "anchorId": "a_5de453d111011_19c0b17032e",
+        "spec": {
+          "sphereCount": 15,
+          "topChainLengthIn": 20,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c5",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_cc9ad2e1fbdf2_19c0b171099",
+        "anchorId": "a_02235abec194e_19c0b171099",
+        "spec": {
+          "sphereCount": 15,
+          "topChainLengthIn": 20,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_ff17a0f286fa2_19c0b171bef",
+        "anchorId": "a_34aff2aca8c77_19c0b171bef",
+        "spec": {
+          "sphereCount": 13,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c5",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_c5705f3cca36_19c0b174cc3",
+        "anchorId": "a_a161b42017441_19c0b174cc2",
+        "spec": {
+          "sphereCount": 13,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_6bc31484705ff_19c0b17594f",
+        "anchorId": "a_b7063ed94ae678_19c0b17594f",
+        "spec": {
+          "sphereCount": 13,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c4",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_cb5827a8653e08_19c0b176507",
+        "anchorId": "a_bcec0c2ce2c07_19c0b176507",
+        "spec": {
+          "sphereCount": 13,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c3",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_42b8cd64252428_19c0b17a770",
+        "anchorId": "a_17434e163fb248_19c0b17a770",
+        "spec": {
+          "sphereCount": 13,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c5",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_51fd0d3f69da38_19c0b17ade1",
+        "anchorId": "a_7b3fd96065211_19c0b17ade1",
+        "spec": {
+          "sphereCount": 13,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_338d1406673418_19c0b17b8e2",
+        "anchorId": "a_7b3af4c502f5e_19c0b17b8e2",
+        "spec": {
+          "sphereCount": 13,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c5",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_ff412c1b8cc888_19c0b17c11a",
+        "anchorId": "a_bd83d2e9fa8fb8_19c0b17c119",
+        "spec": {
+          "sphereCount": 13,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_4439b76b95405_19c0b591627",
+        "anchorId": "a_61d5ed6cb27ce_19c0b591627",
+        "spec": {
+          "sphereCount": 13,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_e03c3f51f1f1a8_19c16cb1a73",
+        "anchorId": "a_05c3f88697a35_19c16cb1a73",
+        "spec": {
+          "sphereCount": 16,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c4",
+          "layer": "front"
+        }
+      }
+    ],
+    "stacks": [],
+    "piles": [],
+    "clusters": [],
+    "swoops": [],
+    "customStrands": [],
+    "notes": {
+      "customerNotes": "",
+      "artistNotes": ""
+    },
+    "showLabels": true,
+    "planView": {
+      "zoom": 1,
+      "panX": 0,
+      "panY": 0
+    },
+    "frontView": {
+      "zoom": 0.8,
+      "panX": -0.8717246055603027,
+      "panY": 6.859678268432617
+    },
+    "views": {
+      "planView": {
+        "zoom": 1,
+        "panX": 0,
+        "panY": 0
+      },
+      "frontView": {
+        "zoom": 0.8,
+        "panX": -0.8717246055603027,
+        "panY": 6.859678268432617
+      }
+    }
+  }
+}

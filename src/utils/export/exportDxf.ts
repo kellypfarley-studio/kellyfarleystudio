@@ -43,7 +43,7 @@ function circleEntity(layer: string, x: number, y: number, radius: number): stri
   );
 }
 
-export function exportProjectDxf(input: ExportDxfInput) {
+export function buildProjectDxf(input: ExportDxfInput): { filenameBase: string; dxf: string } {
   const { projectName, projectSpecs, anchors } = input;
 
   let body = "";
@@ -64,8 +64,12 @@ export function exportProjectDxf(input: ExportDxfInput) {
   const bodyWithMeta = comment(`Project: ${name}`) + comment(`Exported: ${now}`) + body;
 
   const dxf = headerSection() + tablesLayerSection() + entitiesSection(bodyWithMeta) + footer();
+  return { filenameBase: name, dxf };
+}
 
-  const filename = `${name}_export.dxf`;
+export function exportProjectDxf(input: ExportDxfInput) {
+  const { filenameBase, dxf } = buildProjectDxf(input);
+  const filename = `${filenameBase}_export.dxf`;
   downloadText(filename, dxf, "application/dxf;charset=utf-8");
 }
 

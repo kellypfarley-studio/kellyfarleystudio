@@ -1,0 +1,68 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "enables the default permissions",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "shell:allow-open",
+    {
+      "identifier": "fs:allow-read-dir",
+      "allow": [
+        { "path": "$HOME/Suspended Builder Projects" },
+        { "path": "$HOME/Suspended Builder Projects/**" },
+        { "path": "$HOME/suspended-builder/suspended-builder-app/site" },
+        { "path": "$HOME/suspended-builder/suspended-builder-app/site/**" },
+        { "path": "$DOCUMENT" },
+        { "path": "$DOCUMENT/**" },
+        { "path": "$DOCUMENT/KPF ART" },
+        { "path": "$DOCUMENT/KPF ART/**" }
+      ]
+    },
+    {
+      "identifier": "fs:allow-read-text-file",
+      "allow": [
+        { "path": "$HOME/Suspended Builder Projects/**" }
+      ]
+    },
+    {
+      "identifier": "fs:allow-write-text-file",
+      "allow": [
+        { "path": "$HOME/Suspended Builder Projects" },
+        { "path": "$HOME/Suspended Builder Projects/**" },
+        { "path": "$HOME/suspended-builder/suspended-builder-app/site" },
+        { "path": "$HOME/suspended-builder/suspended-builder-app/site/**" },
+        { "path": "$DOCUMENT" },
+        { "path": "$DOCUMENT/**" },
+        { "path": "$DOCUMENT/KPF ART" },
+        { "path": "$DOCUMENT/KPF ART/**" }
+      ]
+    },
+    {
+      "identifier": "fs:allow-write-file",
+      "allow": [
+        { "path": "$DOCUMENT" },
+        { "path": "$DOCUMENT/**" },
+        { "path": "$HOME/suspended-builder/suspended-builder-app/site" },
+        { "path": "$HOME/suspended-builder/suspended-builder-app/site/**" },
+        { "path": "$DOCUMENT/KPF ART" },
+        { "path": "$DOCUMENT/KPF ART/**" }
+      ]
+    },
+    {
+      "identifier": "fs:allow-mkdir",
+      "allow": [
+        { "path": "$HOME/Suspended Builder Projects" },
+        { "path": "$HOME/Suspended Builder Projects/**" },
+        { "path": "$HOME/suspended-builder/suspended-builder-app/site" },
+        { "path": "$HOME/suspended-builder/suspended-builder-app/site/**" },
+        { "path": "$DOCUMENT" },
+        { "path": "$DOCUMENT/**" },
+        { "path": "$DOCUMENT/KPF ART" },
+        { "path": "$DOCUMENT/KPF ART/**" }
+      ]
+    }
+  ]
+}

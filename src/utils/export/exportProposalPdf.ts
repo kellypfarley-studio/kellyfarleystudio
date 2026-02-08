@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
+import { PDFDocument, StandardFonts, PDFString, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import QRCode from "qrcode";
 import type { CostsSummary, ProjectSpecs, ResourcesSummary } from "../../types/appTypes";
 import { downloadBlob } from "./download";
@@ -65,6 +65,22 @@ function drawImageContained(page: PDFPage, img: any, box: { x: number; y: number
   page.drawImage(img, { x, y, width: w, height: h });
 }
 
+function addUrlLink(pdf: PDFDocument, page: PDFPage, url: string, rect: { x: number; y: number; w: number; h: number }) {
+  const link = pdf.context.obj({
+    Type: "Annot",
+    Subtype: "Link",
+    Rect: [rect.x, rect.y, rect.x + rect.w, rect.y + rect.h],
+    Border: [0, 0, 0],
+    A: {
+      Type: "Action",
+      S: "URI",
+      URI: PDFString.of(url),
+    },
+  });
+  const linkRef = pdf.context.register(link);
+  page.node.addAnnot(linkRef);
+}
+
 const fmtMoney = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD" });
 const fmtLb = (n: number) => `${n.toFixed(2)} lb`;
 
@@ -74,7 +90,7 @@ export async function exportProposalPdf(args: {
   previewGifBytes?: Uint8Array;
   resources: ResourcesSummary;
   costs: CostsSummary;
-}) {
+}, opts?: { returnBytes?: boolean }) {
   const { projectSpecs, resources, costs } = args;
   const name = (projectSpecs.projectName?.trim() || "Project");
   const filenameBase = `${name}-Proposal`;
@@ -136,6 +152,7 @@ export async function exportProposalPdf(args: {
 
   const safeDesignerNet = Number.isFinite(costs.designerNet) ? fmtMoney(costs.designerNet) : "—";
   const safeWeight = Number.isFinite(resources.totalWeightLb) ? fmtLb(resources.totalWeightLb) : "—";
+  const poNumber = (projectSpecs.poNumber ?? "").trim();
   const qrPad = 16;
   const qrBox = {
     size: 84,
@@ -155,9 +172,20 @@ export async function exportProposalPdf(args: {
   y -= 12;
   page.drawText(`Ceiling height: ${projectSpecs.ceilingHeightIn} in`, { x: M + 12, y, size: 9, font, color: rgb(0, 0, 0) });
   y -= 14;
+  if (poNumber) {
+    page.drawText(`PO: ${poNumber}`, { x: M + 12, y, size: 9, font, color: rgb(0, 0, 0) });
+    y -= 14;
+  }
 
   if (viewerUrl) {
-    page.drawText(`Viewer: ${viewerUrl}`, { x: M + 12, y, size: 9, font, color: rgb(0, 0, 0) });
+    const label = "Viewer:";
+    const labelSize = 9;
+    const linkSize = 9;
+    const labelX = M + 12;
+    page.drawText(label, { x: labelX, y, size: labelSize, font, color: rgb(0, 0, 0) });
+    const urlX = labelX + font.widthOfTextAtSize(`${label} `, labelSize);
+    page.drawText(viewerUrl, { x: urlX, y, size: linkSize, font, color: rgb(0.1, 0.3, 0.6) });
+    addUrlLink(pdf, page, viewerUrl, { x: urlX, y: y - 1, w: font.widthOfTextAtSize(viewerUrl, linkSize), h: linkSize + 2 });
     y -= 14;
   }
 
@@ -177,6 +205,14 @@ export async function exportProposalPdf(args: {
 
     page.drawImage(qrImg, { x: qrX, y: qrBox.y, width: qrBox.size, height: qrBox.size });
     page.drawText(label, { x: labelX, y: qrBox.y - 12, size: 8, font, color: rgb(0, 0, 0) });
+    if (viewerUrl) {
+      const linkSize = 7;
+      const linkW = font.widthOfTextAtSize(viewerUrl, linkSize);
+      const linkX = groupX + (groupW - linkW) / 2;
+      const linkY = qrBox.y - 24;
+      page.drawText(viewerUrl, { x: linkX, y: linkY, size: linkSize, font, color: rgb(0.1, 0.3, 0.6) });
+      addUrlLink(pdf, page, viewerUrl, { x: linkX, y: linkY - 1, w: linkW, h: linkSize + 2 });
+    }
   }
 
   // Preview image box
@@ -193,7 +229,9 @@ export async function exportProposalPdf(args: {
   drawFooter(page, style, font, "Page 1 of 1");
 
   const bytes = await pdf.save();
-  const blob = new Blob([bytes], { type: "application/pdf" });
+  if (opts?.returnBytes) return bytes;
+  const safeBytes = new Uint8Array(bytes);
+  const blob = new Blob([safeBytes], { type: "application/pdf" });
   downloadBlob(`${filenameBase}.pdf`, blob);
 }
 

@@ -1,4 +1,4 @@
-import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from "pdf-lib";
+import { PDFDocument, StandardFonts, PDFString, rgb, type PDFFont, type PDFPage } from "pdf-lib";
 import QRCode from "qrcode";
 import type { ProjectSpecs } from "../../types/appTypes";
 import { downloadBlob } from "./download";
@@ -10,6 +10,22 @@ function dataUrlToBytes(dataUrl: string): Uint8Array {
   const bytes = new Uint8Array(bin.length);
   for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
   return bytes;
+}
+
+function addUrlLink(pdf: PDFDocument, page: PDFPage, url: string, rect: { x: number; y: number; w: number; h: number }) {
+  const link = pdf.context.obj({
+    Type: "Annot",
+    Subtype: "Link",
+    Rect: [rect.x, rect.y, rect.x + rect.w, rect.y + rect.h],
+    Border: [0, 0, 0],
+    A: {
+      Type: "Action",
+      S: "URI",
+      URI: PDFString.of(url),
+    },
+  });
+  const linkRef = pdf.context.register(link);
+  page.node.addAnnot(linkRef);
 }
 
 function wrapParagraph(font: PDFFont, size: number, maxWidth: number, text: string): string[] {
@@ -53,6 +69,7 @@ type PageStyle = {
 };
 
 function drawHeader(args: {
+  pdf: PDFDocument;
   page: PDFPage;
   style: PageStyle;
   title: string;
@@ -61,8 +78,9 @@ function drawHeader(args: {
   font: PDFFont;
   fontBold: PDFFont;
   qrImg?: any;
+  viewerUrl?: string;
 }) {
-  const { page, style, projectName, subtitle, title, font, fontBold, qrImg } = args;
+  const { pdf, page, style, projectName, subtitle, title, font, fontBold, qrImg, viewerUrl } = args;
   const M = style.margin;
   const top = style.pageH - M;
   page.drawText(projectName, { x: M, y: top - 14, size: 12, font: fontBold, color: rgb(0, 0, 0) });
@@ -75,6 +93,14 @@ function drawHeader(args: {
     const x = style.pageW - M - style.qrSize;
     const y = style.pageH - M - style.qrSize;
     page.drawImage(qrImg, { x, y, width: style.qrSize, height: style.qrSize });
+    if (viewerUrl) {
+      const linkSize = 7;
+      const linkW = font.widthOfTextAtSize(viewerUrl, linkSize);
+      const linkX = Math.max(M, x + (style.qrSize - linkW) / 2);
+      const linkY = y - 10;
+      page.drawText(viewerUrl, { x: linkX, y: linkY, size: linkSize, font, color: rgb(0.1, 0.3, 0.6) });
+      addUrlLink(pdf, page, viewerUrl, { x: linkX, y: linkY - 1, w: linkW, h: linkSize + 2 });
+    }
   }
 }
 
@@ -100,7 +126,7 @@ export async function exportDfaPdf(args: {
   previewPngBytes: Uint8Array;
   customerNotes?: string;
   artistNotes?: string;
-}) {
+}, opts?: { returnBytes?: boolean }) {
   const { projectSpecs } = args;
   const name = (projectSpecs.projectName?.trim() || "Project");
   const filenameBase = `${name}-DFA`;
@@ -126,6 +152,7 @@ export async function exportDfaPdf(args: {
   // Optional QR
   let qrImg: any | undefined;
   const viewerUrl = (projectSpecs.clientViewerUrl ?? "").trim();
+  const poNumber = (projectSpecs.poNumber ?? "").trim();
   if (viewerUrl) {
     const qrDataUrl = await QRCode.toDataURL(viewerUrl, { width: 240, margin: 1 });
     const qrBytes = dataUrlToBytes(qrDataUrl);
@@ -135,7 +162,7 @@ export async function exportDfaPdf(args: {
   // Page 1: Preview
   {
     const page = pdf.addPage([style.pageW, style.pageH]);
-    drawHeader({ page, style, title: "Drawing For Approval — Preview", projectName: name, subtitle, font, fontBold, qrImg });
+    drawHeader({ pdf, page, style, title: "Drawing For Approval — Preview", projectName: name, subtitle, font, fontBold, qrImg, viewerUrl });
 
     const box = {
       x: style.margin,
@@ -165,12 +192,20 @@ export async function exportDfaPdf(args: {
     let page = pdf.addPage([style.pageW, style.pageH]);
     let y = style.pageH - style.margin - style.headerH - 8;
 
-    drawHeader({ page, style, title: `Drawing For Approval — ${section.title}`, projectName: name, subtitle, font, fontBold, qrImg });
+    drawHeader({ pdf, page, style, title: `Drawing For Approval — ${section.title}`, projectName: name, subtitle, font, fontBold, qrImg, viewerUrl });
 
     // Small URL line for convenience
     if (viewerUrl) {
       const urlLabel = `Viewer: ${viewerUrl}`;
       page.drawText(urlLabel, { x: contentX, y, size: 9, font, color: rgb(0, 0, 0) });
+      const urlX = contentX + font.widthOfTextAtSize("Viewer: ", 9);
+      const urlW = font.widthOfTextAtSize(viewerUrl, 9);
+      addUrlLink(pdf, page, viewerUrl, { x: urlX, y: y - 1, w: urlW, h: 11 });
+      y -= lineH;
+      y -= 6;
+    }
+    if (poNumber) {
+      page.drawText(`PO: ${poNumber}`, { x: contentX, y, size: 9, font, color: rgb(0, 0, 0) });
       y -= lineH;
       y -= 6;
     }
@@ -178,7 +213,7 @@ export async function exportDfaPdf(args: {
     for (const ln of lines) {
       if (y <= style.margin + style.footerH + 10) {
         page = pdf.addPage([style.pageW, style.pageH]);
-        drawHeader({ page, style, title: `Drawing For Approval — ${section.title} (cont.)`, projectName: name, subtitle, font, fontBold, qrImg });
+        drawHeader({ pdf, page, style, title: `Drawing For Approval — ${section.title} (cont.)`, projectName: name, subtitle, font, fontBold, qrImg, viewerUrl });
         y = style.pageH - style.margin - style.headerH - 8;
       }
       page.drawText(ln, { x: contentX, y, size: fontSize, font, color: rgb(0, 0, 0) });
@@ -204,7 +239,9 @@ export async function exportDfaPdf(args: {
   }
 
   const bytes = await pdf.save();
-  const blob = new Blob([bytes], { type: "application/pdf" });
+  if (opts?.returnBytes) return bytes;
+  const safeBytes = new Uint8Array(bytes);
+  const blob = new Blob([safeBytes], { type: "application/pdf" });
   downloadBlob(`${filenameBase}.pdf`, blob);
 }
 

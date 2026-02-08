@@ -1,26 +1,38 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import MenuBar from "./components/MenuBar";
 import exportSvgElementToPng from "./utils/export/exportPng";
-import serializeSvg from "./utils/export/svgSerialize";
+import serializeSvg, { type FitBounds } from "./utils/export/svgSerialize";
 import svgStringToPngBlob from "./utils/export/svgToPng";
 import { exportPdfPages } from "./utils/export/exportPdf";
 import exportDfaPdf from "./utils/export/exportDfaPdf";
 import exportProposalPdf from "./utils/export/exportProposalPdf";
 import exportPreviewGif, { renderPreviewGifBytes } from "./utils/export/exportGif";
-import exportClientViewerZip from "./utils/export/exportClientViewerZip";
+import { buildProjectCsv } from "./utils/export/exportCsv";
+import { buildProjectDxf } from "./utils/export/exportDxf";
 import { computePlanFitBounds } from "./panels/PlanViewPanel";
 import { computePreviewFitBounds } from "./utils/previewBounds";
-import importProjectJson from "./utils/export/importProjectJson";
 import NotesSection from "./components/NotesSection";
 import PlanViewToolsBar from "./components/PlanViewToolsBar";
 import ProjectSpecsBar from "./components/ProjectSpecsBar";
 import ResourceBand from "./components/ResourceBand";
 import { calcResources, calcCosts } from "./utils/calcProjectTotals";
+import { parseProjectJsonText } from "./utils/export/importProjectJson";
 // BackPreviewPanel removed — back view deprecated
 import FrontPreviewPanel from "./panels/FrontPreviewPanel";
 import PlanViewPanel from "./panels/PlanViewPanel";
 import { useAppState } from "./state/useAppState";
 import type { MenuAction } from "./types/appTypes";
+import {
+  ensureProjectFolders,
+  isTauriApp,
+  listProjectFiles,
+  openExportsFolder,
+  readProjectFile,
+  saveProjectFile,
+  writeExportBytes,
+  writeExportText,
+} from "./utils/tauri/projectStorage";
+import type { ProjectListItem } from "./utils/tauri/projectStorage";
 // resize handles moved into panels to keep canvasStack children limited to panels
 
 const DEBUG_LAYOUT = false;
@@ -31,18 +43,80 @@ export default function App() {
   const previewSvgRef = useRef<SVGSVGElement | null>(null);
   const [planPan, setPlanPan] = useState(false);
   const [frontPan, setFrontPan] = useState(false);
+  const isTauri = isTauriApp();
+  const [projectList, setProjectList] = useState<ProjectListItem[]>([]);
+  const [selectedProjectPath, setSelectedProjectPath] = useState<string>("");
+  const [currentProjectPath, setCurrentProjectPath] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem("sb.currentProjectPath");
+    } catch {
+      return null;
+    }
+  });
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [lastSavedPath, setLastSavedPath] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string>("");
+  const [lastError, setLastError] = useState<string>("");
+  const forceNewSaveRef = useRef<boolean>(false);
   const isViewerMode = useMemo(() => {
     try {
       const params = new URLSearchParams(window.location.search);
-      return params.get("viewer") === "1" || params.get("viewer") === "true";
+      const viewerFlag = params.get("viewer");
+      if (viewerFlag === "1" || viewerFlag === "true") return true;
+      const path = window.location.pathname.toLowerCase();
+      return path.endsWith("/viewer.html") || path.endsWith("/viewer/");
     } catch {
       return false;
     }
   }, []);
+  const viewerLoadedRef = useRef(false);
   // backPan removed with BackPreviewPanel
   // canvasRef removed; panels now contain their own resize logic
 
   const { deleteSelected, clearSelection } = s;
+
+  useEffect(() => {
+    if (!isViewerMode) return;
+    document.body.classList.add("viewer-mode");
+    return () => {
+      document.body.classList.remove("viewer-mode");
+    };
+  }, [isViewerMode]);
+
+  const refreshProjects = useCallback(async () => {
+    if (!isTauri) return;
+    try {
+      const list = await listProjectFiles();
+      setProjectList(list);
+      const selectedValid = selectedProjectPath && list.some((p) => p.path === selectedProjectPath);
+      const currentValid = currentProjectPath && list.some((p) => p.path === currentProjectPath);
+      if (selectedValid) {
+        // keep user's current selection
+        return;
+      }
+      if (currentValid) {
+        setSelectedProjectPath(currentProjectPath as string);
+        return;
+      }
+      if (list.length) {
+        setSelectedProjectPath(list[0].path);
+      }
+    } catch (e) {
+      console.error("Failed to refresh project list", e);
+    }
+  }, [currentProjectPath, isTauri, selectedProjectPath]);
+
+  useEffect(() => {
+    if (!isTauri) return;
+    (async () => {
+      try {
+        await ensureProjectFolders();
+        await refreshProjects();
+      } catch (e) {
+        console.error("Failed to prepare project folders", e);
+      }
+    })();
+  }, [isTauri, refreshProjects]);
 
   // Global delete/backspace for selected anchor (avoid interfering with typing)
   useEffect(() => {
@@ -63,6 +137,45 @@ export default function App() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [deleteSelected, clearSelection]);
+
+  useEffect(() => {
+    if (!isViewerMode || viewerLoadedRef.current) return;
+    let projectUrl: string | null = null;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      projectUrl = params.get("project") || params.get("p") || params.get("data");
+    } catch {
+      return;
+    }
+    if (!projectUrl) return;
+
+    viewerLoadedRef.current = true;
+    let cancelled = false;
+
+    (async () => {
+      try {
+        setLastError("");
+        setStatusMessage("Loading project…");
+        const resp = await fetch(projectUrl, { cache: "no-cache" });
+        if (!resp.ok) throw new Error(`Failed to load project (${resp.status})`);
+        const txt = await resp.text();
+        const parsed = parseProjectJsonText(txt);
+        if (cancelled) return;
+        s.loadSnapshot(parsed);
+        setStatusMessage("Project loaded");
+        window.setTimeout(() => setStatusMessage(""), 2000);
+      } catch (e: any) {
+        if (cancelled) return;
+        const msg = e?.message || String(e);
+        setLastError(msg);
+        setStatusMessage("");
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isViewerMode, s]);
 
   // Ensure canvas rows fit the viewport on resize/zoom (Safari zoom can cause overlay).
   // This adjusts --frontH and --backH proportionally when the combined canvas height
@@ -245,7 +358,7 @@ export default function App() {
 
   const waitNextPaint = () => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
 
-  const rasterSizeForFit = (fit: { w: number; h: number }, longEdgePx = 2400) => {
+  const rasterSizeForFit = (fit: Pick<FitBounds, "w" | "h">, longEdgePx = 2400) => {
     const ratio = fit.h / fit.w;
     if (ratio > 1) {
       const heightPx = longEdgePx;
@@ -257,7 +370,7 @@ export default function App() {
     return { widthPx, heightPx };
   };
 
-  const captureSvgToPngBytes = async (svgEl: SVGSVGElement, fitBounds: { x: number; y: number; w: number; h: number }) => {
+  const captureSvgToPngBytes = async (svgEl: SVGSVGElement, fitBounds: FitBounds) => {
     const { widthPx, heightPx } = rasterSizeForFit({ w: fitBounds.w, h: fitBounds.h }, 2400);
     const svgString = serializeSvg(svgEl, { fitBounds });
     const pngBlob = await svgStringToPngBlob(svgString, { widthPx, heightPx, backgroundColor: "#ffffff" });
@@ -265,21 +378,116 @@ export default function App() {
   };
 
   const handleMenuAction = async (action: MenuAction) => {
+    setLastError("");
+    if (action === "new") {
+      try {
+        setStatusMessage("New clicked");
+        window.setTimeout(() => setStatusMessage(""), 4000);
+        s.resetAll();
+        forceNewSaveRef.current = true;
+      setCurrentProjectPath(null);
+        setSelectedProjectPath("");
+        setLastSavedAt(null);
+        setLastSavedPath(null);
+        try {
+          localStorage.removeItem("sb.currentProjectPath");
+        } catch {
+          // ignore storage failures
+        }
+        setStatusMessage("New project started");
+        window.setTimeout(() => setStatusMessage(""), 2500);
+        return;
+      } catch (e: any) {
+        setLastError(e?.message || String(e));
+        return;
+      }
+    }
+    if (action === "save" && isTauri) {
+      try {
+        await ensureProjectFolders();
+        const payload = {
+          projectSpecs: s.projectSpecs,
+          planTools: { ...s.planTools, pendingSwoopStartHoleId: null },
+          palette: s.palette,
+          anchors: s.anchors,
+          strands: s.strands,
+          stacks: s.stacks,
+          piles: s.piles,
+          clusters: s.clusters,
+          swoops: s.swoops,
+          customStrands: s.customStrands,
+          guides: s.guides,
+          showGuides: s.showGuides,
+          guidesLocked: s.guidesLocked,
+          notes: s.notes,
+          showLabels: s.showLabels,
+          planView: s.planView,
+          frontView: s.frontView,
+          views: { planView: s.planView, frontView: s.frontView },
+        };
+        const path = await saveProjectFile(
+          payload,
+          s.projectSpecs?.projectName ?? "untitled",
+          forceNewSaveRef.current ? null : currentProjectPath,
+        );
+        setCurrentProjectPath(path);
+        setSelectedProjectPath(path);
+        setLastSavedAt(new Date().toISOString());
+        setLastSavedPath(path);
+        forceNewSaveRef.current = false;
+        setStatusMessage("Saved");
+        window.setTimeout(() => setStatusMessage(""), 2500);
+        try {
+          localStorage.setItem("sb.currentProjectPath", path);
+        } catch {
+          // ignore storage failures
+        }
+        await refreshProjects();
+      } catch (e: any) {
+        setLastError(e?.message || String(e));
+        alert("Save failed: " + (e?.message || String(e)));
+      }
+      return;
+    }
+    if (action === "save" && !isTauri) {
+      s.onMenuAction(action);
+      setLastSavedAt(new Date().toISOString());
+      setLastSavedPath(null);
+      forceNewSaveRef.current = false;
+      setStatusMessage("Saved");
+      window.setTimeout(() => setStatusMessage(""), 2500);
+      return;
+    }
     if (action === "png") {
       try {
         // export plan
         const planEl = planSvgRef.current;
         if (planEl) {
           const planBounds = computePlanFitBounds(s.projectSpecs);
+        if (isTauri) {
+          const bytes = await captureSvgToPngBytes(planEl, planBounds);
+          await writeExportBytes(s.projectSpecs.projectName ?? "Project", "plan.png", bytes);
+          setStatusMessage("Exported plan.png");
+          window.setTimeout(() => setStatusMessage(""), 2500);
+        } else {
           await exportSvgElementToPng(planEl, planBounds, "plan.png");
         }
-        // export preview
-        const previewEl = previewSvgRef.current;
+      }
+      // export preview
+      const previewEl = previewSvgRef.current;
         if (previewEl) {
           const previewBounds = computePreviewFitBounds(s.projectSpecs, s.strands, s.anchors, s.swoops, s.stacks, s.customStrands, s.clusters);
-          await exportSvgElementToPng(previewEl, previewBounds, "preview.png");
+          if (isTauri) {
+            const bytes = await captureSvgToPngBytes(previewEl, previewBounds);
+            await writeExportBytes(s.projectSpecs.projectName ?? "Project", "preview.png", bytes);
+            setStatusMessage("Exported preview.png");
+            window.setTimeout(() => setStatusMessage(""), 2500);
+          } else {
+            await exportSvgElementToPng(previewEl, previewBounds, "preview.png");
+          }
         }
       } catch (e: any) {
+        setLastError(e?.message || String(e));
         alert('PNG export failed: ' + (e?.message || String(e)));
         console.error('PNG export failed', e);
       }
@@ -298,14 +506,20 @@ export default function App() {
         const previewBytes = await captureSvgToPngBytes(previewEl, previewFit);
 
         const name = (s.projectSpecs.projectName?.trim() || "Project");
-        await exportPdfPages({
+        const bytes = await exportPdfPages({
           filenameBase: name,
           subtitle: s.projectSpecs.dueDate ? `Due: ${s.projectSpecs.dueDate}` : undefined,
           pages: [
             { title: "Preview", pngBytes: previewBytes },
           ],
-        });
+        }, { returnBytes: isTauri });
+        if (isTauri && bytes) {
+          await writeExportBytes(s.projectSpecs.projectName ?? "Project", `${name}.pdf`, bytes as Uint8Array);
+          setStatusMessage("Exported PDF");
+          window.setTimeout(() => setStatusMessage(""), 2500);
+        }
       } catch (e: any) {
+        setLastError(e?.message || String(e));
         console.error("PDF export failed", e);
         alert("PDF export failed: " + (e?.message || String(e)));
       }
@@ -323,13 +537,20 @@ export default function App() {
         await waitNextPaint();
         const previewBytes = await captureSvgToPngBytes(previewEl, previewFit);
 
-        await exportDfaPdf({
+        const bytes = await exportDfaPdf({
           projectSpecs: s.projectSpecs,
           previewPngBytes: previewBytes,
           customerNotes: s.notes.customerNotes,
           artistNotes: s.notes.artistNotes,
-        });
+        }, { returnBytes: isTauri });
+        if (isTauri && bytes) {
+          const name = (s.projectSpecs.projectName?.trim() || "Project");
+          await writeExportBytes(s.projectSpecs.projectName ?? "Project", `${name}-DFA.pdf`, bytes as Uint8Array);
+          setStatusMessage("Exported DFA");
+          window.setTimeout(() => setStatusMessage(""), 2500);
+        }
       } catch (e: any) {
+        setLastError(e?.message || String(e));
         console.error("DFA export failed", e);
         alert("DFA export failed: " + (e?.message || String(e)));
       }
@@ -391,14 +612,21 @@ export default function App() {
           s.setPreviewViewPatch({ rotationDeg: currentRotation });
         }
 
-        await exportProposalPdf({
+        const bytes = await exportProposalPdf({
           projectSpecs: s.projectSpecs,
           previewPngBytes: previewBytes!,
           previewGifBytes: gifBytes,
           resources,
           costs,
-        });
+        }, { returnBytes: isTauri });
+        if (isTauri && bytes) {
+          const name = (s.projectSpecs.projectName?.trim() || "Project");
+          await writeExportBytes(s.projectSpecs.projectName ?? "Project", `${name}-Proposal.pdf`, bytes as Uint8Array);
+          setStatusMessage("Exported Proposal");
+          window.setTimeout(() => setStatusMessage(""), 2500);
+        }
       } catch (e: any) {
+        setLastError(e?.message || String(e));
         console.error("Proposal export failed", e);
         alert("Proposal export failed: " + (e?.message || String(e)));
       }
@@ -413,25 +641,46 @@ export default function App() {
         }
         const previewBounds = computePreviewFitBounds(s.projectSpecs, s.strands, s.anchors, s.swoops, s.stacks, s.customStrands, s.clusters);
         const currentRotation = s.projectSpecs.previewView?.rotationDeg ?? 0;
-        await exportPreviewGif({
-          svgEl: previewEl,
-          fitBounds: previewBounds,
-          filename: "preview.gif",
-          frameCount: 36,
-          delayMs: 60,
-          longEdgePx: 1200,
-          setFrame: async (_i, deg) => {
-            s.setPreviewViewPatch({ rotationDeg: deg });
-          },
-        });
+        if (isTauri) {
+          const gifBytes = await renderPreviewGifBytes({
+            svgEl: previewEl,
+            fitBounds: previewBounds,
+            frameCount: 36,
+            delayMs: 60,
+            longEdgePx: 1200,
+            setFrame: async (_i, deg) => {
+              s.setPreviewViewPatch({ rotationDeg: deg });
+            },
+          });
+          await writeExportBytes(s.projectSpecs.projectName ?? "Project", "preview.gif", gifBytes);
+          setStatusMessage("Exported GIF");
+          window.setTimeout(() => setStatusMessage(""), 2500);
+        } else {
+          await exportPreviewGif({
+            svgEl: previewEl,
+            fitBounds: previewBounds,
+            filename: "preview.gif",
+            frameCount: 36,
+            delayMs: 60,
+            longEdgePx: 1200,
+            setFrame: async (_i, deg) => {
+              s.setPreviewViewPatch({ rotationDeg: deg });
+            },
+          });
+        }
         s.setPreviewViewPatch({ rotationDeg: currentRotation });
       } catch (e: any) {
+        setLastError(e?.message || String(e));
         alert("GIF export failed: " + (e?.message || String(e)));
         console.error("GIF export failed", e);
       }
       return;
     }
-    if (action === "viewer_zip") {
+    if (action === "publish_viewer") {
+      if (!isTauri) {
+        alert("Publish Viewer is only available in the desktop app.");
+        return;
+      }
       try {
         const payload = {
           projectSpecs: s.projectSpecs,
@@ -450,10 +699,118 @@ export default function App() {
           frontView: s.frontView,
           views: { planView: s.planView, frontView: s.frontView },
         };
-        exportClientViewerZip(payload, s.projectSpecs?.projectName ?? "untitled");
+
+        const rawName = (s.projectSpecs?.projectName ?? "untitled").trim() || "untitled";
+        const safeBase = rawName
+          .replace(/[<>:"/\\|?*\u0000-\u001f]/g, "-")
+          .replace(/\s+/g, "-")
+          .replace(/-+/g, "-")
+          .replace(/(^-+|-+$)/g, "")
+          .slice(0, 80) || "untitled";
+        const filename = `${safeBase}.ssp.json`;
+        const pkg = {
+          schemaVersion: "1.0.0",
+          savedAt: new Date().toISOString(),
+          state: payload,
+        };
+
+        let publishDir = "";
+        try {
+          publishDir = localStorage.getItem("sb.viewerPublishDir") || "";
+        } catch {
+          // ignore storage failures
+        }
+        if (!publishDir) {
+          const { homeDir, join } = await import("@tauri-apps/api/path");
+          const home = await homeDir();
+          publishDir = await join(home, "suspended-builder", "suspended-builder-app", "site", "projects");
+          try {
+            localStorage.setItem("sb.viewerPublishDir", publishDir);
+          } catch {
+            // ignore storage failures
+          }
+        }
+
+        const { mkdir, writeTextFile } = await import("@tauri-apps/plugin-fs");
+        const { join } = await import("@tauri-apps/api/path");
+        await mkdir(publishDir, { recursive: true });
+        const outPath = await join(publishDir, filename);
+        await writeTextFile(outPath, JSON.stringify(pkg, null, 2));
+
+        let baseUrl = "";
+        try {
+          baseUrl = localStorage.getItem("sb.viewerBaseUrl") || "";
+        } catch {
+          // ignore storage failures
+        }
+        if (!baseUrl) {
+          baseUrl = "https://kellyfarleyart.com";
+          try {
+            localStorage.setItem("sb.viewerBaseUrl", baseUrl);
+          } catch {
+            // ignore storage failures
+          }
+        }
+        if (baseUrl) {
+          const normalizedBase = baseUrl.replace(/\/+$/, "");
+          const viewerUrl = `${normalizedBase}/viewer.html?project=projects/${encodeURIComponent(filename)}`;
+          s.setProjectSpecs({ clientViewerUrl: viewerUrl });
+          try {
+            await navigator.clipboard.writeText(viewerUrl);
+          } catch {
+            // ignore clipboard failures
+          }
+          setStatusMessage("Published Viewer + URL copied");
+        } else {
+          setStatusMessage("Published Viewer");
+        }
+        window.setTimeout(() => setStatusMessage(""), 2500);
       } catch (e: any) {
-        alert("Viewer export failed: " + (e?.message || String(e)));
-        console.error("Viewer export failed", e);
+        setLastError(e?.message || String(e));
+        alert("Publish Viewer failed: " + (e?.message || String(e)));
+        console.error("Publish Viewer failed", e);
+      }
+      return;
+    }
+    if (action === "csv" && isTauri) {
+      try {
+        const csv = buildProjectCsv({ projectName: s.projectSpecs?.projectName, projectSpecs: s.projectSpecs, anchors: s.anchors, strands: s.strands, stacks: s.stacks, piles: s.piles, customStrands: s.customStrands, clusters: s.clusters, notes: s.notes });
+        const name = (s.projectSpecs?.projectName?.trim() || "project");
+        await writeExportText(s.projectSpecs.projectName ?? "Project", `${name}_export.csv`, csv);
+        setStatusMessage("Exported CSV");
+        window.setTimeout(() => setStatusMessage(""), 2500);
+      } catch (e: any) {
+        setLastError(e?.message || String(e));
+        alert("CSV export failed: " + (e?.message || String(e)));
+      }
+      return;
+    }
+    if (action === "dxf" && isTauri) {
+      try {
+        const { filenameBase, dxf } = buildProjectDxf({ projectName: s.projectSpecs?.projectName, projectSpecs: s.projectSpecs, anchors: s.anchors });
+        await writeExportText(s.projectSpecs.projectName ?? "Project", `${filenameBase}_export.dxf`, dxf);
+        setStatusMessage("Exported DXF");
+        window.setTimeout(() => setStatusMessage(""), 2500);
+      } catch (e: any) {
+        setLastError(e?.message || String(e));
+        alert("DXF export failed: " + (e?.message || String(e)));
+      }
+      return;
+    }
+    if (action === "export_3d_zip" && isTauri) {
+      try {
+        const bytes = await (await import("./utils/export3d/export3dZip")).export3dZip(
+          { projectSpecs: s.projectSpecs, anchors: s.anchors, strands: s.strands, stacks: s.stacks, customStrands: s.customStrands },
+          undefined,
+          { returnBytes: true },
+        );
+        const name = (s.projectSpecs?.projectName?.trim() || "Project");
+        await writeExportBytes(s.projectSpecs.projectName ?? "Project", `${name}_3D.zip`, bytes as Uint8Array);
+        setStatusMessage("Exported 3D ZIP");
+        window.setTimeout(() => setStatusMessage(""), 2500);
+      } catch (e: any) {
+        setLastError(e?.message || String(e));
+        alert("3D export failed: " + (e?.message || String(e)));
       }
       return;
     }
@@ -492,19 +849,48 @@ export default function App() {
 
   return (
     <div className="app">
-      <MenuBar
-        onAction={handleMenuAction}
-        onLoad={async (file: File) => {
-          try {
-            const parsed = await importProjectJson(file);
-            // parsed is the loaded app snapshot (merged with defaults); replace state
-            s.loadSnapshot(parsed);
-          } catch (e: any) {
-            alert("Failed to load project: " + (e?.message || String(e)));
-          }
-        }}
-        viewerOnly={isViewerMode}
-      />
+      {!isViewerMode ? (
+        <MenuBar
+          onAction={handleMenuAction}
+          viewerOnly={isViewerMode}
+          statusMessage={[statusMessage, lastError ? `Error: ${lastError}` : ""].filter(Boolean).join(" | ")}
+          isTauri={isTauri}
+          projectList={projectList}
+          selectedProjectPath={selectedProjectPath}
+          onSelectProjectPath={setSelectedProjectPath}
+          onRefreshProjects={refreshProjects}
+          onOpenProject={async (path) => {
+            try {
+              const parsed = await readProjectFile(path);
+              s.loadSnapshot(parsed);
+              setCurrentProjectPath(path);
+              setSelectedProjectPath(path);
+              setLastSavedAt(null);
+              setLastSavedPath(path);
+              forceNewSaveRef.current = false;
+              try {
+                localStorage.setItem("sb.currentProjectPath", path);
+              } catch {
+                // ignore storage failures
+              }
+            } catch (e: any) {
+              alert("Failed to open project: " + (e?.message || String(e)));
+            }
+          }}
+          onOpenExportsFolder={async () => {
+            try {
+              await ensureProjectFolders();
+              const name = (s.projectSpecs.projectName || "").trim();
+              await openExportsFolder(name || undefined);
+              setStatusMessage("Opened Exports Folder");
+              window.setTimeout(() => setStatusMessage(""), 2500);
+            } catch (e: any) {
+              setLastError(e?.message || String(e));
+              alert("Failed to open exports folder: " + (e?.message || String(e)));
+            }
+          }}
+        />
+      ) : null}
 
       {!isViewerMode ? (
         <>
@@ -513,6 +899,8 @@ export default function App() {
             onChange={s.setProjectSpecs}
             dueDate={s.projectSpecs.dueDate}
             onDueDateChange={s.setDueDate}
+            lastSavedAt={lastSavedAt ?? undefined}
+            lastSavedPath={lastSavedPath}
           />
             <PlanViewToolsBar
               tools={s.planTools}
@@ -632,6 +1020,7 @@ export default function App() {
               view={s.frontView}
               onViewChange={s.setFrontView}
               svgRef={previewSvgRef}
+              viewerMode={isViewerMode}
               anchors={s.anchors}
               strands={s.strands}
               stacks={s.stacks}
@@ -673,30 +1062,50 @@ export default function App() {
           </div>
         </>
       ) : (
-        <div className="canvasStack" style={{ minHeight: 0 }} ref={canvasStackRef}>
-          <FrontPreviewPanel
-            specs={s.projectSpecs}
-            view={s.frontView}
-            onViewChange={s.setFrontView}
-            svgRef={previewSvgRef}
-            anchors={s.anchors}
-            strands={s.strands}
-            stacks={s.stacks}
-            piles={s.piles}
-            clusters={s.clusters}
-            customStrands={s.customStrands}
-            swoops={s.swoops}
-            previewClusterBuilder={s.planTools.clusterBuilder}
-            previewPileBuilder={s.planTools.pileBuilder}
-            palette={s.palette}
-            selectedAnchorId={s.selection.selectedAnchorId}
-            selectedPileId={s.selection.selectedPileId}
-            panEnabled={frontPan}
-            onTogglePan={() => setFrontPan((v) => !v)}
-            previewView={s.projectSpecs.previewView}
-            onPreviewDepthPatch={s.setPreviewDepthPatch}
-            onPreviewViewPatch={s.setPreviewViewPatch}
-          />
+        <div className="viewerLayout">
+          {(() => {
+            const noData = s.anchors.length === 0 && s.strands.length === 0;
+            const msg = lastError
+              ? `Load failed: ${lastError}`
+              : statusMessage
+                ? statusMessage
+                : noData
+                  ? "No project data loaded. Check the project URL."
+                  : "";
+            return msg ? <div className="viewerStatus">{msg}</div> : null;
+          })()}
+          <div className="canvasStack viewerCanvas" style={{ minHeight: 0 }} ref={canvasStackRef}>
+            <FrontPreviewPanel
+              specs={s.projectSpecs}
+              view={s.frontView}
+              onViewChange={s.setFrontView}
+              svgRef={previewSvgRef}
+              viewerMode={isViewerMode}
+              anchors={s.anchors}
+              strands={s.strands}
+              stacks={s.stacks}
+              piles={s.piles}
+              clusters={s.clusters}
+              customStrands={s.customStrands}
+              swoops={s.swoops}
+              previewClusterBuilder={s.planTools.clusterBuilder}
+              previewPileBuilder={s.planTools.pileBuilder}
+              palette={s.palette}
+              selectedAnchorId={s.selection.selectedAnchorId}
+              selectedPileId={s.selection.selectedPileId}
+              panEnabled={frontPan}
+              onTogglePan={() => setFrontPan((v) => !v)}
+              previewView={s.projectSpecs.previewView}
+              onPreviewDepthPatch={s.setPreviewDepthPatch}
+              onPreviewViewPatch={s.setPreviewViewPatch}
+            />
+          </div>
+          <div className="viewerNotes">
+            <div className="viewerNotesTitle">Artist Notes</div>
+            <div className="viewerNotesBody">
+              {s.notes.artistNotes?.trim() || "Artist notes will appear here."}
+            </div>
+          </div>
         </div>
       )}
     </div>

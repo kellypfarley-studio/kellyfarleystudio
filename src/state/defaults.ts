@@ -33,6 +33,7 @@ export const DEFAULT_PALETTE: PaletteColor[] = [
 export const DEFAULT_SPECS: ProjectSpecs = {
   projectName: "New Project",
   clientViewerUrl: "",
+  poNumber: "",
   ceilingHeightIn: 110,
   boundaryWidthIn: 24,
   boundaryHeightIn: 12,
@@ -62,19 +63,19 @@ export const DEFAULT_SPECS: ProjectSpecs = {
 
 export const DEFAULT_MATERIALS: MaterialsDefaults = {
   sphereDiameterIn: 4.5,
-  sphereWeightLb: 0.02,
-  chainWeightLbPerFoot: 0.02,
+  sphereWeightLb: 1.5,
+  chainWeightLbPerFoot: 0.5,
   eyeScrewWeightLb: 0.005,
   claspWeightLb: 0.01,
   plateWeightLb: 0.02,
 };
 
 export const DEFAULT_PRICING: PricingDefaults = {
-  sphereUnitCost: 126.0,
+  sphereUnitCost: 275.0,
   claspUnitCost: 0.5,
   eyeScrewUnitCost: 0.25,
   fastenerUnitCost: 1.25,
-  chainCostPerFoot: 1.5,
+  chainCostPerFoot: 8,
   decorativePlateCost: 2.5,
   laborCost: 15,
 };

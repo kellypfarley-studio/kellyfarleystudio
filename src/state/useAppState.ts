@@ -33,7 +33,7 @@ import type {
   PricingDefaults,
   QuoteSettings,
 } from "../types/appTypes";
-import { DEFAULT_NOTES, DEFAULT_PALETTE, DEFAULT_SELECTION, DEFAULT_SPECS, DEFAULT_VIEW, makeDefaultPlanTools, makeDefaultCustomBuilder, makeDefaultClusterBuilder, makeDefaultPileBuilder } from "./defaults";
+import { DEFAULT_CURSOR, DEFAULT_NOTES, DEFAULT_PALETTE, DEFAULT_SELECTION, DEFAULT_SPECS, DEFAULT_VIEW, makeDefaultPlanTools, makeDefaultCustomBuilder, makeDefaultClusterBuilder, makeDefaultPileBuilder } from "./defaults";
 import { exportProjectJson } from "../utils/export/exportProjectJson";
 import exportProjectCsv from "../utils/export/exportCsv";
 import exportProjectDxf from "../utils/export/exportDxf";
@@ -1090,6 +1090,28 @@ export function useAppState() {
 
   const clearPlanCursor = useCallback(() => setPlanCursor(null), []);
 
+  const resetAll = useCallback(() => {
+    setPalette(DEFAULT_PALETTE);
+    setProjectSpecsState({ ...DEFAULT_SPECS });
+    setPlanTools(makeDefaultPlanTools(DEFAULT_PALETTE));
+    setAnchors([]);
+    setStrands([]);
+    setStacks([]);
+    setPiles([]);
+    setClusters([]);
+    setSwoops([]);
+    setCustomStrands([]);
+    setGuides([]);
+    setShowGuides(false);
+    setGuidesLocked(false);
+    setSelection(DEFAULT_SELECTION);
+    setShowLabels(true);
+    setPlanView(DEFAULT_VIEW);
+    setFrontView(DEFAULT_VIEW);
+    setPlanCursor(DEFAULT_CURSOR);
+    setNotes(DEFAULT_NOTES);
+  }, []);
+
   const formatCursor = useCallback(
     (c: CursorState | null) => {
       if (!c || !c.inside) return "Cursor: —";
@@ -1132,6 +1154,7 @@ export function useAppState() {
 
     // actions
     onMenuAction,
+    resetAll,
     setProjectSpecs,
     setDraftStrand,
     setDraftStack,

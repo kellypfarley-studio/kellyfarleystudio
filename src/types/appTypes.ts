@@ -21,6 +21,7 @@ export type CeilingFixtureType = "sheetrock" | "decorative_metal_plate" | "decor
 export type ProjectSpecs = {
   projectName: string;
   clientViewerUrl?: string;
+  poNumber?: string;
   ceilingHeightIn: number;
   boundaryWidthIn: number;
   boundaryHeightIn: number;
@@ -80,6 +81,7 @@ export type Anchor = {
   holeType?: HoleType;
   gridCol?: number;
   gridRow?: number;
+  label?: string;
 };
 
 export type StrandSpec = {
@@ -209,7 +211,7 @@ export type PlanToolsState = {
   draftStack: StackSpec;
   pileBuilder: PileBuilderState;
   clusterBuilder: ClusterBuilderState;
-  draftSwoop?: SwoopSpec;
+  draftSwoop: SwoopSpec;
   customBuilder: CustomStrandBuilderState;
   pendingSwoopStartHoleId?: string | null;
   pendingCopyAnchorId?: string | null;
@@ -261,10 +263,11 @@ export type CursorState = {
 };
 
 export type MenuAction =
+  | "new"
   | "save"
   | "png"
   | "gif"
-  | "viewer_zip"
+  | "publish_viewer"
   | "pdf"
   | "proposal"
   | "csv"

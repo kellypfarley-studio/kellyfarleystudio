@@ -21,7 +21,7 @@ export async function exportPdfPages(args: {
   filenameBase: string;
   subtitle?: string;
   pages: PdfImage[];
-}) {
+}, opts?: { returnBytes?: boolean }) {
   const pdf = await PDFDocument.create();
   const font = await pdf.embedFont(StandardFonts.Helvetica);
   const fontBold = await pdf.embedFont(StandardFonts.HelveticaBold);
@@ -62,7 +62,9 @@ export async function exportPdfPages(args: {
   }
 
   const bytes = await pdf.save();
-  const blob = new Blob([bytes], { type: "application/pdf" });
+  if (opts?.returnBytes) return bytes;
+  const safeBytes = new Uint8Array(bytes);
+  const blob = new Blob([safeBytes], { type: "application/pdf" });
   downloadBlob(`${args.filenameBase}.pdf`, blob);
 }
 

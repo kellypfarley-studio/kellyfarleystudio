@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kelly Farley — Start a Project</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&family=Sora:wght@300;400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/site.css?v=7" />
+  </head>
+  <body>
+    <header>
+      <div class="container nav">
+        <div class="brand"><span class="brand-name">Kelly Farley Studio</span><span class="brand-tag">Ceramic installations shaping volume, gravity, and architectural space.</span></div>
+        <nav class="nav-links">
+          <a href="index.html">Studio</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="about.html">About the Artist</a>
+          <a href="process.html">Process</a>
+          <a class="active" href="contact.html">Start a Project</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="section">
+        <h2>Start a Project</h2>
+        <p>Tell me about your project, the space, and why you’re reaching out.</p>
+      </section>
+
+      <section class="section" style="padding-top: 0;">
+        <div class="contact-card contact-grid">
+          <div
+            class="inspiration-panel"
+            data-inspiration
+            data-base="images/Inspiration/"
+            data-images="hero.png|Cubic_ monolith.png|concept2.png|concept3.png|3.png|4.png"
+            data-version="8"
+          >
+            <div class="inspiration-title">Other inspirations</div>
+            <div class="inspiration-frame">
+              <button class="inspiration-nav prev" type="button" data-inspiration-prev aria-label="Previous inspiration">‹</button>
+              <img class="inspiration-image" data-inspiration-image src="images/Inspiration/hero.png" alt="Inspiration 1" />
+              <button class="inspiration-nav next" type="button" data-inspiration-next aria-label="Next inspiration">›</button>
+            </div>
+          </div>
+          <form data-contact-form data-mailto="your-email@example.com">
+            <div>
+              <label for="name">Name</label>
+              <input id="name" name="name" type="text" placeholder="Your name" required />
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" placeholder="you@email.com" required />
+            </div>
+            <div>
+              <label for="subject">Subject</label>
+              <input id="subject" name="subject" type="text" placeholder="Commission inquiry" required />
+            </div>
+            <div>
+              <label for="message">Tell me what project you envision.</label>
+              <textarea id="message" name="message" placeholder="Share the project vision, space dimensions, and timeline." required></textarea>
+            </div>
+            <button class="btn primary" type="submit">Send Message</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        Kelly Farley Studio · Contact
+      </div>
+    </footer>
+
+    <script src="js/site.js?v=7"></script>
+  </body>
+</html>

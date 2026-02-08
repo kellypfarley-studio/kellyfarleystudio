@@ -1,4 +1,4 @@
-import { DEFAULT_PALETTE, DEFAULT_SPECS, DEFAULT_NOTES, makeDefaultPlanTools } from "../../state/defaults";
+import { DEFAULT_MATERIALS, DEFAULT_NOTES, DEFAULT_PALETTE, DEFAULT_PRICING, DEFAULT_SPECS, makeDefaultPlanTools } from "../../state/defaults";
 import { gridCenterOffset, snapToGridWithOffset } from "../geometry";
 
 export type ImportedPackage = {
@@ -16,14 +16,7 @@ function readFileAsText(file: File): Promise<string> {
   });
 }
 
-/**
- * Read and parse a project JSON file. Returns the parsed object (either the
- * `state` property if present, or the parsed top-level object).
- * Performs a minimal validation check and will throw if the file is not valid JSON
- * or does not include reasonable project content.
- */
-export async function importProjectJson(file: File): Promise<any> {
-  const txt = await readFileAsText(file);
+export function parseProjectJsonText(txt: string): any {
   let parsed: any;
   try {
     parsed = JSON.parse(txt);
@@ -46,6 +39,25 @@ export async function importProjectJson(file: File): Promise<any> {
 
   // Merge projectSpecs with defaults to ensure required fields exist
   candidate.projectSpecs = { ...DEFAULT_SPECS, ...(candidate.projectSpecs || {}) };
+
+  // Merge materials/pricing defaults, then migrate old defaults to new ones if unchanged
+  const materials = { ...DEFAULT_MATERIALS, ...(candidate.projectSpecs.materials || {}) };
+  const pricing = { ...DEFAULT_PRICING, ...(candidate.projectSpecs.pricing || {}) };
+  const eq = (val: unknown, target: number) => Number.isFinite(Number(val)) && Number(val) === target;
+  if (candidate.projectSpecs.materials?.sphereWeightLb == null || eq(candidate.projectSpecs.materials?.sphereWeightLb, 0.02)) {
+    materials.sphereWeightLb = DEFAULT_MATERIALS.sphereWeightLb;
+  }
+  if (candidate.projectSpecs.materials?.chainWeightLbPerFoot == null || eq(candidate.projectSpecs.materials?.chainWeightLbPerFoot, 0.02)) {
+    materials.chainWeightLbPerFoot = DEFAULT_MATERIALS.chainWeightLbPerFoot;
+  }
+  if (candidate.projectSpecs.pricing?.sphereUnitCost == null || eq(candidate.projectSpecs.pricing?.sphereUnitCost, 126)) {
+    pricing.sphereUnitCost = DEFAULT_PRICING.sphereUnitCost;
+  }
+  if (candidate.projectSpecs.pricing?.chainCostPerFoot == null || eq(candidate.projectSpecs.pricing?.chainCostPerFoot, 1.5)) {
+    pricing.chainCostPerFoot = DEFAULT_PRICING.chainCostPerFoot;
+  }
+  candidate.projectSpecs.materials = materials;
+  candidate.projectSpecs.pricing = pricing;
 
   // Palette
   candidate.palette = candidate.palette && Array.isArray(candidate.palette) ? candidate.palette : DEFAULT_PALETTE;
@@ -93,6 +105,17 @@ export async function importProjectJson(file: File): Promise<any> {
   }
 
   return candidate;
+}
+
+/**
+ * Read and parse a project JSON file. Returns the parsed object (either the
+ * `state` property if present, or the parsed top-level object).
+ * Performs a minimal validation check and will throw if the file is not valid JSON
+ * or does not include reasonable project content.
+ */
+export async function importProjectJson(file: File): Promise<any> {
+  const txt = await readFileAsText(file);
+  return parseProjectJsonText(txt);
 }
 
 export default importProjectJson;

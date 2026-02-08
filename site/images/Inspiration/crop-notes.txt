@@ -1,0 +1,14 @@
+Inspiration image crop notes (Start a Project page)
+
+Display box:
+- Desktop (max width): about 480px wide x 420px tall
+- Medium screens: about 440px wide x 380px tall
+- Small screens: about 320px wide x 280px tall
+
+Recommended crop ratio:
+- 8:7 (1.14)
+- Example sizes: 1140x1000, 1520x1330, 2280x2000
+
+Framing tips:
+- Keep the focal point centered.
+- Leave a little breathing room at the edges so object-fit: cover doesn’t trim important details.

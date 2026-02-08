@@ -7,6 +7,8 @@ export type ProjectSpecsBarProps = {
   onChange: (patch: Partial<ProjectSpecs>) => void;
   dueDate?: string;
   onDueDateChange?: (next: string) => void;
+  lastSavedAt?: string;
+  lastSavedPath?: string | null;
 };
 
 function num(v: string): number {
@@ -43,7 +45,14 @@ function addMonthsClamped(base: Date, months: number): Date {
   return new Date(firstOfTarget.getFullYear(), firstOfTarget.getMonth(), clampedDay);
 }
 
-export default function ProjectSpecsBar({ specs, onChange, dueDate, onDueDateChange }: ProjectSpecsBarProps) {
+export default function ProjectSpecsBar({
+  specs,
+  onChange,
+  dueDate,
+  onDueDateChange,
+  lastSavedAt,
+  lastSavedPath,
+}: ProjectSpecsBarProps) {
   // Let users type freely (including decimals, intermediate states, and empty string)
   // without pushing invalid values into global state (which can freeze grid rendering).
   const [gridText, setGridText] = useState<string>(String(specs.gridSpacingIn ?? ""));
@@ -87,7 +96,7 @@ export default function ProjectSpecsBar({ specs, onChange, dueDate, onDueDateCha
       return;
     }
     QRCode.toDataURL(viewerUrl, { width: 140, margin: 1 })
-      .then((url) => {
+      .then((url: string) => {
         if (active) setQrDataUrl(url);
       })
       .catch(() => {
@@ -109,6 +118,25 @@ export default function ProjectSpecsBar({ specs, onChange, dueDate, onDueDateCha
             onChange={(e) => onChange({ projectName: e.target.value })}
             style={{ width: 220 }}
           />
+        </div>
+        <div className="field">
+          <span className="smallLabel">PO #</span>
+          <input
+            value={specs.poNumber ?? ""}
+            onChange={(e) => onChange({ poNumber: e.target.value })}
+            style={{ width: 140 }}
+          />
+        </div>
+        <div className="field">
+          <span className="smallLabel">Last Saved</span>
+          <span className="smallLabel" style={{ minWidth: 120 }}>
+            {lastSavedAt ? new Date(lastSavedAt).toLocaleTimeString() : "—"}
+          </span>
+          {lastSavedPath ? (
+            <span className="smallLabel muted" style={{ maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {lastSavedPath.split("/").pop()}
+            </span>
+          ) : null}
         </div>
       </div>
 
@@ -274,7 +302,7 @@ export default function ProjectSpecsBar({ specs, onChange, dueDate, onDueDateCha
           <input
             value={specs.clientViewerUrl ?? ""}
             onChange={(e) => onChange({ clientViewerUrl: e.target.value })}
-            placeholder="https://kellyfarleyart.com/clientname"
+            placeholder="https://kellyfarleyart.com/viewer.html?project=..."
             style={{ width: 360 }}
           />
         </div>
