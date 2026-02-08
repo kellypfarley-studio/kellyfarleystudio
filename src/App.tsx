@@ -57,6 +57,7 @@ export default function App() {
   const [lastSavedPath, setLastSavedPath] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [lastError, setLastError] = useState<string>("");
+  const [viewerDebug, setViewerDebug] = useState<string>("");
   const forceNewSaveRef = useRef<boolean>(false);
   const isViewerMode = useMemo(() => {
     try {
@@ -171,10 +172,12 @@ export default function App() {
         setLastError("");
         setStatusMessage("Loading project…");
         const resolvedUrl = resolveProjectUrl(projectUrl);
+        setViewerDebug(`Fetching ${resolvedUrl}`);
         const resp = await fetch(withCacheBust(resolvedUrl), { cache: "no-store", signal: controller.signal, credentials: "omit" });
         if (!resp.ok) throw new Error(`Failed to load project (${resp.status})`);
         const txt = await resp.text();
         const contentType = resp.headers.get("content-type") || "";
+        setViewerDebug(`HTTP ${resp.status} · ${contentType || "unknown"} · ${txt.length} bytes`);
         if (!contentType.includes("json") && txt.trim().startsWith("<")) {
           throw new Error("Project response was not JSON");
         }
@@ -182,12 +185,14 @@ export default function App() {
         if (cancelled) return;
         s.loadSnapshot(parsed);
         setStatusMessage("Project loaded");
+        setViewerDebug("");
         window.setTimeout(() => setStatusMessage(""), 2000);
       } catch (e: any) {
         if (cancelled) return;
         const msg = e?.name === "AbortError" ? "Project load timed out" : e?.message || String(e);
         setLastError(msg);
         setStatusMessage("");
+        setViewerDebug(`Error: ${msg}`);
       } finally {
         window.clearTimeout(timeoutId);
       }
@@ -1095,7 +1100,13 @@ export default function App() {
                 : noData
                   ? "No project data loaded. Check the project URL."
                   : "";
-            return msg ? <div className="viewerStatus">{msg}</div> : null;
+            if (!msg && !viewerDebug) return null;
+            return (
+              <div className="viewerStatus">
+                <div>{msg}</div>
+                {viewerDebug ? <div className="viewerDebug">{viewerDebug}</div> : null}
+              </div>
+            );
           })()}
           <div className="canvasStack viewerCanvas" style={{ minHeight: 0 }} ref={canvasStackRef}>
             <FrontPreviewPanel

@@ -286,10 +286,18 @@ body.viewer-mode .viewerStatus {
   border: 1px solid rgba(43, 38, 32, 0.2);
   background: rgba(255, 253, 247, 0.92);
   box-shadow: 0 10px 20px rgba(22, 20, 17, 0.08);
-  padding: 6px 14px;
+  padding: 8px 14px;
   font-size: 12px;
   color: #4d473f;
   align-self: flex-start;
+}
+
+body.viewer-mode .viewerDebug {
+  font-size: 11px;
+  color: rgba(77, 71, 63, 0.8);
+  margin-top: 2px;
+  max-width: 320px;
+  word-break: break-word;
 }
 .pvToolsRow--builders {
   border-top: 1px solid #000;
