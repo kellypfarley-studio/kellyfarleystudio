@@ -743,14 +743,14 @@ export default function App() {
         } catch {
           // ignore storage failures
         }
-        if (!baseUrl) {
-          baseUrl = "https://kellyfarleyart.com";
-          try {
-            localStorage.setItem("sb.viewerBaseUrl", baseUrl);
-          } catch {
-            // ignore storage failures
+          if (!baseUrl || baseUrl === "https://kellyfarleyart.com") {
+            baseUrl = "https://kellyfarleystudio.com";
+            try {
+              localStorage.setItem("sb.viewerBaseUrl", baseUrl);
+            } catch {
+              // ignore storage failures
+            }
           }
-        }
         if (baseUrl) {
           const normalizedBase = baseUrl.replace(/\/+$/, "");
           const viewerUrl = `${normalizedBase}/viewer.html?project=projects/${encodeURIComponent(filename)}`;
