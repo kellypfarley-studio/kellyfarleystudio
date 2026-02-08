@@ -231,9 +231,10 @@ export default function App() {
         const parsed = parseProjectJsonText(txt);
         if (cancelled) return;
         s.loadSnapshot(parsed);
-        setStatusMessage("Project loaded");
-        setViewerDebug("");
-        window.setTimeout(() => setStatusMessage(""), 2000);
+        setStatusMessage("");
+        const anchorCount = Array.isArray(parsed?.anchors) ? parsed.anchors.length : 0;
+        const strandCount = Array.isArray(parsed?.strands) ? parsed.strands.length : 0;
+        setViewerDebug(`Loaded: anchors ${anchorCount}, strands ${strandCount}`);
       } catch (e: any) {
         if (cancelled) return;
         const msg = e?.name === "AbortError" ? "Project load timed out" : e?.message || String(e);
