@@ -152,12 +152,22 @@ export default function App() {
 
     viewerLoadedRef.current = true;
     let cancelled = false;
+    const resolveProjectUrl = (value: string) => {
+      try {
+        return new URL(value, window.location.href).toString();
+      } catch {
+        return value;
+      }
+    };
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
 
     (async () => {
       try {
         setLastError("");
         setStatusMessage("Loading project…");
-        const resp = await fetch(projectUrl, { cache: "no-cache" });
+        const resolvedUrl = resolveProjectUrl(projectUrl);
+        const resp = await fetch(resolvedUrl, { cache: "no-cache", signal: controller.signal });
         if (!resp.ok) throw new Error(`Failed to load project (${resp.status})`);
         const txt = await resp.text();
         const parsed = parseProjectJsonText(txt);
@@ -167,14 +177,18 @@ export default function App() {
         window.setTimeout(() => setStatusMessage(""), 2000);
       } catch (e: any) {
         if (cancelled) return;
-        const msg = e?.message || String(e);
+        const msg = e?.name === "AbortError" ? "Project load timed out" : e?.message || String(e);
         setLastError(msg);
         setStatusMessage("");
+      } finally {
+        window.clearTimeout(timeoutId);
       }
     })();
 
     return () => {
       cancelled = true;
+      window.clearTimeout(timeoutId);
+      controller.abort();
     };
   }, [isViewerMode, s]);
 
@@ -754,7 +768,7 @@ export default function App() {
           }
         if (baseUrl) {
           const normalizedBase = baseUrl.replace(/\/+$/, "");
-          const viewerUrl = `${normalizedBase}/viewer.html?viewer=1&project=projects/${encodeURIComponent(filename)}`;
+          const viewerUrl = `${normalizedBase}/viewer.html?viewer=1&project=/projects/${encodeURIComponent(filename)}`;
           s.setProjectSpecs({ clientViewerUrl: viewerUrl });
           try {
             await navigator.clipboard.writeText(viewerUrl);
