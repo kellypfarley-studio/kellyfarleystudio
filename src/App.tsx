@@ -165,7 +165,45 @@ export default function App() {
       return `${url}${sep}_=${Date.now()}`;
     };
     const controller = new AbortController();
-    const timeoutId = window.setTimeout(() => controller.abort(), 15000);
+    const timeoutId = window.setTimeout(() => controller.abort(), 12000);
+    const loadTextWithFetch = async (url: string) => {
+      const resp = await fetch(withCacheBust(url), {
+        cache: "no-store",
+        signal: controller.signal,
+        credentials: "omit",
+      });
+      if (!resp.ok) throw new Error(`Failed to load project (${resp.status})`);
+      const text = await resp.text();
+      const contentType = resp.headers.get("content-type") || "";
+      return { text, contentType, status: resp.status };
+    };
+    const loadTextWithXHR = (url: string) =>
+      new Promise<{ text: string; contentType: string; status: number }>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        const timeout = window.setTimeout(() => {
+          xhr.abort();
+          reject(new Error("XHR timed out"));
+        }, 12000);
+        xhr.open("GET", withCacheBust(url), true);
+        xhr.responseType = "text";
+        xhr.onload = () => {
+          window.clearTimeout(timeout);
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve({
+              text: xhr.responseText,
+              contentType: xhr.getResponseHeader("content-type") || "",
+              status: xhr.status,
+            });
+          } else {
+            reject(new Error(`Failed to load project (${xhr.status})`));
+          }
+        };
+        xhr.onerror = () => {
+          window.clearTimeout(timeout);
+          reject(new Error("XHR network error"));
+        };
+        xhr.send();
+      });
 
     (async () => {
       try {
@@ -173,11 +211,20 @@ export default function App() {
         setStatusMessage("Loading project…");
         const resolvedUrl = resolveProjectUrl(projectUrl);
         setViewerDebug(`Fetching ${resolvedUrl}`);
-        const resp = await fetch(withCacheBust(resolvedUrl), { cache: "no-store", signal: controller.signal, credentials: "omit" });
-        if (!resp.ok) throw new Error(`Failed to load project (${resp.status})`);
-        const txt = await resp.text();
-        const contentType = resp.headers.get("content-type") || "";
-        setViewerDebug(`HTTP ${resp.status} · ${contentType || "unknown"} · ${txt.length} bytes`);
+        let result: { text: string; contentType: string; status: number } | null = null;
+        try {
+          result = await loadTextWithFetch(resolvedUrl);
+        } catch (fetchErr: any) {
+          if (fetchErr?.name === "AbortError") {
+            setViewerDebug("Fetch timed out, trying fallback…");
+          } else {
+            setViewerDebug(`Fetch failed (${fetchErr?.message || "unknown"}), trying fallback…`);
+          }
+          result = await loadTextWithXHR(resolvedUrl);
+        }
+        const txt = result.text;
+        const contentType = result.contentType || "";
+        setViewerDebug(`HTTP ${result.status} · ${contentType || "unknown"} · ${txt.length} bytes`);
         if (!contentType.includes("json") && txt.trim().startsWith("<")) {
           throw new Error("Project response was not JSON");
         }
