@@ -57,7 +57,6 @@ export default function App() {
   const [lastSavedPath, setLastSavedPath] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<string>("");
   const [lastError, setLastError] = useState<string>("");
-  const [viewerDebug, setViewerDebug] = useState<string>("");
   const forceNewSaveRef = useRef<boolean>(false);
   const isViewerMode = useMemo(() => {
     try {
@@ -211,21 +210,14 @@ export default function App() {
         setLastError("");
         setStatusMessage("Loading project…");
         const resolvedUrl = resolveProjectUrl(projectUrl);
-        setViewerDebug(`Fetching ${resolvedUrl}`);
         let result: { text: string; contentType: string; status: number } | null = null;
         try {
           result = await loadTextWithFetch(resolvedUrl);
         } catch (fetchErr: any) {
-          if (fetchErr?.name === "AbortError") {
-            setViewerDebug("Fetch timed out, trying fallback…");
-          } else {
-            setViewerDebug(`Fetch failed (${fetchErr?.message || "unknown"}), trying fallback…`);
-          }
           result = await loadTextWithXHR(resolvedUrl);
         }
         const txt = result.text;
         const contentType = result.contentType || "";
-        setViewerDebug(`HTTP ${result.status} · ${contentType || "unknown"} · ${txt.length} bytes`);
         if (!contentType.includes("json") && txt.trim().startsWith("<")) {
           throw new Error("Project response was not JSON");
         }
@@ -233,15 +225,11 @@ export default function App() {
         if (cancelled) return;
         loadSnapshot(parsed);
         setStatusMessage("");
-        const anchorCount = Array.isArray(parsed?.anchors) ? parsed.anchors.length : 0;
-        const strandCount = Array.isArray(parsed?.strands) ? parsed.strands.length : 0;
-        setViewerDebug(`Loaded: anchors ${anchorCount}, strands ${strandCount}`);
       } catch (e: any) {
         if (cancelled) return;
         const msg = e?.name === "AbortError" ? "Project load timed out" : e?.message || String(e);
         setLastError(msg);
         setStatusMessage("");
-        setViewerDebug(`Error: ${msg}`);
       } finally {
         window.clearTimeout(timeoutId);
       }
@@ -1149,13 +1137,7 @@ export default function App() {
                 : noData
                   ? "No project data loaded. Check the project URL."
                   : "";
-            if (!msg && !viewerDebug) return null;
-            return (
-              <div className="viewerStatus">
-                <div>{msg}</div>
-                {viewerDebug ? <div className="viewerDebug">{viewerDebug}</div> : null}
-              </div>
-            );
+            return msg ? <div className="viewerStatus">{msg}</div> : null;
           })()}
           <div className="canvasStack viewerCanvas" style={{ minHeight: 0 }} ref={canvasStackRef}>
             <FrontPreviewPanel

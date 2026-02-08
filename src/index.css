@@ -291,14 +291,6 @@ body.viewer-mode .viewerStatus {
   color: #4d473f;
   align-self: flex-start;
 }
-
-body.viewer-mode .viewerDebug {
-  font-size: 11px;
-  color: rgba(77, 71, 63, 0.8);
-  margin-top: 2px;
-  max-width: 320px;
-  word-break: break-word;
-}
 .pvToolsRow--builders {
   border-top: 1px solid #000;
   padding-top: 6px;
