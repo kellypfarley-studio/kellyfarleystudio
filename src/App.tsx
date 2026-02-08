@@ -76,6 +76,7 @@ export default function App() {
   // canvasRef removed; panels now contain their own resize logic
 
   const { deleteSelected, clearSelection } = s;
+  const loadSnapshot = s.loadSnapshot;
 
   useEffect(() => {
     if (!isViewerMode) return;
@@ -230,7 +231,7 @@ export default function App() {
         }
         const parsed = parseProjectJsonText(txt);
         if (cancelled) return;
-        s.loadSnapshot(parsed);
+        loadSnapshot(parsed);
         setStatusMessage("");
         const anchorCount = Array.isArray(parsed?.anchors) ? parsed.anchors.length : 0;
         const strandCount = Array.isArray(parsed?.strands) ? parsed.strands.length : 0;
@@ -251,7 +252,7 @@ export default function App() {
       window.clearTimeout(timeoutId);
       controller.abort();
     };
-  }, [isViewerMode, s]);
+  }, [isViewerMode, loadSnapshot]);
 
   // Ensure canvas rows fit the viewport on resize/zoom (Safari zoom can cause overlay).
   // This adjusts --frontH and --backH proportionally when the combined canvas height
