@@ -159,6 +159,10 @@ export default function App() {
         return value;
       }
     };
+    const withCacheBust = (url: string) => {
+      const sep = url.includes("?") ? "&" : "?";
+      return `${url}${sep}_=${Date.now()}`;
+    };
     const controller = new AbortController();
     const timeoutId = window.setTimeout(() => controller.abort(), 15000);
 
@@ -167,9 +171,13 @@ export default function App() {
         setLastError("");
         setStatusMessage("Loading project…");
         const resolvedUrl = resolveProjectUrl(projectUrl);
-        const resp = await fetch(resolvedUrl, { cache: "no-cache", signal: controller.signal });
+        const resp = await fetch(withCacheBust(resolvedUrl), { cache: "no-store", signal: controller.signal, credentials: "omit" });
         if (!resp.ok) throw new Error(`Failed to load project (${resp.status})`);
         const txt = await resp.text();
+        const contentType = resp.headers.get("content-type") || "";
+        if (!contentType.includes("json") && txt.trim().startsWith("<")) {
+          throw new Error("Project response was not JSON");
+        }
         const parsed = parseProjectJsonText(txt);
         if (cancelled) return;
         s.loadSnapshot(parsed);
