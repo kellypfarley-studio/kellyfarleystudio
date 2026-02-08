@@ -63,6 +63,7 @@ export default function App() {
       const params = new URLSearchParams(window.location.search);
       const viewerFlag = params.get("viewer");
       if (viewerFlag === "1" || viewerFlag === "true") return true;
+      if (params.has("project") || params.has("p") || params.has("data")) return true;
       const path = window.location.pathname.toLowerCase();
       return path.endsWith("/viewer.html") || path.endsWith("/viewer/");
     } catch {
@@ -753,7 +754,7 @@ export default function App() {
           }
         if (baseUrl) {
           const normalizedBase = baseUrl.replace(/\/+$/, "");
-          const viewerUrl = `${normalizedBase}/viewer.html?project=projects/${encodeURIComponent(filename)}`;
+          const viewerUrl = `${normalizedBase}/viewer.html?viewer=1&project=projects/${encodeURIComponent(filename)}`;
           s.setProjectSpecs({ clientViewerUrl: viewerUrl });
           try {
             await navigator.clipboard.writeText(viewerUrl);
