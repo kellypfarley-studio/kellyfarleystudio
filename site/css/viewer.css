@@ -17,6 +17,39 @@
   width: 100%;
 }
 
+body.embedded {
+  background: transparent;
+}
+
+body.embedded header {
+  display: none;
+}
+
+body.embedded .container {
+  max-width: none;
+  padding: 0;
+}
+
+body.embedded .viewer-page {
+  padding: 0;
+}
+
+body.embedded .viewerLayout {
+  gap: 0;
+}
+
+body.embedded .viewerCanvas {
+  height: 100%;
+}
+
+body.embedded .canvasStack {
+  grid-template-rows: minmax(0, 1fr);
+}
+
+body.embedded .viewerNotes {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .viewer-page {
     padding: 22px 0 40px;
