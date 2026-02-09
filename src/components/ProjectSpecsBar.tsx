@@ -302,7 +302,7 @@ export default function ProjectSpecsBar({
           <input
             value={specs.clientViewerUrl ?? ""}
             onChange={(e) => onChange({ clientViewerUrl: e.target.value })}
-            placeholder="https://kellyfarleyart.com/viewer.html?project=..."
+            placeholder="https://kellyfarleystudio.com/viewer.html?project=..."
             style={{ width: 360 }}
           />
         </div>
@@ -310,7 +310,7 @@ export default function ProjectSpecsBar({
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
             <div className="smallLabel muted">QR Preview</div>
             {qrDataUrl ? (
-              <img src={qrDataUrl} alt="Client viewer QR code" width={70} height={70} style={{ border: "1px solid #111" }} />
+              <img src={qrDataUrl} alt="Client viewer QR code" width={70} height={70} style={{ border: "1px solid var(--line)" }} />
             ) : (
               <div className="smallLabel muted">Generating...</div>
             )}

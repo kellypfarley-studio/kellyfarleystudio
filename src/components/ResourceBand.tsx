@@ -41,7 +41,7 @@ export default function ResourceBand({ resources, costs, pricing, quote, onPrici
     .join("  •  ");
 
   return (
-    <div className="card bottomBand statusGrid" style={{ color: "#000", background: "#fff" }}>
+    <div className="card bottomBand statusGrid">
       <div>
         <div className="panelTitle">Resources</div>
         <div className="smallLabel">Spheres: {resources.spheres}</div>
