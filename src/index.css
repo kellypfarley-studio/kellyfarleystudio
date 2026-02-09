@@ -342,6 +342,24 @@ body.viewer-mode.embedded .viewerCanvas {
   overflow: hidden;
 }
 
+body.viewer-mode.embedded .card {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+body.viewer-mode.embedded .panelBody {
+  height: 100%;
+}
+
+body.viewer-mode.embedded .frontPreviewHandle {
+  display: none;
+}
+
+body.viewer-mode.embedded .canvasStack svg.frontPreviewSvg {
+  height: 100%;
+}
+
 body.viewer-mode.embedded .viewerEmbedLabel {
   font-size: 10px;
   letter-spacing: 0.18em;

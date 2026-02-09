@@ -78,6 +78,7 @@ export default function App() {
       return false;
     }
   }, []);
+  const embeddedViewInitRef = useRef(false);
   const viewerLoadedRef = useRef(false);
   // backPan removed with BackPreviewPanel
   // canvasRef removed; panels now contain their own resize logic
@@ -92,6 +93,13 @@ export default function App() {
       document.body.classList.remove("viewer-mode");
     };
   }, [isViewerMode]);
+
+  useEffect(() => {
+    if (!isViewerMode || !isEmbedded || embeddedViewInitRef.current) return;
+    embeddedViewInitRef.current = true;
+    // Ensure embedded previews fit the frame regardless of saved zoom/pan.
+    s.setFrontView({ zoom: 1, panX: 0, panY: 0 });
+  }, [isViewerMode, isEmbedded, s]);
 
   const refreshProjects = useCallback(async () => {
     if (!isTauri) return;

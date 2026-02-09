@@ -23,7 +23,7 @@ body {
 }
 
 body.embedded {
-  background: transparent;
+  background: #f5efe3;
   --viewerCanvasBg: #f5efe3;
   overflow: hidden;
 }
