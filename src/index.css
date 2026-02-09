@@ -324,11 +324,21 @@ body.viewer-mode.embedded .viewerEmbedControls {
   justify-content: center;
   gap: 12px;
   padding: 8px 14px;
-  margin: 12px auto 0;
+  margin: 8px auto 0;
   border-radius: 999px;
   border: 1px solid rgba(43, 38, 32, 0.2);
   background: rgba(255, 253, 247, 0.92);
   box-shadow: 0 10px 20px rgba(22, 20, 17, 0.08);
+}
+
+body.viewer-mode.embedded .viewerLayout {
+  height: 100%;
+  gap: 0;
+}
+
+body.viewer-mode.embedded .viewerCanvas {
+  height: calc(100% - 54px);
+  overflow: hidden;
 }
 
 body.viewer-mode.embedded .viewerEmbedLabel {

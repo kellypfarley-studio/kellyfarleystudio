@@ -20,6 +20,7 @@
 body.embedded {
   background: transparent;
   --viewerCanvasBg: #f5efe3;
+  overflow: hidden;
 }
 
 body.embedded header {
@@ -33,10 +34,12 @@ body.embedded .container {
 
 body.embedded .viewer-page {
   padding: 0;
+  height: 100%;
 }
 
 body.embedded .viewerLayout {
   gap: 0;
+  height: 100%;
 }
 
 body.embedded .viewerCanvas {
@@ -49,6 +52,12 @@ body.embedded .canvasStack {
 
 body.embedded .viewerNotes {
   display: none;
+}
+
+body.embedded #root,
+body.embedded .viewer-root,
+body.embedded .viewer-stage {
+  height: 100%;
 }
 
 @media (max-width: 900px) {
