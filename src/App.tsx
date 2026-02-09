@@ -94,12 +94,22 @@ export default function App() {
     };
   }, [isViewerMode]);
 
+  const hasViewerData =
+    s.anchors.length > 0 ||
+    s.strands.length > 0 ||
+    s.stacks.length > 0 ||
+    s.piles.length > 0 ||
+    s.customStrands.length > 0 ||
+    s.clusters.length > 0 ||
+    s.swoops.length > 0;
+
   useEffect(() => {
     if (!isViewerMode || !isEmbedded || embeddedViewInitRef.current) return;
+    if (!hasViewerData) return;
     embeddedViewInitRef.current = true;
     // Ensure embedded previews fit the frame regardless of saved zoom/pan.
     s.setFrontView({ zoom: 1, panX: 0, panY: 0 });
-  }, [isViewerMode, isEmbedded, s]);
+  }, [isViewerMode, isEmbedded, hasViewerData, s]);
 
   const refreshProjects = useCallback(async () => {
     if (!isTauri) return;
