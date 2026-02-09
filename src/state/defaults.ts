@@ -49,6 +49,7 @@ export const DEFAULT_SPECS: ProjectSpecs = {
   fastenerHoleDiameterIn: 0.5,
   dueDate: "2026-10-12",
   showPolarGuides: false,
+  showSpiralGuides: false,
   previewDepth: {
     depthSpreadIn: 3,
     layerSpreadIn: 1,

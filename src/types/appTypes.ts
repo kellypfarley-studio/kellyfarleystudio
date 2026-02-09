@@ -37,6 +37,7 @@ export type ProjectSpecs = {
   fastenerHoleDiameterIn: number;
   dueDate: string; // ISO date string (YYYY-MM-DD)
   showPolarGuides?: boolean;
+  showSpiralGuides?: boolean;
   previewDepth?: {
     depthSpreadIn: number;
     layerSpreadIn: number;

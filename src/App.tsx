@@ -1095,6 +1095,7 @@ export default function App() {
               onToggleShowGuides={() => s.setShowGuides(!s.showGuides)}
               onToggleGuidesLocked={() => s.setGuidesLocked(!s.guidesLocked)}
               onTogglePolarGuides={() => s.setProjectSpecs({ showPolarGuides: !s.projectSpecs.showPolarGuides })}
+              onToggleSpiralGuides={() => s.setProjectSpecs({ showSpiralGuides: !s.projectSpecs.showSpiralGuides })}
               onToggleSnapGuides={() => s.setProjectSpecs({ snapToGuides: !(s.projectSpecs.snapToGuides !== false) })}
               onToggleSnapBoundary={() => s.setProjectSpecs({ snapToBoundary: !(s.projectSpecs.snapToBoundary !== false) })}
               onToggleMaskOutside={() => s.setProjectSpecs({ maskOutsideBoundary: !s.projectSpecs.maskOutsideBoundary })}

@@ -61,6 +61,7 @@ export type PlanViewPanelProps = {
   onToggleShowGuides?: () => void;
   onToggleGuidesLocked?: () => void;
   onTogglePolarGuides?: () => void;
+  onToggleSpiralGuides?: () => void;
   onToggleSnapGuides?: () => void;
   onToggleSnapBoundary?: () => void;
   onToggleMaskOutside?: () => void;
@@ -192,6 +193,25 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
   }, [ox, oy, specs.boundaryHeightIn, specs.boundaryWidthIn, specs.gridSpacingIn]);
 
   const showPolar = !!specs.showPolarGuides && boundaryShape !== "rect";
+  const showSpiral = !!specs.showSpiralGuides;
+
+  const spiralPath = useMemo(() => {
+    if (!showSpiral) return "";
+    const spacing = Number.isFinite(specs.gridSpacingIn) && specs.gridSpacingIn > 0 ? specs.gridSpacingIn : 4;
+    const maxR = Math.max(0, minBoundaryR - 0.2);
+    if (maxR <= 0) return "";
+    const b = spacing / (2 * Math.PI);
+    const maxTheta = maxR / Math.max(b, 0.0001);
+    const step = 0.25;
+    let d = "";
+    for (let t = 0; t <= maxTheta; t += step) {
+      const r = b * t;
+      const x = boundaryCx + r * Math.cos(t);
+      const y = boundaryCy + r * Math.sin(t);
+      d += `${t === 0 ? "M" : "L"} ${x} ${y} `;
+    }
+    return d.trim();
+  }, [showSpiral, specs.gridSpacingIn, minBoundaryR, boundaryCx, boundaryCy]);
   const polarAngles = useMemo(() => {
     if (!showPolar) return [] as number[];
     const step = 15;
@@ -291,6 +311,16 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
           disabled={!props.onTogglePolarGuides || boundaryShape === "rect"}
         />
         <span className="smallLabel">Polar</span>
+      </label>
+
+      <label style={{ display: "flex", alignItems: "center", gap: 6, userSelect: "none" }} title="Toggle spiral guides (visual only)">
+        <input
+          type="checkbox"
+          checked={!!specs.showSpiralGuides}
+          onChange={() => props.onToggleSpiralGuides?.()}
+          disabled={!props.onToggleSpiralGuides}
+        />
+        <span className="smallLabel">Spiral</span>
       </label>
 
       <label style={{ display: "flex", alignItems: "center", gap: 6, userSelect: "none" }} title="Snap to guides">
@@ -540,6 +570,11 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
               );
             })}
           </g>
+        ) : null}
+
+        {/* Spiral guides */}
+        {showSpiral && spiralPath ? (
+          <path d={spiralPath} fill="none" stroke="#ddd" strokeWidth={0.04} opacity={0.9} />
         ) : null}
 
         {/* Mask outside boundary (circle/oval) */}
