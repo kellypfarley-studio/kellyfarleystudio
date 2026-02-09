@@ -173,6 +173,8 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
 
   const bounds = useMemo(() => {
     const r = SPHERE_RADIUS_IN;
+    const sphereD = specs.materials?.sphereDiameterIn ?? SPHERE_DIAMETER_IN;
+    const pitch = sphereD + SPHERE_GAP_IN;
     const padX = r + 2;
     const padTop = 2;
     const padBottom = 12;
@@ -186,6 +188,15 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
     }
     for (const p of customPreviews) {
       maxDrop = Math.max(maxDrop, p.pv.totalDropIn);
+    }
+    for (const p of clusterPreviews) {
+      const strands = p.cluster.spec?.strands ?? [];
+      for (const st of strands) {
+        const total = Math.max(0, (st.sphereCount ?? 0) + (st.bottomSphereCount ?? 0));
+        if (total === 0) continue;
+        const drop = Math.max(0, st.topChainLengthIn || 0) + sphereD + (total - 1) * pitch;
+        maxDrop = Math.max(maxDrop, drop);
+      }
     }
     for (const s of swoopPreviews) {
       if (!s.a || !s.b) {
@@ -229,7 +240,16 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
     const minY = -padTop;
     const maxY = maxDrop + padBottom;
     return { minX, maxX, minY, maxY, w: maxX - minX, h: maxY - minY };
-  }, [previews, stackPreviews, customPreviews, swoopPreviews, specs.boundaryWidthIn, specs.ceilingHeightIn]);
+  }, [
+    previews,
+    stackPreviews,
+    customPreviews,
+    clusterPreviews,
+    swoopPreviews,
+    specs.boundaryWidthIn,
+    specs.ceilingHeightIn,
+    specs.materials?.sphereDiameterIn,
+  ]);
 
   // Camera
   const viewZoom = Math.max(0.0001, view.zoom);
