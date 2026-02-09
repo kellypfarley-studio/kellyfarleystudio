@@ -2,6 +2,11 @@
   --viewer-gap: 22px;
 }
 
+html,
+body {
+  height: 100%;
+}
+
 .viewer-page {
   padding: 28px 0 48px;
   display: flex;
@@ -43,7 +48,10 @@ body.embedded .viewerLayout {
 }
 
 body.embedded .viewerCanvas {
-  height: 100%;
+  flex: 1 1 auto;
+  height: auto;
+  min-height: 0;
+  overflow: hidden;
 }
 
 body.embedded .canvasStack {
@@ -58,6 +66,10 @@ body.embedded #root,
 body.embedded .viewer-root,
 body.embedded .viewer-stage {
   height: 100%;
+}
+
+body.embedded .viewerEmbedControls {
+  flex: 0 0 auto;
 }
 
 @media (max-width: 900px) {
