@@ -337,7 +337,8 @@ body.viewer-mode.embedded .viewerLayout {
 }
 
 body.viewer-mode.embedded .viewerCanvas {
-  height: calc(100% - 54px);
+  flex: 1 1 auto;
+  min-height: 0;
   overflow: hidden;
 }
 

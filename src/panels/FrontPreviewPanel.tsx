@@ -366,7 +366,7 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
           viewBox={`${vbX} ${vbY} ${vbW} ${vbH}`}
           preserveAspectRatio="xMidYMid meet"
           style={{
-            background: props.viewerMode ? "var(--viewerCanvasBg, #f6efe4)" : "#fff",
+            background: props.viewerMode ? "var(--viewerCanvasBg, #f5efe3)" : "#fff",
             touchAction: "none",
             cursor: props.panEnabled ? "grab" : props.viewerMode ? "ew-resize" : undefined,
           }}

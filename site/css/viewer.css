@@ -35,11 +35,14 @@ body.embedded header {
 body.embedded .container {
   max-width: none;
   padding: 0;
+  width: 100%;
 }
 
 body.embedded .viewer-page {
   padding: 0;
   height: 100%;
+  gap: 0;
+  overflow: hidden;
 }
 
 body.embedded .viewerLayout {
@@ -64,12 +67,15 @@ body.embedded .viewerNotes {
 
 body.embedded #root,
 body.embedded .viewer-root,
-body.embedded .viewer-stage {
+body.embedded .viewer-stage,
+body.embedded .viewer-page,
+body.embedded .viewerLayout {
   height: 100%;
 }
 
 body.embedded .viewerEmbedControls {
   flex: 0 0 auto;
+  margin-top: 6px;
 }
 
 @media (max-width: 900px) {
