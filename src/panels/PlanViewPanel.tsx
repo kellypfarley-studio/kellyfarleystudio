@@ -469,11 +469,11 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
             }
             if (props.mode === "move_anchor") {
               if (props.selectedAnchorId) {
-                props.onMoveAnchor(props.selectedAnchorId, p.x, p.y);
+                props.onMoveAnchor(props.selectedAnchorId, p.x, p.y, !ev.altKey);
                 return;
               }
               if (props.selectedPileId && props.onMovePile) {
-                props.onMovePile(props.selectedPileId, p.x, p.y);
+                props.onMovePile(props.selectedPileId, p.x, p.y, !ev.altKey);
                 return;
               }
               if (props.selectedGuideId && props.onMoveGuide && !props.guidesLocked) {
@@ -833,7 +833,7 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
 
                       const onMove = (mev: PointerEvent) => {
                         const p = clientToSvgCoords(svg, mev.clientX, mev.clientY);
-                        props.onMoveAnchor(a.id, p.x, p.y);
+                        props.onMoveAnchor(a.id, p.x, p.y, !mev.altKey);
                       };
 
                       const onUp = () => {

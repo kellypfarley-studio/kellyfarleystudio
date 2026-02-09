@@ -585,7 +585,13 @@ export function useAppState() {
     );
 
   const moveAnchor = useCallback(
-    (anchorId: string, xIn: number, yIn: number) => {
+    (anchorId: string, xIn: number, yIn: number, snap = true) => {
+      if (!snap) {
+        const clamped = applyBoundarySnap(xIn, yIn);
+        const { xIn: sx, yIn: sy } = clamped;
+        setAnchors((prev) => prev.map((a) => (a.id === anchorId ? { ...a, xIn: sx, yIn: sy, gridCol: undefined, gridRow: undefined } : a)));
+        return;
+      }
       // Compute grid index from pointer position, then reproject to world using grid index.
       const { col, row } = snapToGridIndex(xIn, yIn, projectSpecs);
       const snapped = gridIndexToWorld(col, row, projectSpecs);
@@ -599,7 +605,13 @@ export function useAppState() {
   );
 
   const movePile = useCallback(
-    (pileId: string, xIn: number, yIn: number) => {
+    (pileId: string, xIn: number, yIn: number, snap = true) => {
+      if (!snap) {
+        const clamped = applyBoundarySnap(xIn, yIn);
+        const { xIn: sx, yIn: sy } = clamped;
+        setPiles((prev) => prev.map((p) => (p.id === pileId ? { ...p, xIn: sx, yIn: sy } : p)));
+        return;
+      }
       const { col, row } = snapToGridIndex(xIn, yIn, projectSpecs);
       const snapped = gridIndexToWorld(col, row, projectSpecs);
       const guided = applyGuideSnap(snapped.xIn, snapped.yIn);
