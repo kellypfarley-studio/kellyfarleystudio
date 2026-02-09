@@ -62,6 +62,7 @@ export type PlanViewPanelProps = {
   onToggleGuidesLocked?: () => void;
   onTogglePolarGuides?: () => void;
   onToggleSpiralGuides?: () => void;
+  onToggleAnchorDiameterGuides?: () => void;
   onToggleSnapGuides?: () => void;
   onToggleSnapBoundary?: () => void;
   onToggleMaskOutside?: () => void;
@@ -194,6 +195,8 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
 
   const showPolar = !!specs.showPolarGuides && boundaryShape !== "rect";
   const showSpiral = !!specs.showSpiralGuides;
+  const showAnchorDiameter = !!specs.showAnchorDiameterGuides;
+  const anchorDiameterIn = specs.materials?.sphereDiameterIn ?? 4.5;
 
   const spiralPath = useMemo(() => {
     if (!showSpiral) return "";
@@ -321,6 +324,16 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
           disabled={!props.onToggleSpiralGuides}
         />
         <span className="smallLabel">Spiral</span>
+      </label>
+
+      <label style={{ display: "flex", alignItems: "center", gap: 6, userSelect: "none" }} title='Toggle 4.5" diameter guide around strand holes'>
+        <input
+          type="checkbox"
+          checked={!!specs.showAnchorDiameterGuides}
+          onChange={() => props.onToggleAnchorDiameterGuides?.()}
+          disabled={!props.onToggleAnchorDiameterGuides}
+        />
+        <span className="smallLabel">Dia 4.5</span>
       </label>
 
       <label style={{ display: "flex", alignItems: "center", gap: 6, userSelect: "none" }} title="Snap to guides">
@@ -704,6 +717,27 @@ export default function PlanViewPanel(props: PlanViewPanelProps) {
                     {g.orientation === "v" ? `X ${round(g.posIn, 2)}"` : `Y ${round(g.posIn, 2)}"`}
                   </text>
                 </g>
+              );
+            })}
+          </g>
+        ) : null}
+
+        {/* Anchor diameter guides */}
+        {showAnchorDiameter ? (
+          <g>
+            {props.anchors.map((a) => {
+              const isFastener = a.holeType === "fastener" || a.type === "canopy_fastener";
+              if (isFastener) return null;
+              return (
+                <circle
+                  key={`anchor-diam-${a.id}`}
+                  cx={a.xIn}
+                  cy={a.yIn}
+                  r={anchorDiameterIn / 2}
+                  fill="none"
+                  stroke="rgba(0,0,0,0.25)"
+                  strokeWidth={0.05}
+                />
               );
             })}
           </g>

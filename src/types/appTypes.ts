@@ -38,6 +38,7 @@ export type ProjectSpecs = {
   dueDate: string; // ISO date string (YYYY-MM-DD)
   showPolarGuides?: boolean;
   showSpiralGuides?: boolean;
+  showAnchorDiameterGuides?: boolean;
   previewDepth?: {
     depthSpreadIn: number;
     layerSpreadIn: number;

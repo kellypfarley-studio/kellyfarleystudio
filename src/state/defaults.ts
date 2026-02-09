@@ -50,6 +50,7 @@ export const DEFAULT_SPECS: ProjectSpecs = {
   dueDate: "2026-10-12",
   showPolarGuides: false,
   showSpiralGuides: false,
+  showAnchorDiameterGuides: false,
   previewDepth: {
     depthSpreadIn: 3,
     layerSpreadIn: 1,
