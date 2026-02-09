@@ -574,7 +574,7 @@ header {
 .process-image.process-viewer {
   max-width: 360px;
   width: 100%;
-  height: 500px;
+  height: 620px;
   margin: 0 auto;
   background: #f5efe3;
 }
@@ -848,7 +848,7 @@ footer {
 
   .process-image.process-viewer {
     max-width: 100%;
-    height: 360px;
+    height: 420px;
   }
 }
 
@@ -871,6 +871,6 @@ footer {
   }
 
   .process-image.process-viewer {
-    height: 320px;
+    height: 380px;
   }
 }
