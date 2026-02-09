@@ -574,7 +574,7 @@ header {
 .process-image.process-viewer {
   max-width: 360px;
   width: 100%;
-  height: clamp(360px, 60vh, 520px);
+  height: 480px;
   margin: 0 auto;
   background: #f7f3ec;
 }

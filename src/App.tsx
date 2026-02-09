@@ -70,6 +70,14 @@ export default function App() {
       return false;
     }
   }, []);
+  const isEmbedded = useMemo(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("embedded") === "1" || params.get("embed") === "1";
+    } catch {
+      return false;
+    }
+  }, []);
   const viewerLoadedRef = useRef(false);
   // backPan removed with BackPreviewPanel
   // canvasRef removed; panels now contain their own resize logic
@@ -1165,6 +1173,19 @@ export default function App() {
               onPreviewViewPatch={s.setPreviewViewPatch}
             />
           </div>
+          {isEmbedded ? (
+            <div className="viewerEmbedControls">
+              <span className="viewerEmbedLabel">Rotate</span>
+              <input
+                type="range"
+                min={0}
+                max={360}
+                step={5}
+                value={s.projectSpecs.previewView?.rotationDeg ?? 0}
+                onChange={(e) => s.setPreviewViewPatch({ rotationDeg: Number(e.target.value) })}
+              />
+            </div>
+          ) : null}
           <div className="viewerNotes">
             <div className="viewerNotesTitle">Artist Notes</div>
             <div className="viewerNotesBody">

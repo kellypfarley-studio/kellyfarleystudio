@@ -19,6 +19,7 @@
 
 body.embedded {
   background: transparent;
+  --viewerCanvasBg: #f5efe3;
 }
 
 body.embedded header {

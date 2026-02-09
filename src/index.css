@@ -318,6 +318,31 @@ body.viewer-mode .viewerStatus {
   align-self: flex-start;
 }
 
+body.viewer-mode.embedded .viewerEmbedControls {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 8px 14px;
+  margin: 12px auto 0;
+  border-radius: 999px;
+  border: 1px solid rgba(43, 38, 32, 0.2);
+  background: rgba(255, 253, 247, 0.92);
+  box-shadow: 0 10px 20px rgba(22, 20, 17, 0.08);
+}
+
+body.viewer-mode.embedded .viewerEmbedLabel {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+body.viewer-mode.embedded .viewerEmbedControls input[type="range"] {
+  width: 180px;
+  accent-color: var(--accent);
+}
+
 .pvToolsRow .spacer { flex: 1; }
 
 .isDisabledRow { opacity: 0.5; pointer-events: none; }
