@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "savedAt": "2026-02-10T02:47:33.097Z",
+  "savedAt": "2026-02-10T02:52:45.215Z",
   "state": {
     "projectSpecs": {
       "projectName": "Process_Design_Page",
@@ -1312,9 +1312,9 @@
       "panY": 0
     },
     "frontView": {
-      "zoom": 0.75,
+      "zoom": 0.6,
       "panX": 0,
-      "panY": 36
+      "panY": 66
     },
     "views": {
       "planView": {
@@ -1323,9 +1323,9 @@
         "panY": 0
       },
       "frontView": {
-        "zoom": 0.75,
+        "zoom": 0.6,
         "panX": 0,
-        "panY": 36
+        "panY": 66
       }
     }
   }
