@@ -334,12 +334,14 @@ body.viewer-mode.embedded .viewerEmbedControls {
 body.viewer-mode.embedded .viewerLayout {
   height: 100%;
   gap: 0;
+  position: relative;
 }
 
 body.viewer-mode.embedded .viewerCanvas {
   flex: 1 1 auto;
   min-height: 0;
   overflow: hidden;
+  height: 100%;
 }
 
 body.viewer-mode.embedded .card {
@@ -358,6 +360,15 @@ body.viewer-mode.embedded .frontPreviewHandle {
 
 body.viewer-mode.embedded .canvasStack svg.frontPreviewSvg {
   height: 100%;
+}
+
+body.viewer-mode.embedded .viewerEmbedControls {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  margin: 0;
+  z-index: 2;
 }
 
 body.viewer-mode.embedded .viewerEmbedLabel {
