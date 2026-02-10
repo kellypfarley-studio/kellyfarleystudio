@@ -151,6 +151,7 @@
 
     const basePath = base && !base.endsWith('/') ? `${base}/` : base;
     let idx = 0;
+    let idleTimer = null;
 
     const render = () => {
       const file = files[idx];
@@ -166,10 +167,21 @@
       render();
     };
 
+    const startPanelSlideshow = () => {
+      if (idleTimer) window.clearInterval(idleTimer);
+      idleTimer = window.setInterval(() => step(1), 3500);
+    };
+
+    const stopPanelSlideshow = () => {
+      if (idleTimer) window.clearInterval(idleTimer);
+      idleTimer = null;
+    };
+
     prev && prev.addEventListener('click', () => step(-1));
     next && next.addEventListener('click', () => step(1));
 
     img.addEventListener('click', () => {
+      stopPanelSlideshow();
       const qs = version ? `?v=${encodeURIComponent(version)}` : '';
       const list = files.map((file, i) => ({
         src: `${basePath}${encodeURIComponent(file)}${qs}`,
@@ -178,6 +190,20 @@
       openLightbox(list, idx);
     });
 
+    panel.addEventListener('mouseenter', stopPanelSlideshow);
+    panel.addEventListener('mouseleave', () => {
+      startPanelSlideshow();
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopPanelSlideshow();
+      } else {
+        startPanelSlideshow();
+      }
+    });
+
     render();
+    startPanelSlideshow();
   });
 })();
