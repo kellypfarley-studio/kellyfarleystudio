@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0.0",
-  "savedAt": "2026-02-10T02:13:02.091Z",
+  "savedAt": "2026-02-10T02:47:33.097Z",
   "state": {
     "projectSpecs": {
       "projectName": "Process_Design_Page",
-      "clientViewerUrl": "",
+      "clientViewerUrl": "https://kellyfarleystudio.com/viewer.html?viewer=1&project=/projects/Process_Design_Page.ssp.json",
       "poNumber": "",
       "ceilingHeightIn": 192,
       "boundaryWidthIn": 62,
@@ -1314,7 +1314,7 @@
     "frontView": {
       "zoom": 0.75,
       "panX": 0,
-      "panY": 20
+      "panY": 36
     },
     "views": {
       "planView": {
@@ -1325,7 +1325,7 @@
       "frontView": {
         "zoom": 0.75,
         "panX": 0,
-        "panY": 20
+        "panY": 36
       }
     }
   }
