@@ -34,6 +34,7 @@ export type FrontPreviewPanelProps = {
   selectedPileId?: string | null;
   panEnabled?: boolean;
   onTogglePan?: () => void;
+  viewerEmbedded?: boolean;
   previewView?: ProjectSpecs["previewView"];
   onPreviewDepthPatch?: (patch: Partial<ProjectSpecs["previewDepth"]>) => void;
   onPreviewViewPatch?: (patch: Partial<ProjectSpecs["previewView"]>) => void;
@@ -175,9 +176,10 @@ export default function FrontPreviewPanel(props: FrontPreviewPanelProps) {
     const r = SPHERE_RADIUS_IN;
     const sphereD = specs.materials?.sphereDiameterIn ?? SPHERE_DIAMETER_IN;
     const pitch = sphereD + SPHERE_GAP_IN;
-    const padX = r + 2;
-    const padTop = 2;
-    const padBottom = 12;
+    const embedPad = props.viewerMode && props.viewerEmbedded;
+    const padX = r + (embedPad ? 4 : 2);
+    const padTop = embedPad ? 6 : 2;
+    const padBottom = embedPad ? 24 : 12;
 
     let maxDrop = specs.ceilingHeightIn;
     for (const p of previews) {

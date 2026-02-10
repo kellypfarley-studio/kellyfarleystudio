@@ -1114,6 +1114,7 @@ export default function App() {
               onViewChange={s.setFrontView}
               svgRef={previewSvgRef}
               viewerMode={isViewerMode}
+              viewerEmbedded={isEmbedded}
               anchors={s.anchors}
               strands={s.strands}
               stacks={s.stacks}
