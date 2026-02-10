@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0.0",
-  "savedAt": "2026-02-10T00:31:58.612Z",
+  "savedAt": "2026-02-10T00:41:24.484Z",
   "state": {
     "projectSpecs": {
       "projectName": "Spiral ",
-      "clientViewerUrl": "",
+      "clientViewerUrl": "https://kellyfarleystudio.com/viewer.html?viewer=1&project=/projects/Spiral.ssp.json",
       "poNumber": "",
       "ceilingHeightIn": 160,
       "boundaryWidthIn": 16,
@@ -167,45 +167,57 @@
     "anchors": [
       {
         "id": "a_1ad3d5a98d41a8_19c445e1018",
-        "xIn": 8.145332336425781,
-        "yIn": 7.9466352462768555,
+        "xIn": 10.25,
+        "yIn": 5.75,
         "type": "strand",
-        "holeType": "strand"
+        "holeType": "strand",
+        "gridCol": 3,
+        "gridRow": 2
       },
       {
         "id": "a_f57550af4d831_19c446282cd",
-        "xIn": 12.021566390991211,
-        "yIn": 6.847285270690918,
+        "xIn": 10.25,
+        "yIn": 5.75,
         "type": "strand",
-        "holeType": "strand"
+        "holeType": "strand",
+        "gridCol": 3,
+        "gridRow": 2
       },
       {
         "id": "a_894fcdc626ed_19c4463b743",
-        "xIn": 10.906342506408691,
-        "yIn": 12.15304946899414,
+        "xIn": 10.25,
+        "yIn": 10.25,
         "type": "strand",
-        "holeType": "strand"
+        "holeType": "strand",
+        "gridCol": 3,
+        "gridRow": 3
       },
       {
         "id": "a_b783ee3f4f4c98_19c44675b29",
-        "xIn": 5.837141036987305,
-        "yIn": 13.33586311340332,
+        "xIn": 5.75,
+        "yIn": 14.75,
         "type": "strand",
-        "holeType": "strand"
+        "holeType": "strand",
+        "gridCol": 2,
+        "gridRow": 4
       },
       {
         "id": "a_de4ccfd9350678_19c4467a608",
-        "xIn": 1.3762439489364624,
-        "yIn": 8.50322437286377,
+        "xIn": 1.25,
+        "yIn": 10.25,
         "type": "strand",
-        "holeType": "strand"
+        "holeType": "strand",
+        "gridCol": 1,
+        "gridRow": 3
       },
       {
         "id": "a_8a23008a03365_19c4468d3eb",
-        "xIn": 3.7418713569641113,
-        "yIn": 1.8794678449630737,
+        "xIn": 5.75,
+        "yIn": 1.25,
         "type": "strand",
-        "holeType": "strand"
+        "holeType": "strand",
+        "gridCol": 2,
+        "gridRow": 1
       }
     ],
     "strands": [
@@ -298,9 +310,9 @@
       "panY": 0
     },
     "frontView": {
-      "zoom": 2.2,
+      "zoom": 1,
       "panX": 0,
-      "panY": 57.5
+      "panY": 0
     },
     "views": {
       "planView": {
@@ -309,9 +321,9 @@
         "panY": 0
       },
       "frontView": {
-        "zoom": 2.2,
+        "zoom": 1,
         "panX": 0,
-        "panY": 57.5
+        "panY": 0
       }
     }
   }
