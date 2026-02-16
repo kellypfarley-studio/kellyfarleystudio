@@ -704,6 +704,20 @@ textarea {
   color: var(--muted);
 }
 
+.form-status {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.form-status--success {
+  background: rgba(15, 108, 98, 0.12);
+  border: 1px solid rgba(15, 108, 98, 0.28);
+  color: #0f4d46;
+}
+
 footer {
   border-top: 1px solid rgba(43, 38, 32, 0.1);
   padding: 24px 0 40px;

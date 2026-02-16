@@ -27,6 +27,9 @@
       <section class="section">
         <h2>Start a Project</h2>
         <p>Tell me about your project, the space, and why you’re reaching out.</p>
+        <div class="form-status form-status--success" data-form-status hidden role="status" aria-live="polite">
+          Message sent. Thank you — I will get back to you soon.
+        </div>
       </section>
 
       <section class="section" style="padding-top: 0;">
@@ -45,7 +48,14 @@
               <button class="inspiration-nav next" type="button" data-inspiration-next aria-label="Next inspiration">›</button>
             </div>
           </div>
-          <form data-contact-form data-mailto="your-email@example.com">
+          <form
+            data-contact-form
+            action="https://formsubmit.co/2124bc9965453d8c8266061a4417ebf8"
+            method="POST"
+          >
+            <input type="hidden" name="_subject" value="New Start a Project submission — Kelly Farley Studio" />
+            <input type="hidden" name="_next" value="https://kellyfarleystudio.com/contact.html?sent=1" />
+            <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;opacity:0;" aria-hidden="true" />
             <div>
               <label for="name">Name</label>
               <input id="name" name="name" type="text" placeholder="Your name" required />
@@ -67,6 +77,6 @@
         </div>
       </section>
     </main>
-<script src="js/site.js?v=9"></script>
+<script src="js/site.js?v=10"></script>
   </body>
 </html>

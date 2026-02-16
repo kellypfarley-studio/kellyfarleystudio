@@ -1,4 +1,17 @@
 (() => {
+  const status = document.querySelector('[data-form-status]');
+  const params = new URLSearchParams(window.location.search);
+  if (status && params.get('sent') === '1') {
+    status.hidden = false;
+
+    if (window.history && typeof window.history.replaceState === 'function') {
+      params.delete('sent');
+      const query = params.toString();
+      const cleanUrl = `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash || ''}`;
+      window.history.replaceState({}, '', cleanUrl);
+    }
+  }
+
   const form = document.querySelector('[data-contact-form]');
   if (!form) return;
 
