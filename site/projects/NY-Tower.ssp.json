@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0.0",
-  "savedAt": "2026-02-19T16:03:45.754Z",
+  "savedAt": "2026-02-19T16:16:02.661Z",
   "state": {
     "projectSpecs": {
       "projectName": "NY Tower",
-      "clientViewerUrl": "https://kellyfarleystudio.com/viewer.html?viewer=1&project=/projects/Process_Design_Page.ssp.json",
+      "clientViewerUrl": "https://kellyfarleystudio.com/viewer.html?viewer=1&project=/projects/NY-Tower.ssp.json",
       "poNumber": "",
       "ceilingHeightIn": 192,
       "boundaryWidthIn": 62,
@@ -1312,9 +1312,9 @@
       "panY": 0
     },
     "frontView": {
-      "zoom": 0.6,
+      "zoom": 0.95,
       "panX": 0,
-      "panY": 66
+      "panY": -6
     },
     "views": {
       "planView": {
@@ -1323,9 +1323,9 @@
         "panY": 0
       },
       "frontView": {
-        "zoom": 0.6,
+        "zoom": 0.95,
         "panX": 0,
-        "panY": 66
+        "panY": -6
       }
     }
   }
