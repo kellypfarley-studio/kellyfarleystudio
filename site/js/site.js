@@ -1,4 +1,47 @@
 (() => {
+  const toggle = document.querySelector('[data-nav-toggle]');
+  const nav = document.getElementById('site-nav');
+  if (!toggle || !nav) return;
+
+  const setOpen = (open) => {
+    nav.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
+
+  toggle.addEventListener('click', () => {
+    const isOpen = nav.classList.contains('open');
+    setOpen(!isOpen);
+  });
+
+  nav.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => setOpen(false));
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!nav.classList.contains('open')) return;
+    const target = event.target;
+    if (!(target instanceof Node)) return;
+    if (nav.contains(target) || toggle.contains(target)) return;
+    setOpen(false);
+  });
+
+  window.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') setOpen(false);
+  });
+
+  const media = window.matchMedia('(min-width: 981px)');
+  const resetDesktop = () => {
+    if (media.matches) setOpen(false);
+  };
+  resetDesktop();
+  if (typeof media.addEventListener === 'function') {
+    media.addEventListener('change', resetDesktop);
+  } else if (typeof media.addListener === 'function') {
+    media.addListener(resetDesktop);
+  }
+})();
+
+(() => {
   const status = document.querySelector('[data-form-status]');
   const params = new URLSearchParams(window.location.search);
   if (status && params.get('sent') === '1') {
