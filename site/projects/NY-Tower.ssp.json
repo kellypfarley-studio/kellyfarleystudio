@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "savedAt": "2026-02-19T16:16:02.661Z",
+  "savedAt": "2026-04-01T02:56:23.763Z",
   "state": {
     "projectSpecs": {
       "projectName": "NY Tower",
@@ -22,6 +22,7 @@
       "dueDate": "2026-10-12",
       "showPolarGuides": false,
       "showSpiralGuides": false,
+      "spiralGuidePitch": 1,
       "showAnchorDiameterGuides": false,
       "previewDepth": {
         "depthSpreadIn": 3,
@@ -30,7 +31,7 @@
         "perspectiveFactor": 0
       },
       "previewView": {
-        "rotationDeg": 180,
+        "rotationDeg": 0,
         "rotationStrength": 1
       },
       "materials": {

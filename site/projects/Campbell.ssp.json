@@ -1,0 +1,3391 @@
+{
+  "schemaVersion": "1.0.0",
+  "savedAt": "2026-04-15T21:23:25.527Z",
+  "state": {
+    "projectSpecs": {
+      "projectName": "Campbell",
+      "clientViewerUrl": "",
+      "poNumber": "",
+      "ceilingHeightIn": 120,
+      "boundaryWidthIn": 145,
+      "boundaryHeightIn": 24,
+      "boundaryShape": "rect",
+      "ceilingFixtureType": "sheetrock",
+      "dateAccepted": "",
+      "leadTimeMonths": 3,
+      "snapToBoundary": true,
+      "snapToGuides": true,
+      "maskOutsideBoundary": false,
+      "gridSpacingIn": 4.5,
+      "strandHoleDiameterIn": 0.28,
+      "fastenerHoleDiameterIn": 0.5,
+      "dueDate": "2026-10-12",
+      "showPolarGuides": false,
+      "showSpiralGuides": false,
+      "spiralGuidePitch": 1,
+      "showAnchorDiameterGuides": false,
+      "previewDepth": {
+        "depthSpreadIn": 3,
+        "layerSpreadIn": 1,
+        "jitterIn": 0.25,
+        "perspectiveFactor": 0
+      },
+      "previewView": {
+        "rotationDeg": 0,
+        "rotationStrength": 1
+      },
+      "materials": {
+        "sphereDiameterIn": 4.5,
+        "sphereWeightLb": 1.5,
+        "chainWeightLbPerFoot": 0.5,
+        "eyeScrewWeightLb": 0.005,
+        "claspWeightLb": 0.01,
+        "plateWeightLb": 0.02
+      },
+      "pricing": {
+        "sphereUnitCost": 110,
+        "claspUnitCost": 0.5,
+        "eyeScrewUnitCost": 0.25,
+        "fastenerUnitCost": 1.25,
+        "chainCostPerFoot": 8,
+        "decorativePlateCost": 2.5,
+        "laborCost": 15
+      },
+      "quote": {
+        "showroomMultiplier": 1.4,
+        "designerMultiplier": 1.2
+      }
+    },
+    "planTools": {
+      "mode": "select",
+      "draftStrand": {
+        "sphereCount": 10,
+        "topChainLengthIn": 14,
+        "bottomChainLengthIn": 10,
+        "moundPreset": "none",
+        "colorId": "c0",
+        "layer": "front"
+      },
+      "draftStack": {
+        "sphereCount": 8,
+        "topChainLengthIn": 12,
+        "bottomChainLengthIn": 8,
+        "moundPreset": "none",
+        "colorId": "c0",
+        "layer": "front"
+      },
+      "pileBuilder": {
+        "spheres": [],
+        "sphereCount": 12,
+        "radiusIn": 6,
+        "colorId": "c0",
+        "selectedIndex": null,
+        "showPreview": false,
+        "autoSettleZ": true
+      },
+      "clusterBuilder": {
+        "strands": [],
+        "topChainLengthIn": 12,
+        "sphereCount": 10,
+        "bottomSphereCount": 0,
+        "colorId": "c0",
+        "itemRadiusIn": 2.25,
+        "spreadIn": 10,
+        "selectedIndex": null,
+        "showPreview": false
+      },
+      "draftSwoop": {
+        "sphereCount": 6,
+        "chainAIn": 12,
+        "chainBIn": 12,
+        "sagIn": 4,
+        "colorId": "c0"
+      },
+      "customBuilder": {
+        "nodes": [
+          {
+            "type": "chain",
+            "lengthIn": 12
+          },
+          {
+            "type": "strand",
+            "sphereCount": 4,
+            "colorId": "c0"
+          },
+          {
+            "type": "chain",
+            "lengthIn": 40
+          },
+          {
+            "type": "strand",
+            "sphereCount": 4,
+            "colorId": "c0"
+          }
+        ],
+        "chainLengthIn": 40,
+        "strandSphereCount": 4,
+        "stackSphereCount": 6,
+        "strandColorId": "c0",
+        "stackColorId": "c0",
+        "layer": "front"
+      },
+      "pendingSwoopStartHoleId": null,
+      "pendingCopyAnchorId": null
+    },
+    "palette": [
+      {
+        "id": "c0",
+        "name": "White",
+        "hex": "#ffffff"
+      },
+      {
+        "id": "c0a",
+        "name": "Ultra Light",
+        "hex": "#f5f5f5"
+      },
+      {
+        "id": "c6",
+        "name": "Very Light",
+        "hex": "#bbbbbb"
+      },
+      {
+        "id": "c5",
+        "name": "Light Gray",
+        "hex": "#999999"
+      },
+      {
+        "id": "c4",
+        "name": "Mid Gray",
+        "hex": "#777777"
+      },
+      {
+        "id": "c3",
+        "name": "Gray",
+        "hex": "#555555"
+      },
+      {
+        "id": "c2",
+        "name": "Dark Gray",
+        "hex": "#333333"
+      },
+      {
+        "id": "c1",
+        "name": "Black",
+        "hex": "#111111"
+      },
+      {
+        "id": "c7",
+        "name": "Warm Gray",
+        "hex": "#7a6f66"
+      },
+      {
+        "id": "c8",
+        "name": "Neutral Brown",
+        "hex": "#6f5e4a"
+      }
+    ],
+    "anchors": [
+      {
+        "id": "a_a4a97b304dbe48_19d8ce35fc5",
+        "xIn": 5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 2,
+        "gridRow": 1
+      },
+      {
+        "id": "a_1a795f32c8f068_19d8cf8a4be",
+        "xIn": 9.5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 3,
+        "gridRow": 1
+      },
+      {
+        "id": "a_e54e1e9ff762d_19d8f300b1f",
+        "xIn": 14,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 4,
+        "gridRow": 1
+      },
+      {
+        "id": "a_bdd1afde8999e8_19d8f301cc0",
+        "xIn": 18.5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 5,
+        "gridRow": 1
+      },
+      {
+        "id": "a_ca52ec28fd4d28_19d8f30290e",
+        "xIn": 23,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 6,
+        "gridRow": 1
+      },
+      {
+        "id": "a_0794d659a10df_19d8f316c7b",
+        "xIn": 27.5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 7,
+        "gridRow": 1
+      },
+      {
+        "id": "a_7c13cdc46ed448_19d8f31ce98",
+        "xIn": 54.5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 13,
+        "gridRow": 1
+      },
+      {
+        "id": "a_7c455e72f95d5_19d8f31fcd2",
+        "xIn": 59,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 14,
+        "gridRow": 1
+      },
+      {
+        "id": "a_240587e74e60a_19d8f32090f",
+        "xIn": 63.5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 15,
+        "gridRow": 1
+      },
+      {
+        "id": "a_ebdb1ebe3d83a8_19d8f321359",
+        "xIn": 68,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 16,
+        "gridRow": 1
+      },
+      {
+        "id": "a_390f3eab7af6_19d8f3222e8",
+        "xIn": 72.5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 17,
+        "gridRow": 1
+      },
+      {
+        "id": "a_8d8098868e7208_19d8f32703f",
+        "xIn": 90.5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 21,
+        "gridRow": 1
+      },
+      {
+        "id": "a_5b1bfdb20785b_19d8f34fe18",
+        "xIn": 95,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 22,
+        "gridRow": 1
+      },
+      {
+        "id": "a_0512cb680eafb_19d8f3c709d",
+        "xIn": 113,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 26,
+        "gridRow": 1
+      },
+      {
+        "id": "a_402f35192d4d3_19d8f3c833b",
+        "xIn": 117.5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 27,
+        "gridRow": 1
+      },
+      {
+        "id": "a_5f226b2bedae3_19d8f3c96a1",
+        "xIn": 122,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 28,
+        "gridRow": 1
+      },
+      {
+        "id": "a_3eb99ee4364158_19d8f3ca150",
+        "xIn": 126.5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 29,
+        "gridRow": 1
+      },
+      {
+        "id": "a_84c40c443ee318_19d8f3cad5b",
+        "xIn": 131,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 30,
+        "gridRow": 1
+      },
+      {
+        "id": "a_7bd6db2567c4c_19d8f3cbf72",
+        "xIn": 135.5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 31,
+        "gridRow": 1
+      },
+      {
+        "id": "a_e42e680179fd58_19d8f3cc9cc",
+        "xIn": 140,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 32,
+        "gridRow": 1
+      },
+      {
+        "id": "a_443610869817e8_19d8f63df40",
+        "xIn": 144.5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 33,
+        "gridRow": 1
+      },
+      {
+        "id": "a_c87d3115b502e8_19d8f68db50",
+        "xIn": 0.5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 1,
+        "gridRow": 1
+      },
+      {
+        "id": "a_94ea15d8a276b8_19d91d3a88d",
+        "xIn": 0.5,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 1,
+        "gridRow": 2
+      },
+      {
+        "id": "a_112c7663701bd_19d91d53b39",
+        "xIn": 5,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 2,
+        "gridRow": 2
+      },
+      {
+        "id": "a_fef529885bb9e_19d91dadb35",
+        "xIn": 23,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 6,
+        "gridRow": 2
+      },
+      {
+        "id": "a_f052b4b8606cf8_19d91daeb7c",
+        "xIn": 27.5,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 7,
+        "gridRow": 2
+      },
+      {
+        "id": "a_493dc396c1c25_19d91daf7c9",
+        "xIn": 32,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 8,
+        "gridRow": 2
+      },
+      {
+        "id": "a_7f0d8ddee6dd28_19d91db3e6b",
+        "xIn": 50,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 12,
+        "gridRow": 2
+      },
+      {
+        "id": "a_f8b657dc1f7ca_19d91db561f",
+        "xIn": 54.5,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 13,
+        "gridRow": 2
+      },
+      {
+        "id": "a_daa513e8a6ce_19d91db6323",
+        "xIn": 59,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 14,
+        "gridRow": 2
+      },
+      {
+        "id": "a_b0ed2005b6b678_19d91db6e89",
+        "xIn": 63.5,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 15,
+        "gridRow": 2
+      },
+      {
+        "id": "a_e91ae2facf7e6_19d91db7d82",
+        "xIn": 68,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 16,
+        "gridRow": 2
+      },
+      {
+        "id": "a_be6d69d3543d7_19d91db8c7c",
+        "xIn": 72.5,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 17,
+        "gridRow": 2
+      },
+      {
+        "id": "a_8958824aca2c78_19d91dbb476",
+        "xIn": 86,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 20,
+        "gridRow": 2
+      },
+      {
+        "id": "a_cfef112dee04c_19d91dbc0b2",
+        "xIn": 90.5,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 21,
+        "gridRow": 2
+      },
+      {
+        "id": "a_2a263702663dc_19d91dbcba3",
+        "xIn": 95,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 22,
+        "gridRow": 2
+      },
+      {
+        "id": "a_cbae0f3fdfb5c8_19d91dbd9c4",
+        "xIn": 99.5,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 23,
+        "gridRow": 2
+      },
+      {
+        "id": "a_d4fe44a051c45_19d91dbe921",
+        "xIn": 104,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 24,
+        "gridRow": 2
+      },
+      {
+        "id": "a_8393a1028fb778_19d91dbf605",
+        "xIn": 108.5,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 25,
+        "gridRow": 2
+      },
+      {
+        "id": "a_c6c8a57653ab3_19d91dc064c",
+        "xIn": 113,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 26,
+        "gridRow": 2
+      },
+      {
+        "id": "a_17d0553bd6293_19d91dc17d0",
+        "xIn": 117.5,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 27,
+        "gridRow": 2
+      },
+      {
+        "id": "a_5d6d3da1f208c_19d91dc2398",
+        "xIn": 122,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 28,
+        "gridRow": 2
+      },
+      {
+        "id": "a_87fc6c7c03744_19d91dc2f71",
+        "xIn": 126.5,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 29,
+        "gridRow": 2
+      },
+      {
+        "id": "a_da5d5d5dfa6f3_19d91dc3bad",
+        "xIn": 131,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 30,
+        "gridRow": 2
+      },
+      {
+        "id": "a_1fec0ec56c70a8_19d91dc65f0",
+        "xIn": 135.5,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 31,
+        "gridRow": 2
+      },
+      {
+        "id": "a_0fece807db40e8_19d91dc7280",
+        "xIn": 140,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 32,
+        "gridRow": 2
+      },
+      {
+        "id": "a_608f8c2f2f0f5_19d91dc9234",
+        "xIn": 144.5,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 33,
+        "gridRow": 2
+      },
+      {
+        "id": "a_b87491cc8f0b78_19d91e2fcb9",
+        "xIn": 0.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 1,
+        "gridRow": 3
+      },
+      {
+        "id": "a_03473e2b27a6f8_19d91e35438",
+        "xIn": 5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 2,
+        "gridRow": 3
+      },
+      {
+        "id": "a_12bcce50424e08_19d91e8595c",
+        "xIn": 23,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 6,
+        "gridRow": 3
+      },
+      {
+        "id": "a_29f49800e3a5f8_19d91e8646d",
+        "xIn": 27.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 7,
+        "gridRow": 3
+      },
+      {
+        "id": "a_4f8d34fc3318c8_19d91e87006",
+        "xIn": 32,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 8,
+        "gridRow": 3
+      },
+      {
+        "id": "a_24d6e439c2a1d_19d91e88c66",
+        "xIn": 36.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 9,
+        "gridRow": 3
+      },
+      {
+        "id": "a_d6f56c5fb6d308_19d91e8a2ff",
+        "xIn": 45.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 11,
+        "gridRow": 3
+      },
+      {
+        "id": "a_16a620ada75f_19d91e8adf0",
+        "xIn": 50,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 12,
+        "gridRow": 3
+      },
+      {
+        "id": "a_a68858a35c1f08_19d91e8b7f7",
+        "xIn": 54.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 13,
+        "gridRow": 3
+      },
+      {
+        "id": "a_4fa628b7bb74b_19d91e8c2f5",
+        "xIn": 59,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 14,
+        "gridRow": 3
+      },
+      {
+        "id": "a_fac1ff27c50f1_19d91e8d3d2",
+        "xIn": 63.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 15,
+        "gridRow": 3
+      },
+      {
+        "id": "a_374ddb8e10c48_19d91e999ab",
+        "xIn": 99.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 23,
+        "gridRow": 3
+      },
+      {
+        "id": "a_e189af07064588_19d91e9a595",
+        "xIn": 104,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 24,
+        "gridRow": 3
+      },
+      {
+        "id": "a_6fe51917ff97b8_19d91e9b77d",
+        "xIn": 108.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 25,
+        "gridRow": 3
+      },
+      {
+        "id": "a_7d74cbcf7ec8d8_19d91e9c1b6",
+        "xIn": 113,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 26,
+        "gridRow": 3
+      },
+      {
+        "id": "a_a3b9875fe02848_19d91e9d2a4",
+        "xIn": 117.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 27,
+        "gridRow": 3
+      },
+      {
+        "id": "a_2dde9d7af3137_19d91ea24cf",
+        "xIn": 122,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 28,
+        "gridRow": 3
+      },
+      {
+        "id": "a_e70758c1aec748_19d91ea314c",
+        "xIn": 126.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 29,
+        "gridRow": 3
+      },
+      {
+        "id": "a_9e63197800b93_19d91ea5d1e",
+        "xIn": 140,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 32,
+        "gridRow": 3
+      },
+      {
+        "id": "a_994228b2ed524_19d91ea6a43",
+        "xIn": 144.5,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 33,
+        "gridRow": 3
+      },
+      {
+        "id": "a_dd425edd9fc78_19d91ea8f70",
+        "xIn": 0.5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 1,
+        "gridRow": 4
+      },
+      {
+        "id": "a_adfc43b7c0297_19d91eaabc4",
+        "xIn": 5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 2,
+        "gridRow": 4
+      },
+      {
+        "id": "a_232c757f9c3f28_19d91eeb9eb",
+        "xIn": 23,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 6,
+        "gridRow": 4
+      },
+      {
+        "id": "a_a0e2c084a43b1_19d91eec86c",
+        "xIn": 27.5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 7,
+        "gridRow": 4
+      },
+      {
+        "id": "a_26895e2c9564b8_19d91eedbb4",
+        "xIn": 32,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 8,
+        "gridRow": 4
+      },
+      {
+        "id": "a_6b22f54b1a89b_19d91ef2dfe",
+        "xIn": 50,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 12,
+        "gridRow": 4
+      },
+      {
+        "id": "a_b60319abeeeb9_19d91ef487d",
+        "xIn": 54.5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 13,
+        "gridRow": 4
+      },
+      {
+        "id": "a_5b7ff7af357c68_19d91ef566d",
+        "xIn": 59,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 14,
+        "gridRow": 4
+      },
+      {
+        "id": "a_492e11659326b8_19d91ef8121",
+        "xIn": 68,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 16,
+        "gridRow": 4
+      },
+      {
+        "id": "a_22a0526bdc562_19d91f0d74f",
+        "xIn": 72.5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 17,
+        "gridRow": 4
+      },
+      {
+        "id": "a_17bd70a2af0558_19d91f12156",
+        "xIn": 86,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 20,
+        "gridRow": 4
+      },
+      {
+        "id": "a_9a22c1434120d_19d91f13061",
+        "xIn": 90.5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 21,
+        "gridRow": 4
+      },
+      {
+        "id": "a_0ee2de616bf85_19d91f147cf",
+        "xIn": 95,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 22,
+        "gridRow": 4
+      },
+      {
+        "id": "a_38842f0befd0e8_19d91f17840",
+        "xIn": 108.5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 25,
+        "gridRow": 4
+      },
+      {
+        "id": "a_e944fab85c8dc_19d91f1b36d",
+        "xIn": 117.5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 27,
+        "gridRow": 4
+      },
+      {
+        "id": "a_3cf64be1ef5e28_19d91f1c7bd",
+        "xIn": 122,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 28,
+        "gridRow": 4
+      },
+      {
+        "id": "a_8f425a89c413b8_19d91f1d674",
+        "xIn": 126.5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 29,
+        "gridRow": 4
+      },
+      {
+        "id": "a_2d72061af0d5c_19d91f1ea1d",
+        "xIn": 131,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 30,
+        "gridRow": 4
+      },
+      {
+        "id": "a_76ada61dccd68_19d91f1fb6f",
+        "xIn": 135.5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 31,
+        "gridRow": 4
+      },
+      {
+        "id": "a_219162d86ba7a8_19d91f20a9d",
+        "xIn": 140,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 32,
+        "gridRow": 4
+      },
+      {
+        "id": "a_d912de723bb0a8_19d91f21d8f",
+        "xIn": 144.5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 33,
+        "gridRow": 4
+      },
+      {
+        "id": "a_def044ea1aad08_19d91f3ed37",
+        "xIn": 0.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 1,
+        "gridRow": 5
+      },
+      {
+        "id": "a_7b0bc50616c6a_19d91f40008",
+        "xIn": 5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 2,
+        "gridRow": 5
+      },
+      {
+        "id": "a_9b2e846f322918_19d91f40b7d",
+        "xIn": 9.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 3,
+        "gridRow": 5
+      },
+      {
+        "id": "a_8c3396f1c8229_19d91f419e0",
+        "xIn": 14,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 4,
+        "gridRow": 5
+      },
+      {
+        "id": "a_2cae69b99abf28_19d91f42980",
+        "xIn": 18.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 5,
+        "gridRow": 5
+      },
+      {
+        "id": "a_109f5b41e4469_19d91f43ac1",
+        "xIn": 23,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 6,
+        "gridRow": 5
+      },
+      {
+        "id": "a_c6afc90de41ae8_19d91f4484c",
+        "xIn": 27.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 7,
+        "gridRow": 5
+      },
+      {
+        "id": "a_3a43f081bb36d_19d91f4a203",
+        "xIn": 54.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 13,
+        "gridRow": 5
+      },
+      {
+        "id": "a_fff8c4c6ec02c8_19d91f4b311",
+        "xIn": 59,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 14,
+        "gridRow": 5
+      },
+      {
+        "id": "a_b8fa9b31c42a1_19d91f4c5c3",
+        "xIn": 63.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 15,
+        "gridRow": 5
+      },
+      {
+        "id": "a_92143483aeaad8_19d91f4d2d7",
+        "xIn": 68,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 16,
+        "gridRow": 5
+      },
+      {
+        "id": "a_a31b1fb2079ac_19d91f50828",
+        "xIn": 72.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 17,
+        "gridRow": 5
+      },
+      {
+        "id": "a_ffc2c56cfcfce8_19d91f5604f",
+        "xIn": 95,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 22,
+        "gridRow": 5
+      },
+      {
+        "id": "a_53689e60fe8608_19d91f5d924",
+        "xIn": 131,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 30,
+        "gridRow": 5
+      },
+      {
+        "id": "a_ea8596f66cfc88_19d91f5e80d",
+        "xIn": 135.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 31,
+        "gridRow": 5
+      },
+      {
+        "id": "a_ccda4d34cab618_19d91f5f814",
+        "xIn": 140,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 32,
+        "gridRow": 5
+      },
+      {
+        "id": "a_7616f1b02e7bb8_19d91f60c74",
+        "xIn": 144.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 33,
+        "gridRow": 5
+      },
+      {
+        "id": "a_c90de5fbf77608_19d922ea341",
+        "xIn": 126.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 29,
+        "gridRow": 5
+      },
+      {
+        "id": "a_76b6af1d9e5c3_19d9236d396",
+        "xIn": 122,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 28,
+        "gridRow": 5
+      },
+      {
+        "id": "a_2094b01acbb468_19d923b2cab",
+        "xIn": 117.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 27,
+        "gridRow": 5
+      },
+      {
+        "id": "a_63e1b7648e169_19d924212ca",
+        "xIn": 108.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 25,
+        "gridRow": 5
+      },
+      {
+        "id": "a_09940743c2985_19d925a5176",
+        "xIn": 104,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 24,
+        "gridRow": 5
+      },
+      {
+        "id": "a_9f9808a83cf84_19d92638b08",
+        "xIn": 99.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 23,
+        "gridRow": 5
+      },
+      {
+        "id": "a_efd48c25e2b32_19d927f4038",
+        "xIn": 90.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 21,
+        "gridRow": 5
+      },
+      {
+        "id": "a_39cb3ac9d7115_19d9286039a",
+        "xIn": 86,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 20,
+        "gridRow": 5
+      },
+      {
+        "id": "a_60b59825a221c8_19d9289f7e8",
+        "xIn": 113,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 26,
+        "gridRow": 5
+      },
+      {
+        "id": "a_e6b6c9f818508_19d928a41dc",
+        "xIn": 77,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 18,
+        "gridRow": 5
+      },
+      {
+        "id": "a_fb7304529c16d_19d928bfdad",
+        "xIn": 81.5,
+        "yIn": 18.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 19,
+        "gridRow": 5
+      },
+      {
+        "id": "a_4764df111e3ed_19d92900530",
+        "xIn": 81.5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 19,
+        "gridRow": 4
+      },
+      {
+        "id": "a_31b7ada639b3b_19d929561fa",
+        "xIn": 77,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 18,
+        "gridRow": 4
+      },
+      {
+        "id": "a_2ed1223c10bbe8_19d92957583",
+        "xIn": 77,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 18,
+        "gridRow": 2
+      },
+      {
+        "id": "a_73b5e86ee2115_19d92958c09",
+        "xIn": 81.5,
+        "yIn": 5.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 19,
+        "gridRow": 2
+      },
+      {
+        "id": "a_427bef513b55d_19d9295f0e2",
+        "xIn": 63.5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 15,
+        "gridRow": 4
+      },
+      {
+        "id": "a_b13c1ecf468e1_19d92960c9e",
+        "xIn": 99.5,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 23,
+        "gridRow": 4
+      },
+      {
+        "id": "a_236e23313f03b8_19d92961dce",
+        "xIn": 104,
+        "yIn": 14.25,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 24,
+        "gridRow": 4
+      },
+      {
+        "id": "a_51d67a76a55fc8_19d929637fa",
+        "xIn": 95,
+        "yIn": 9.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 22,
+        "gridRow": 3
+      },
+      {
+        "id": "a_6cfb4704fadeb8_19d929682fb",
+        "xIn": 81.5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 19,
+        "gridRow": 1
+      },
+      {
+        "id": "a_c4cd0b4e46b89_19d92974ed2",
+        "xIn": 77,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 18,
+        "gridRow": 1
+      },
+      {
+        "id": "a_ddf73dd49ef178_19d9297ccbb",
+        "xIn": 86,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 20,
+        "gridRow": 1
+      },
+      {
+        "id": "a_504bee6f94d088_19d929837d3",
+        "xIn": 99.5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 23,
+        "gridRow": 1
+      },
+      {
+        "id": "a_f19de4f1f2f538_19d92988ebe",
+        "xIn": 104,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 24,
+        "gridRow": 1
+      },
+      {
+        "id": "a_2341ab7dfce6a_19d9298bbed",
+        "xIn": 108.5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 25,
+        "gridRow": 1
+      }
+    ],
+    "strands": [
+      {
+        "id": "st_f2f6e7ff84be5_19d8ce35fc6",
+        "anchorId": "a_a4a97b304dbe48_19d8ce35fc5",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_63a606f72f8c9_19d8cf8a4be",
+        "anchorId": "a_1a795f32c8f068_19d8cf8a4be",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_74aa6d38900ff8_19d8f300b1f",
+        "anchorId": "a_e54e1e9ff762d_19d8f300b1f",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_65ec3f004941f_19d8f301cc0",
+        "anchorId": "a_bdd1afde8999e8_19d8f301cc0",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_e54f453845bf58_19d8f30290e",
+        "anchorId": "a_ca52ec28fd4d28_19d8f30290e",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_982f47e09fe968_19d8f316c7b",
+        "anchorId": "a_0794d659a10df_19d8f316c7b",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_e11e357e06e4e_19d8f31ce98",
+        "anchorId": "a_7c13cdc46ed448_19d8f31ce98",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_974262c2806b2_19d8f31fcd2",
+        "anchorId": "a_7c455e72f95d5_19d8f31fcd2",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_62cfba6efdcd4_19d8f32090f",
+        "anchorId": "a_240587e74e60a_19d8f32090f",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_c1b13ec40d1f38_19d8f321359",
+        "anchorId": "a_ebdb1ebe3d83a8_19d8f321359",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_c6421e89090c68_19d8f3222e8",
+        "anchorId": "a_390f3eab7af6_19d8f3222e8",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_a329edb2e75288_19d8f3c709d",
+        "anchorId": "a_0512cb680eafb_19d8f3c709d",
+        "spec": {
+          "sphereCount": 12,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_7841dab7a04a58_19d8f3c833c",
+        "anchorId": "a_402f35192d4d3_19d8f3c833b",
+        "spec": {
+          "sphereCount": 12,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_d11d9a11953c48_19d8f3c96a1",
+        "anchorId": "a_5f226b2bedae3_19d8f3c96a1",
+        "spec": {
+          "sphereCount": 10,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_0f6f777ccba21_19d8f3ca150",
+        "anchorId": "a_3eb99ee4364158_19d8f3ca150",
+        "spec": {
+          "sphereCount": 10,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_75f85dce75575_19d8f3cad5b",
+        "anchorId": "a_84c40c443ee318_19d8f3cad5b",
+        "spec": {
+          "sphereCount": 9,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_0c45850d06df4_19d8f3cbf72",
+        "anchorId": "a_7bd6db2567c4c_19d8f3cbf72",
+        "spec": {
+          "sphereCount": 9,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_50046b7ae98e4_19d8f3cc9cc",
+        "anchorId": "a_e42e680179fd58_19d8f3cc9cc",
+        "spec": {
+          "sphereCount": 9,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_5344711d63a598_19d8f63df40",
+        "anchorId": "a_443610869817e8_19d8f63df40",
+        "spec": {
+          "sphereCount": 8,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_dc1b585f804738_19d8f68db50",
+        "anchorId": "a_c87d3115b502e8_19d8f68db50",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_ac79dba85995e8_19d91d3a88e",
+        "anchorId": "a_94ea15d8a276b8_19d91d3a88d",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_d0adc5c50f7b8_19d91d53b39",
+        "anchorId": "a_112c7663701bd_19d91d53b39",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_5753dbf78fd97_19d91dadb35",
+        "anchorId": "a_fef529885bb9e_19d91dadb35",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_c91d1daabd928_19d91daeb7c",
+        "anchorId": "a_f052b4b8606cf8_19d91daeb7c",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_d3e442f1c59858_19d91daf7c9",
+        "anchorId": "a_493dc396c1c25_19d91daf7c9",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_8776d792637af_19d91db3e6b",
+        "anchorId": "a_7f0d8ddee6dd28_19d91db3e6b",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_a9946859448f38_19d91db561f",
+        "anchorId": "a_f8b657dc1f7ca_19d91db561f",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_3aeafe2d613f68_19d91db6323",
+        "anchorId": "a_daa513e8a6ce_19d91db6323",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_869c65030969f_19d91db6e89",
+        "anchorId": "a_b0ed2005b6b678_19d91db6e89",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_2dc3006c1fd06_19d91db7d82",
+        "anchorId": "a_e91ae2facf7e6_19d91db7d82",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_efa2cdb55cfb8_19d91db8c7c",
+        "anchorId": "a_be6d69d3543d7_19d91db8c7c",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_75af315e0e0078_19d91dbb476",
+        "anchorId": "a_8958824aca2c78_19d91dbb476",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_3da3cb9484caa8_19d91dbc0b2",
+        "anchorId": "a_cfef112dee04c_19d91dbc0b2",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_6acd9e824935d_19d91dbd9c4",
+        "anchorId": "a_cbae0f3fdfb5c8_19d91dbd9c4",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_68d616a8a561a_19d91dbe921",
+        "anchorId": "a_d4fe44a051c45_19d91dbe921",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_c3d462ce91ec4_19d91dbf605",
+        "anchorId": "a_8393a1028fb778_19d91dbf605",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_9a69940f01e7e8_19d91dc064c",
+        "anchorId": "a_c6c8a57653ab3_19d91dc064c",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_6676fcb9c012c_19d91dc17d0",
+        "anchorId": "a_17d0553bd6293_19d91dc17d0",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_92f4ab84010068_19d91dc2398",
+        "anchorId": "a_5d6d3da1f208c_19d91dc2398",
+        "spec": {
+          "sphereCount": 10,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_324fce9c8b95e8_19d91dc2f71",
+        "anchorId": "a_87fc6c7c03744_19d91dc2f71",
+        "spec": {
+          "sphereCount": 10,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_88183db1ba4238_19d91dc3bad",
+        "anchorId": "a_da5d5d5dfa6f3_19d91dc3bad",
+        "spec": {
+          "sphereCount": 9,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_b2c2a5e92ca0f8_19d91dc65f0",
+        "anchorId": "a_1fec0ec56c70a8_19d91dc65f0",
+        "spec": {
+          "sphereCount": 9,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_8c64ced646a4b_19d91dc7280",
+        "anchorId": "a_0fece807db40e8_19d91dc7280",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_dad2e450332828_19d91dc9234",
+        "anchorId": "a_608f8c2f2f0f5_19d91dc9234",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_e3c370d8261758_19d91e2fcb9",
+        "anchorId": "a_b87491cc8f0b78_19d91e2fcb9",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_b1f8ba88641e1_19d91e35439",
+        "anchorId": "a_03473e2b27a6f8_19d91e35438",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_237549a6b69bc8_19d91e8595c",
+        "anchorId": "a_12bcce50424e08_19d91e8595c",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_4fec0e582940c_19d91e8646d",
+        "anchorId": "a_29f49800e3a5f8_19d91e8646d",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_f3967a9081ca2_19d91e87006",
+        "anchorId": "a_4f8d34fc3318c8_19d91e87006",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_242c6aba4b064_19d91e88c67",
+        "anchorId": "a_24d6e439c2a1d_19d91e88c66",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_1f1e728479d1f8_19d91e8a300",
+        "anchorId": "a_d6f56c5fb6d308_19d91e8a2ff",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_24282b4b11c1d8_19d91e8adf0",
+        "anchorId": "a_16a620ada75f_19d91e8adf0",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_5cc4dbdb52362_19d91e8b7f7",
+        "anchorId": "a_a68858a35c1f08_19d91e8b7f7",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_c741bb9a5eeff_19d91e8c2f5",
+        "anchorId": "a_4fa628b7bb74b_19d91e8c2f5",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_420199034166f8_19d91e8d3d2",
+        "anchorId": "a_fac1ff27c50f1_19d91e8d3d2",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_43ff895ef6e4a8_19d91e999ab",
+        "anchorId": "a_374ddb8e10c48_19d91e999ab",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_ccda8bac63512_19d91e9a595",
+        "anchorId": "a_e189af07064588_19d91e9a595",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_58d760642c9ad8_19d91e9b77d",
+        "anchorId": "a_6fe51917ff97b8_19d91e9b77d",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_f6cb29cbe1ab1_19d91e9c1b6",
+        "anchorId": "a_7d74cbcf7ec8d8_19d91e9c1b6",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_81f1e5b7093ca8_19d91e9d2a4",
+        "anchorId": "a_a3b9875fe02848_19d91e9d2a4",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_d1f55b5d2fe608_19d91ea24cf",
+        "anchorId": "a_2dde9d7af3137_19d91ea24cf",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_a2e00e43143ea8_19d91ea314c",
+        "anchorId": "a_e70758c1aec748_19d91ea314c",
+        "spec": {
+          "sphereCount": 10,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_90b82c66b6f47_19d91ea5d1e",
+        "anchorId": "a_9e63197800b93_19d91ea5d1e",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_cb7534e9d23f4_19d91ea6a44",
+        "anchorId": "a_994228b2ed524_19d91ea6a43",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c6",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_47105fb849adb_19d91ea8f70",
+        "anchorId": "a_dd425edd9fc78_19d91ea8f70",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_91981df91add68_19d91eaabc4",
+        "anchorId": "a_adfc43b7c0297_19d91eaabc4",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_899239ad75f7_19d91eeb9eb",
+        "anchorId": "a_232c757f9c3f28_19d91eeb9eb",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_3c2fb365befe7_19d91eec86c",
+        "anchorId": "a_a0e2c084a43b1_19d91eec86c",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_1135b7dd52416_19d91eedbb5",
+        "anchorId": "a_26895e2c9564b8_19d91eedbb4",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_42d61ded871bf8_19d91ef2dfe",
+        "anchorId": "a_6b22f54b1a89b_19d91ef2dfe",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_a948b6bc14a78_19d91ef487d",
+        "anchorId": "a_b60319abeeeb9_19d91ef487d",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_9773a042ff0f1_19d91ef566d",
+        "anchorId": "a_5b7ff7af357c68_19d91ef566d",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_3b8425ed0bd94_19d91ef8121",
+        "anchorId": "a_492e11659326b8_19d91ef8121",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_ec76171a49c458_19d91f0d74f",
+        "anchorId": "a_22a0526bdc562_19d91f0d74f",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_00ba6210d726_19d91f12156",
+        "anchorId": "a_17bd70a2af0558_19d91f12156",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_a1e716155c3258_19d91f13062",
+        "anchorId": "a_9a22c1434120d_19d91f13061",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_0dd17d0ad2b22_19d91f147cf",
+        "anchorId": "a_0ee2de616bf85_19d91f147cf",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_6ccc331ed22678_19d91f17840",
+        "anchorId": "a_38842f0befd0e8_19d91f17840",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_ca14421720ec1_19d91f1b36d",
+        "anchorId": "a_e944fab85c8dc_19d91f1b36d",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_c8c2497770cc8_19d91f1c7bd",
+        "anchorId": "a_3cf64be1ef5e28_19d91f1c7bd",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_888b3ea314748_19d91f1d674",
+        "anchorId": "a_8f425a89c413b8_19d91f1d674",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_17bb7e5fc78b8_19d91f1ea1d",
+        "anchorId": "a_2d72061af0d5c_19d91f1ea1d",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_aedab570c4334_19d91f1fb6f",
+        "anchorId": "a_76ada61dccd68_19d91f1fb6f",
+        "spec": {
+          "sphereCount": 10,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_bba1c140c0b6e_19d91f20a9d",
+        "anchorId": "a_219162d86ba7a8_19d91f20a9d",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_1f42ec1092c928_19d91f21d8f",
+        "anchorId": "a_d912de723bb0a8_19d91f21d8f",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0a",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_a3660e610027c_19d91f3ed38",
+        "anchorId": "a_def044ea1aad08_19d91f3ed37",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_a8c4e692c8ca5_19d91f40008",
+        "anchorId": "a_7b0bc50616c6a_19d91f40008",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_2aa4150b7e052_19d91f40b7d",
+        "anchorId": "a_9b2e846f322918_19d91f40b7d",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_cb397184ec74f_19d91f419e1",
+        "anchorId": "a_8c3396f1c8229_19d91f419e0",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_b36c33deb52af8_19d91f42980",
+        "anchorId": "a_2cae69b99abf28_19d91f42980",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_c58f4d1e8aa74_19d91f43ac1",
+        "anchorId": "a_109f5b41e4469_19d91f43ac1",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_9f4f2ccbc0e738_19d91f4484c",
+        "anchorId": "a_c6afc90de41ae8_19d91f4484c",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_79ce9b997e92c_19d91f4a203",
+        "anchorId": "a_3a43f081bb36d_19d91f4a203",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_8d41f4dec1e108_19d91f4b311",
+        "anchorId": "a_fff8c4c6ec02c8_19d91f4b311",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_a2653181522f78_19d91f4c5c3",
+        "anchorId": "a_b8fa9b31c42a1_19d91f4c5c3",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_4e2993ce9ae908_19d91f4d2d7",
+        "anchorId": "a_92143483aeaad8_19d91f4d2d7",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_6cbbb54c13cde8_19d91f50828",
+        "anchorId": "a_a31b1fb2079ac_19d91f50828",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_cb6ab5bfd0bcc8_19d91f5604f",
+        "anchorId": "a_ffc2c56cfcfce8_19d91f5604f",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_104e6575c1a65_19d91f5d924",
+        "anchorId": "a_53689e60fe8608_19d91f5d924",
+        "spec": {
+          "sphereCount": 12,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_338e7e4c6232c8_19d91f5e80d",
+        "anchorId": "a_ea8596f66cfc88_19d91f5e80d",
+        "spec": {
+          "sphereCount": 12,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_caba483ceefec8_19d91f5f814",
+        "anchorId": "a_ccda4d34cab618_19d91f5f814",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 8,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_c8451c51206d1_19d91f60c74",
+        "anchorId": "a_7616f1b02e7bb8_19d91f60c74",
+        "spec": {
+          "sphereCount": 14,
+          "topChainLengthIn": 12,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      }
+    ],
+    "stacks": [],
+    "piles": [],
+    "clusters": [],
+    "swoops": [],
+    "customStrands": [
+      {
+        "id": "cs_a7d913bb2e95f8_19d922ea341",
+        "anchorId": "a_c90de5fbf77608_19d922ea341",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 8,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 10
+            },
+            {
+              "type": "strand",
+              "sphereCount": 3,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 10
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_9266f410b923a8_19d9236d396",
+        "anchorId": "a_76b6af1d9e5c3_19d9236d396",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 16
+            },
+            {
+              "type": "strand",
+              "sphereCount": 7,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 16
+            },
+            {
+              "type": "strand",
+              "sphereCount": 3,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 16
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_bf2a7e0baae57_19d923b2cac",
+        "anchorId": "a_2094b01acbb468_19d923b2cab",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 7,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 16
+            },
+            {
+              "type": "strand",
+              "sphereCount": 3,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 16
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_b5fb73b2a3cb78_19d924212ca",
+        "anchorId": "a_63e1b7648e169_19d924212ca",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 7,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 17
+            },
+            {
+              "type": "strand",
+              "sphereCount": 5,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 5
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_8499e29b1fbd9_19d925a5176",
+        "anchorId": "a_09940743c2985_19d925a5176",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 16
+            },
+            {
+              "type": "strand",
+              "sphereCount": 5,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 23
+            },
+            {
+              "type": "strand",
+              "sphereCount": 5,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_b762f080817408_19d92638b08",
+        "anchorId": "a_9f9808a83cf84_19d92638b08",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 5,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 30
+            },
+            {
+              "type": "strand",
+              "sphereCount": 5,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_882a5835ec4b38_19d927f4038",
+        "anchorId": "a_efd48c25e2b32_19d927f4038",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_756f41f85b56c_19d9286039b",
+        "anchorId": "a_39cb3ac9d7115_19d9286039a",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 16
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_bbfba79dfd7f_19d9289f7e9",
+        "anchorId": "a_60b59825a221c8_19d9289f7e8",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 16
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_1ca6fcf9ebcb7_19d928a41dd",
+        "anchorId": "a_e6b6c9f818508_19d928a41dc",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 16
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_67482df160248_19d928bfdad",
+        "anchorId": "a_fb7304529c16d_19d928bfdad",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_d58329ae598fc8_19d92900530",
+        "anchorId": "a_4764df111e3ed_19d92900530",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_c53259024303_19d929561fa",
+        "anchorId": "a_31b7ada639b3b_19d929561fa",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_263e19f430ac_19d92957583",
+        "anchorId": "a_2ed1223c10bbe8_19d92957583",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_7d8224bd2bbde_19d92958c09",
+        "anchorId": "a_73b5e86ee2115_19d92958c09",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_623dc7e5514e58_19d9295f0e2",
+        "anchorId": "a_427bef513b55d_19d9295f0e2",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_3b09c52e91e448_19d92960c9e",
+        "anchorId": "a_b13c1ecf468e1_19d92960c9e",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_8005b1ff335448_19d92961dce",
+        "anchorId": "a_236e23313f03b8_19d92961dce",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_09cbb560c3221_19d929624e6",
+        "anchorId": "a_2a263702663dc_19d91dbcba3",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_f9932d485ae21_19d929637fa",
+        "anchorId": "a_51d67a76a55fc8_19d929637fa",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_a2e1b2f746237_19d929682fb",
+        "anchorId": "a_6cfb4704fadeb8_19d929682fb",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_575200056b0a48_19d92974ed2",
+        "anchorId": "a_c4cd0b4e46b89_19d92974ed2",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_3b67aca062c388_19d929796d6",
+        "anchorId": "a_8d8098868e7208_19d8f32703f",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_715ceba5174b98_19d9297ccbb",
+        "anchorId": "a_ddf73dd49ef178_19d9297ccbb",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_a2a1033e08b238_19d92981553",
+        "anchorId": "a_5b1bfdb20785b_19d8f34fe18",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_f9bbc1a4294be_19d929837d4",
+        "anchorId": "a_504bee6f94d088_19d929837d3",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_a5a856ce9beba_19d92988ebe",
+        "anchorId": "a_f19de4f1f2f538_19d92988ebe",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_d9ab590c4cce08_19d9298bbee",
+        "anchorId": "a_2341ab7dfce6a_19d9298bbed",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 12
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 40
+            },
+            {
+              "type": "strand",
+              "sphereCount": 4,
+              "colorId": "c0"
+            }
+          ],
+          "layer": "front"
+        }
+      }
+    ],
+    "notes": {
+      "customerNotes": "",
+      "artistNotes": ""
+    },
+    "showLabels": true,
+    "planView": {
+      "zoom": 0.8,
+      "panX": 0,
+      "panY": 0
+    },
+    "frontView": {
+      "zoom": 1,
+      "panX": 0,
+      "panY": 0
+    },
+    "views": {
+      "planView": {
+        "zoom": 0.8,
+        "panX": 0,
+        "panY": 0
+      },
+      "frontView": {
+        "zoom": 1,
+        "panX": 0,
+        "panY": 0
+      }
+    }
+  }
+}
