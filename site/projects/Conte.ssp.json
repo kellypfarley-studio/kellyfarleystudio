@@ -1,17 +1,17 @@
 {
   "schemaVersion": "1.0.0",
-  "savedAt": "2026-06-05T01:57:06.621Z",
+  "savedAt": "2026-06-09T22:36:02.433Z",
   "state": {
     "projectSpecs": {
       "projectName": "Conte",
-      "clientViewerUrl": "https://kellyfarleystudio.com/viewer.html?viewer=1&project=/projects/Conte.ssp.json",
+      "clientViewerUrl": "",
       "poNumber": "",
       "ceilingHeightIn": 144,
-      "boundaryWidthIn": 24,
+      "boundaryWidthIn": 12,
       "boundaryHeightIn": 6,
       "boundaryShape": "rect",
       "ceilingFixtureType": "sheetrock",
-      "dateAccepted": "2026-06-04",
+      "dateAccepted": "",
       "leadTimeMonths": 3,
       "snapToBoundary": true,
       "snapToGuides": true,
@@ -19,11 +19,11 @@
       "gridSpacingIn": 4.5,
       "strandHoleDiameterIn": 0.28,
       "fastenerHoleDiameterIn": 0.5,
-      "dueDate": "2026-09-04",
+      "dueDate": "2026-10-12",
       "showPolarGuides": false,
       "showSpiralGuides": false,
       "spiralGuidePitch": 1,
-      "showAnchorDiameterGuides": true,
+      "showAnchorDiameterGuides": false,
       "previewDepth": {
         "depthSpreadIn": 3,
         "layerSpreadIn": 1,
@@ -43,7 +43,7 @@
         "plateWeightLb": 0.02
       },
       "pricing": {
-        "sphereUnitCost": 130,
+        "sphereUnitCost": 161.78472,
         "claspUnitCost": 0.5,
         "eyeScrewUnitCost": 0.25,
         "fastenerUnitCost": 1.25,
@@ -57,12 +57,12 @@
       }
     },
     "planTools": {
-      "mode": "select",
+      "mode": "place_strand",
       "draftStrand": {
         "sphereCount": 12,
         "topChainLengthIn": 36,
-        "bottomChainLengthIn": 24,
-        "moundPreset": "none",
+        "bottomChainLengthIn": 26,
+        "moundPreset": "12",
         "colorId": "c6",
         "layer": "front"
       },
@@ -167,8 +167,17 @@
     ],
     "anchors": [
       {
-        "id": "a_7ffbf972041dc8_19e95752b25",
-        "xIn": 5.25,
+        "id": "a_e571c4e628eed_19eae846951",
+        "xIn": 1.5,
+        "yIn": 0.75,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 1,
+        "gridRow": 1
+      },
+      {
+        "id": "a_527f2f54a8d63_19eae848606",
+        "xIn": 6,
         "yIn": 0.75,
         "type": "strand",
         "holeType": "strand",
@@ -176,8 +185,8 @@
         "gridRow": 1
       },
       {
-        "id": "a_750644ec6ba4c8_19e9575308b",
-        "xIn": 9.75,
+        "id": "a_ba151902bc832_19eae848a11",
+        "xIn": 10.5,
         "yIn": 0.75,
         "type": "strand",
         "holeType": "strand",
@@ -185,26 +194,17 @@
         "gridRow": 1
       },
       {
-        "id": "a_dbde8e9837f418_19e95753508",
-        "xIn": 14.25,
-        "yIn": 0.75,
+        "id": "a_779c1e7e18f06_19eae849b0e",
+        "xIn": 1.5,
+        "yIn": 5.25,
         "type": "strand",
         "holeType": "strand",
-        "gridCol": 4,
-        "gridRow": 1
+        "gridCol": 1,
+        "gridRow": 2
       },
       {
-        "id": "a_0295e890f98c6_19e95753986",
-        "xIn": 18.75,
-        "yIn": 0.75,
-        "type": "strand",
-        "holeType": "strand",
-        "gridCol": 5,
-        "gridRow": 1
-      },
-      {
-        "id": "a_35cdd5fad14fa8_19e95756661",
-        "xIn": 5.25,
+        "id": "a_fbc9b031bd2c5_19eae849f4a",
+        "xIn": 6,
         "yIn": 5.25,
         "type": "strand",
         "holeType": "strand",
@@ -212,126 +212,84 @@
         "gridRow": 2
       },
       {
-        "id": "a_3c7e132a8167a8_19e95756cc3",
-        "xIn": 9.75,
+        "id": "a_73d1328508fe1_19eae84a60f",
+        "xIn": 10.5,
         "yIn": 5.25,
         "type": "strand",
         "holeType": "strand",
         "gridCol": 3,
-        "gridRow": 2
-      },
-      {
-        "id": "a_4be15415023748_19e957578cf",
-        "xIn": 14.25,
-        "yIn": 5.25,
-        "type": "strand",
-        "holeType": "strand",
-        "gridCol": 4,
-        "gridRow": 2
-      },
-      {
-        "id": "a_2bd917ad6362e_19e95757de2",
-        "xIn": 18.75,
-        "yIn": 5.25,
-        "type": "strand",
-        "holeType": "strand",
-        "gridCol": 5,
         "gridRow": 2
       }
     ],
     "strands": [
       {
-        "id": "st_aee33007b08cc8_19e95752b25",
-        "anchorId": "a_7ffbf972041dc8_19e95752b25",
+        "id": "st_c51f1b359b558_19eae846951",
+        "anchorId": "a_e571c4e628eed_19eae846951",
         "spec": {
           "sphereCount": 12,
           "topChainLengthIn": 36,
-          "bottomChainLengthIn": 24,
-          "moundPreset": "none",
+          "bottomChainLengthIn": 26,
+          "moundPreset": "12",
           "colorId": "c0",
           "layer": "front"
         }
       },
       {
-        "id": "st_b2ba85cd0399a8_19e9575308b",
-        "anchorId": "a_750644ec6ba4c8_19e9575308b",
+        "id": "st_d497886c4d9a_19eae848607",
+        "anchorId": "a_527f2f54a8d63_19eae848606",
         "spec": {
           "sphereCount": 12,
           "topChainLengthIn": 36,
-          "bottomChainLengthIn": 24,
-          "moundPreset": "none",
+          "bottomChainLengthIn": 26,
+          "moundPreset": "12",
           "colorId": "c0",
           "layer": "front"
         }
       },
       {
-        "id": "st_3862630c606718_19e95753508",
-        "anchorId": "a_dbde8e9837f418_19e95753508",
+        "id": "st_aef136b8887578_19eae848a11",
+        "anchorId": "a_ba151902bc832_19eae848a11",
         "spec": {
           "sphereCount": 12,
           "topChainLengthIn": 36,
-          "bottomChainLengthIn": 24,
-          "moundPreset": "none",
+          "bottomChainLengthIn": 26,
+          "moundPreset": "12",
           "colorId": "c0",
           "layer": "front"
         }
       },
       {
-        "id": "st_ee1f1a4171e7e_19e95753986",
-        "anchorId": "a_0295e890f98c6_19e95753986",
+        "id": "st_f46022f090fde_19eae849b0e",
+        "anchorId": "a_779c1e7e18f06_19eae849b0e",
         "spec": {
           "sphereCount": 12,
           "topChainLengthIn": 36,
-          "bottomChainLengthIn": 24,
-          "moundPreset": "none",
-          "colorId": "c0",
-          "layer": "front"
-        }
-      },
-      {
-        "id": "st_20a7579694041_19e95756661",
-        "anchorId": "a_35cdd5fad14fa8_19e95756661",
-        "spec": {
-          "sphereCount": 12,
-          "topChainLengthIn": 36,
-          "bottomChainLengthIn": 24,
-          "moundPreset": "none",
+          "bottomChainLengthIn": 26,
+          "moundPreset": "12",
           "colorId": "c6",
           "layer": "front"
         }
       },
       {
-        "id": "st_f1b2617dcfcb9_19e95756cc3",
-        "anchorId": "a_3c7e132a8167a8_19e95756cc3",
+        "id": "st_ca3c6948a96ff8_19eae849f4a",
+        "anchorId": "a_fbc9b031bd2c5_19eae849f4a",
         "spec": {
           "sphereCount": 12,
           "topChainLengthIn": 36,
-          "bottomChainLengthIn": 24,
-          "moundPreset": "none",
+          "bottomChainLengthIn": 26,
+          "moundPreset": "12",
           "colorId": "c6",
           "layer": "front"
         }
       },
       {
-        "id": "st_e6fd5e6ecfe47_19e957578cf",
-        "anchorId": "a_4be15415023748_19e957578cf",
+        "id": "st_750dea5b848f5_19eae84a60f",
+        "anchorId": "a_73d1328508fe1_19eae84a60f",
         "spec": {
           "sphereCount": 12,
           "topChainLengthIn": 36,
-          "bottomChainLengthIn": 24,
-          "moundPreset": "none",
-          "colorId": "c6",
-          "layer": "front"
-        }
-      },
-      {
-        "id": "st_ce032e8a57adf_19e95757de2",
-        "anchorId": "a_2bd917ad6362e_19e95757de2",
-        "spec": {
-          "sphereCount": 12,
-          "topChainLengthIn": 36,
-          "bottomChainLengthIn": 24,
-          "moundPreset": "none",
+          "bottomChainLengthIn": 26,
+          "moundPreset": "12",
           "colorId": "c6",
           "layer": "front"
         }
