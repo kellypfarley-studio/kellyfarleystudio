@@ -1,0 +1,544 @@
+{
+  "schemaVersion": "1.0.0",
+  "savedAt": "2026-07-28T00:03:48.334Z",
+  "state": {
+    "projectSpecs": {
+      "projectName": "TMD PENTHOUSE",
+      "clientViewerUrl": "",
+      "poNumber": "",
+      "ceilingHeightIn": 125,
+      "boundaryWidthIn": 72,
+      "boundaryHeightIn": 12,
+      "boundaryShape": "rect",
+      "ceilingFixtureType": "sheetrock",
+      "dateAccepted": "",
+      "leadTimeMonths": 3,
+      "slopeAngleDeg": 0,
+      "snapToBoundary": true,
+      "snapToGuides": true,
+      "maskOutsideBoundary": false,
+      "gridSpacingIn": 4.5,
+      "strandHoleDiameterIn": 0.28,
+      "fastenerHoleDiameterIn": 0.5,
+      "dueDate": "2026-10-12",
+      "showPolarGuides": false,
+      "showSpiralGuides": false,
+      "spiralGuidePitch": 1,
+      "showAnchorDiameterGuides": false,
+      "previewDepth": {
+        "depthSpreadIn": 3,
+        "layerSpreadIn": 1,
+        "jitterIn": 0.25,
+        "perspectiveFactor": 0
+      },
+      "previewView": {
+        "rotationDeg": 0,
+        "rotationStrength": 1
+      },
+      "materials": {
+        "sphereDiameterIn": 4.5,
+        "sphereWeightLb": 1.5,
+        "sphereWeightLbByDiameter": {
+          "9": 5,
+          "4.5": 1.5
+        },
+        "chainWeightLbPerFoot": 0.5,
+        "eyeScrewWeightLb": 0.005,
+        "claspWeightLb": 0.01,
+        "plateWeightLb": 0.02
+      },
+      "pricing": {
+        "sphereUnitCost": 130,
+        "claspUnitCost": 0.5,
+        "eyeScrewUnitCost": 0.25,
+        "fastenerUnitCost": 1.25,
+        "chainCostPerFoot": 8,
+        "decorativePlateCost": 2.5,
+        "laborCost": 15
+      },
+      "quote": {
+        "showroomMultiplier": 1.4,
+        "designerMultiplier": 1.2
+      }
+    },
+    "planTools": {
+      "mode": "select",
+      "draftStrand": {
+        "sphereCount": 15,
+        "sphereDiameterIn": 4.5,
+        "topChainLengthIn": 16,
+        "bottomChainLengthIn": 5,
+        "moundPreset": "none",
+        "colorId": "c0",
+        "layer": "front"
+      },
+      "draftStack": {
+        "sphereCount": 8,
+        "sphereDiameterIn": 4.5,
+        "topChainLengthIn": 12,
+        "bottomChainLengthIn": 8,
+        "moundPreset": "none",
+        "colorId": "c0",
+        "layer": "front"
+      },
+      "pileBuilder": {
+        "spheres": [],
+        "sphereCount": 12,
+        "radiusIn": 6,
+        "colorId": "c0",
+        "selectedIndex": null,
+        "showPreview": false,
+        "autoSettleZ": true
+      },
+      "clusterBuilder": {
+        "strands": [],
+        "topChainLengthIn": 12,
+        "sphereCount": 10,
+        "bottomSphereCount": 0,
+        "colorId": "c0",
+        "itemRadiusIn": 2.25,
+        "spreadIn": 10,
+        "selectedIndex": null,
+        "showPreview": false
+      },
+      "draftSwoop": {
+        "sphereCount": 6,
+        "chainAIn": 12,
+        "chainBIn": 12,
+        "sagIn": 4,
+        "colorId": "c0"
+      },
+      "customBuilder": {
+        "nodes": [],
+        "chainLengthIn": 8,
+        "strandSphereCount": 6,
+        "strandSphereDiameterIn": 4.5,
+        "stackSphereCount": 6,
+        "stackSphereDiameterIn": 4.5,
+        "strandColorId": "c0",
+        "stackColorId": "c0",
+        "layer": "front"
+      },
+      "pendingSwoopStartHoleId": null,
+      "pendingCopyAnchorId": null
+    },
+    "palette": [
+      {
+        "id": "c0",
+        "name": "White",
+        "hex": "#ffffff"
+      },
+      {
+        "id": "c0a",
+        "name": "Ultra Light",
+        "hex": "#f5f5f5"
+      },
+      {
+        "id": "c6",
+        "name": "Very Light",
+        "hex": "#bbbbbb"
+      },
+      {
+        "id": "c5",
+        "name": "Light Gray",
+        "hex": "#999999"
+      },
+      {
+        "id": "c4",
+        "name": "Mid Gray",
+        "hex": "#777777"
+      },
+      {
+        "id": "c3",
+        "name": "Gray",
+        "hex": "#555555"
+      },
+      {
+        "id": "c2",
+        "name": "Dark Gray",
+        "hex": "#333333"
+      },
+      {
+        "id": "c1",
+        "name": "Black",
+        "hex": "#111111"
+      },
+      {
+        "id": "c7",
+        "name": "Warm Gray",
+        "hex": "#7a6f66"
+      },
+      {
+        "id": "c8",
+        "name": "Neutral Brown",
+        "hex": "#6f5e4a"
+      }
+    ],
+    "anchors": [
+      {
+        "id": "a_947878b30916d_19fa06be0eb",
+        "xIn": 4.5,
+        "yIn": 6,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 2,
+        "gridRow": 2
+      },
+      {
+        "id": "a_6b07b83140935_19fa06be4cb",
+        "xIn": 9,
+        "yIn": 1.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 3,
+        "gridRow": 1
+      },
+      {
+        "id": "a_dfbfb47a24c478_19fa06bee3b",
+        "xIn": 9,
+        "yIn": 10.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 3,
+        "gridRow": 3
+      },
+      {
+        "id": "a_854e861e4a13c8_19fa06c1495",
+        "xIn": 13.5,
+        "yIn": 6,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 4,
+        "gridRow": 2
+      },
+      {
+        "id": "a_a13be577aadc9_19fa06cc7c5",
+        "xIn": 27,
+        "yIn": 6,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 7,
+        "gridRow": 2
+      },
+      {
+        "id": "a_6848cd0777428_19fa06d2176",
+        "xIn": 40.5,
+        "yIn": 6,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 10,
+        "gridRow": 2
+      },
+      {
+        "id": "a_5f6d8ab3fb0828_19fa06d5a7e",
+        "xIn": 45,
+        "yIn": 1.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 11,
+        "gridRow": 1
+      },
+      {
+        "id": "a_ee4496fed3fe9_19fa06d5eca",
+        "xIn": 49.5,
+        "yIn": 6,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 12,
+        "gridRow": 2
+      },
+      {
+        "id": "a_df918e6d05752_19fa06d62e4",
+        "xIn": 45,
+        "yIn": 10.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 11,
+        "gridRow": 3
+      },
+      {
+        "id": "a_a4d2bd463f63a_19fa06d8b41",
+        "xIn": 54,
+        "yIn": 1.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 13,
+        "gridRow": 1
+      },
+      {
+        "id": "a_040112d66c2cb_19fa06d9dd0",
+        "xIn": 54,
+        "yIn": 10.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 13,
+        "gridRow": 3
+      },
+      {
+        "id": "a_bad6b77aea48b8_19fa06dfccf",
+        "xIn": 58.5,
+        "yIn": 6,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 14,
+        "gridRow": 2
+      },
+      {
+        "id": "a_0d67ea15cfb47_19fa06f8146",
+        "xIn": 63,
+        "yIn": 1.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 15,
+        "gridRow": 1
+      },
+      {
+        "id": "a_a657f5ddbf7208_19fa06f8a42",
+        "xIn": 63,
+        "yIn": 10.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 15,
+        "gridRow": 3
+      },
+      {
+        "id": "a_b4eb32a8ec339_19fa06f9071",
+        "xIn": 67.5,
+        "yIn": 6,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 16,
+        "gridRow": 2
+      }
+    ],
+    "strands": [
+      {
+        "id": "st_47c736033b78b8_19fa06be0ec",
+        "anchorId": "a_947878b30916d_19fa06be0eb",
+        "spec": {
+          "sphereCount": 15,
+          "sphereDiameterIn": 4.5,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 5,
+          "moundPreset": "6",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_25abd13d8bf988_19fa06be4cb",
+        "anchorId": "a_6b07b83140935_19fa06be4cb",
+        "spec": {
+          "sphereCount": 15,
+          "sphereDiameterIn": 4.5,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 5,
+          "moundPreset": "6",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_59eea627057a08_19fa06bee3c",
+        "anchorId": "a_dfbfb47a24c478_19fa06bee3b",
+        "spec": {
+          "sphereCount": 15,
+          "sphereDiameterIn": 4.5,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 5,
+          "moundPreset": "6",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_3b9e2fd3895e08_19fa06c1495",
+        "anchorId": "a_854e861e4a13c8_19fa06c1495",
+        "spec": {
+          "sphereCount": 8,
+          "sphereDiameterIn": 9,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 19,
+          "moundPreset": "24",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_3b64b642d0a4b_19fa06cc7c5",
+        "anchorId": "a_a13be577aadc9_19fa06cc7c5",
+        "spec": {
+          "sphereCount": 8,
+          "sphereDiameterIn": 9,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 19,
+          "moundPreset": "24",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_4acc3444f87c58_19fa06d2176",
+        "anchorId": "a_6848cd0777428_19fa06d2176",
+        "spec": {
+          "sphereCount": 8,
+          "sphereDiameterIn": 9,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 19,
+          "moundPreset": "24",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_34a0c49b6e648_19fa06d5a7f",
+        "anchorId": "a_5f6d8ab3fb0828_19fa06d5a7e",
+        "spec": {
+          "sphereCount": 15,
+          "sphereDiameterIn": 4.5,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 5,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_4f9b0083391db8_19fa06d5eca",
+        "anchorId": "a_ee4496fed3fe9_19fa06d5eca",
+        "spec": {
+          "sphereCount": 15,
+          "sphereDiameterIn": 4.5,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 5,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_4a2f10b67985e8_19fa06d62e4",
+        "anchorId": "a_df918e6d05752_19fa06d62e4",
+        "spec": {
+          "sphereCount": 15,
+          "sphereDiameterIn": 4.5,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 5,
+          "moundPreset": "18",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_c42b4e5e3b53f8_19fa06d8b42",
+        "anchorId": "a_a4d2bd463f63a_19fa06d8b41",
+        "spec": {
+          "sphereCount": 15,
+          "sphereDiameterIn": 4.5,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 5,
+          "moundPreset": "6",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_11e6c8306f4618_19fa06d9dd0",
+        "anchorId": "a_040112d66c2cb_19fa06d9dd0",
+        "spec": {
+          "sphereCount": 15,
+          "sphereDiameterIn": 4.5,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 5,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_a744d799cdb92_19fa06dfccf",
+        "anchorId": "a_bad6b77aea48b8_19fa06dfccf",
+        "spec": {
+          "sphereCount": 8,
+          "sphereDiameterIn": 9,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 5,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_be406cd31b97b8_19fa06f8146",
+        "anchorId": "a_0d67ea15cfb47_19fa06f8146",
+        "spec": {
+          "sphereCount": 15,
+          "sphereDiameterIn": 4.5,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 5,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_2dfb7e8c0d4ff8_19fa06f8a42",
+        "anchorId": "a_a657f5ddbf7208_19fa06f8a42",
+        "spec": {
+          "sphereCount": 15,
+          "sphereDiameterIn": 4.5,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 5,
+          "moundPreset": "6",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_cec5a8362e5018_19fa06f9072",
+        "anchorId": "a_b4eb32a8ec339_19fa06f9071",
+        "spec": {
+          "sphereCount": 15,
+          "sphereDiameterIn": 4.5,
+          "topChainLengthIn": 16,
+          "bottomChainLengthIn": 5,
+          "moundPreset": "6",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      }
+    ],
+    "stacks": [],
+    "piles": [],
+    "clusters": [],
+    "swoops": [],
+    "customStrands": [],
+    "notes": {
+      "customerNotes": "",
+      "artistNotes": ""
+    },
+    "showLabels": true,
+    "planView": {
+      "zoom": 1,
+      "panX": 0,
+      "panY": 0
+    },
+    "frontView": {
+      "zoom": 1,
+      "panX": 0,
+      "panY": 0
+    },
+    "views": {
+      "planView": {
+        "zoom": 1,
+        "panX": 0,
+        "panY": 0
+      },
+      "frontView": {
+        "zoom": 1,
+        "panX": 0,
+        "panY": 0
+      }
+    }
+  }
+}
