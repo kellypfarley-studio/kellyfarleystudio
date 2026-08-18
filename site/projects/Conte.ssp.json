@@ -1,24 +1,30 @@
 {
   "schemaVersion": "1.0.0",
-  "savedAt": "2026-06-09T22:36:02.433Z",
+  "savedAt": "2026-08-18T22:50:24.812Z",
   "state": {
     "projectSpecs": {
       "projectName": "Conte",
-      "clientViewerUrl": "",
+      "clientViewerUrl": "https://kellyfarleystudio.com/viewer.html?viewer=1&project=/projects/Conte.ssp.json",
       "poNumber": "",
       "ceilingHeightIn": 144,
-      "boundaryWidthIn": 12,
-      "boundaryHeightIn": 6,
+      "boundaryWidthIn": 13,
+      "boundaryHeightIn": 8,
       "boundaryShape": "rect",
-      "ceilingFixtureType": "sheetrock",
+      "ceilingFixtureType": "decorative_metal_plate",
+      "ceilingFixtureThicknessIn": 0.125,
+      "ceilingFixtureFinish": "rusted",
+      "ceilingFixtureFinishOther": "",
       "dateAccepted": "",
       "leadTimeMonths": 3,
+      "slopeRiseIn": 6,
+      "slopeRunIn": 12,
+      "slopeAngleDeg": 26.56505117707799,
       "snapToBoundary": true,
       "snapToGuides": true,
       "maskOutsideBoundary": false,
-      "gridSpacingIn": 4.5,
+      "gridSpacingIn": 5,
       "strandHoleDiameterIn": 0.28,
-      "fastenerHoleDiameterIn": 0.5,
+      "fastenerHoleDiameterIn": 0.379,
       "dueDate": "2026-10-12",
       "showPolarGuides": false,
       "showSpiralGuides": false,
@@ -31,12 +37,17 @@
         "perspectiveFactor": 0
       },
       "previewView": {
-        "rotationDeg": 0,
+        "rotationDeg": 50,
         "rotationStrength": 1
       },
       "materials": {
-        "sphereDiameterIn": 4.5,
+        "sphereDiameterIn": 5,
         "sphereWeightLb": 1.5,
+        "sphereWeightLbByDiameter": {
+          "5": 1.5,
+          "9": 5,
+          "4.5": 1.5
+        },
         "chainWeightLbPerFoot": 0.5,
         "eyeScrewWeightLb": 0.005,
         "claspWeightLb": 0.01,
@@ -57,7 +68,7 @@
       }
     },
     "planTools": {
-      "mode": "place_strand",
+      "mode": "select",
       "draftStrand": {
         "sphereCount": 12,
         "topChainLengthIn": 36,
@@ -169,7 +180,7 @@
       {
         "id": "a_e571c4e628eed_19eae846951",
         "xIn": 1.5,
-        "yIn": 0.75,
+        "yIn": 1.7639320225002102,
         "type": "strand",
         "holeType": "strand",
         "gridCol": 1,
@@ -177,8 +188,8 @@
       },
       {
         "id": "a_527f2f54a8d63_19eae848606",
-        "xIn": 6,
-        "yIn": 0.75,
+        "xIn": 6.5,
+        "yIn": 1.7639320225002102,
         "type": "strand",
         "holeType": "strand",
         "gridCol": 2,
@@ -186,8 +197,8 @@
       },
       {
         "id": "a_ba151902bc832_19eae848a11",
-        "xIn": 10.5,
-        "yIn": 0.75,
+        "xIn": 11.5,
+        "yIn": 1.7639320225002102,
         "type": "strand",
         "holeType": "strand",
         "gridCol": 3,
@@ -196,7 +207,7 @@
       {
         "id": "a_779c1e7e18f06_19eae849b0e",
         "xIn": 1.5,
-        "yIn": 5.25,
+        "yIn": 6.23606797749979,
         "type": "strand",
         "holeType": "strand",
         "gridCol": 1,
@@ -204,8 +215,8 @@
       },
       {
         "id": "a_fbc9b031bd2c5_19eae849f4a",
-        "xIn": 6,
-        "yIn": 5.25,
+        "xIn": 6.5,
+        "yIn": 6.23606797749979,
         "type": "strand",
         "holeType": "strand",
         "gridCol": 2,
@@ -213,12 +224,47 @@
       },
       {
         "id": "a_73d1328508fe1_19eae84a60f",
-        "xIn": 10.5,
-        "yIn": 5.25,
+        "xIn": 11.5,
+        "yIn": 6.23606797749979,
         "type": "strand",
         "holeType": "strand",
         "gridCol": 3,
         "gridRow": 2
+      },
+      {
+        "id": "a_a6fd6a30f2849_19ff23ad084",
+        "xIn": 0.75,
+        "yIn": 0.75,
+        "type": "canopy_fastener",
+        "holeType": "fastener"
+      },
+      {
+        "id": "a_7ce937764f8858_19ff2424411",
+        "xIn": 0.75,
+        "yIn": 7.25,
+        "type": "canopy_fastener",
+        "holeType": "fastener"
+      },
+      {
+        "id": "a_bf069d02fcfcf_19ff2434758",
+        "xIn": 12.25,
+        "yIn": 0.75,
+        "type": "canopy_fastener",
+        "holeType": "fastener"
+      },
+      {
+        "id": "a_09a5ff327a277_19ff24397b8",
+        "xIn": 7.25,
+        "yIn": 12.25,
+        "type": "canopy_fastener",
+        "holeType": "fastener"
+      },
+      {
+        "id": "a_cc4ef10d67ecf8_19ff2462e5d",
+        "xIn": 12.25,
+        "yIn": 7.25,
+        "type": "canopy_fastener",
+        "holeType": "fastener"
       }
     ],
     "strands": [
@@ -228,7 +274,7 @@
         "spec": {
           "sphereCount": 12,
           "topChainLengthIn": 36,
-          "bottomChainLengthIn": 26,
+          "bottomChainLengthIn": 18,
           "moundPreset": "12",
           "colorId": "c0",
           "layer": "front"
@@ -240,7 +286,7 @@
         "spec": {
           "sphereCount": 12,
           "topChainLengthIn": 36,
-          "bottomChainLengthIn": 26,
+          "bottomChainLengthIn": 18,
           "moundPreset": "12",
           "colorId": "c0",
           "layer": "front"
@@ -252,7 +298,7 @@
         "spec": {
           "sphereCount": 12,
           "topChainLengthIn": 36,
-          "bottomChainLengthIn": 26,
+          "bottomChainLengthIn": 18,
           "moundPreset": "12",
           "colorId": "c0",
           "layer": "front"
@@ -263,8 +309,8 @@
         "anchorId": "a_779c1e7e18f06_19eae849b0e",
         "spec": {
           "sphereCount": 12,
-          "topChainLengthIn": 36,
-          "bottomChainLengthIn": 26,
+          "topChainLengthIn": 37,
+          "bottomChainLengthIn": 16,
           "moundPreset": "12",
           "colorId": "c6",
           "layer": "front"
@@ -275,8 +321,8 @@
         "anchorId": "a_fbc9b031bd2c5_19eae849f4a",
         "spec": {
           "sphereCount": 12,
-          "topChainLengthIn": 36,
-          "bottomChainLengthIn": 26,
+          "topChainLengthIn": 37,
+          "bottomChainLengthIn": 16,
           "moundPreset": "12",
           "colorId": "c6",
           "layer": "front"
@@ -287,8 +333,8 @@
         "anchorId": "a_73d1328508fe1_19eae84a60f",
         "spec": {
           "sphereCount": 12,
-          "topChainLengthIn": 36,
-          "bottomChainLengthIn": 26,
+          "topChainLengthIn": 37,
+          "bottomChainLengthIn": 16,
           "moundPreset": "12",
           "colorId": "c6",
           "layer": "front"
