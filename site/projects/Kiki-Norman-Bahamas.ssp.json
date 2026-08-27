@@ -1,10 +1,10 @@
 {
   "schemaVersion": "1.0.0",
-  "savedAt": "2026-08-27T19:46:03.980Z",
+  "savedAt": "2026-08-27T20:15:22.468Z",
   "state": {
     "projectSpecs": {
       "projectName": "Kiki Norman-Bahamas-",
-      "clientViewerUrl": "",
+      "clientViewerUrl": "https://kellyfarleystudio.com/viewer.html?viewer=1&project=/projects/Kiki-Norman-Bahamas.ssp.json",
       "poNumber": "",
       "ceilingHeightIn": 120,
       "boundaryWidthIn": 53,
@@ -551,7 +551,7 @@
     ],
     "notes": {
       "customerNotes": "The client is requesting additional strands to be added to an existing piece.  The canopy has pre-drilled holes.  The front of the canopy has 12 holes, and the back has one hole remaining to fill.  You need 13 additional strands to complete the piece. ",
-      "artistNotes": "The artist let the client know that it may take longer than the 3-month lead time to match the exciting colors in the existing piece.  The artist will add an additional chain on top that will need to be cut during installation to make adjustments and incorporate it into the composition.   The artist recommends installing the final piece on-site to handle the nuance of the arrangement. "
+      "artistNotes": "The artist let the client know that it may take longer than the 3-month lead time to match the exciting colors in the existing piece.  The artist will add an additional chain on top that will need to be cut during installation to make adjustments and incorporate it into the composition.   The artist recommends having him install the final piece on-site to handle the nuance of the arrangement. "
     },
     "showLabels": true,
     "planView": {
