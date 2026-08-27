@@ -1,0 +1,580 @@
+{
+  "schemaVersion": "1.0.0",
+  "savedAt": "2026-08-27T19:46:03.980Z",
+  "state": {
+    "projectSpecs": {
+      "projectName": "Kiki Norman-Bahamas-",
+      "clientViewerUrl": "",
+      "poNumber": "",
+      "ceilingHeightIn": 120,
+      "boundaryWidthIn": 53,
+      "boundaryHeightIn": 12,
+      "boundaryShape": "rect",
+      "ceilingFixtureType": "sheetrock",
+      "ceilingFixtureThicknessIn": 0.125,
+      "ceilingFixtureFinish": "black",
+      "ceilingFixtureFinishOther": "",
+      "dateAccepted": "",
+      "leadTimeMonths": 4,
+      "slopeRiseIn": 0,
+      "slopeRunIn": 12,
+      "slopeAngleDeg": 0,
+      "snapToBoundary": true,
+      "snapToGuides": true,
+      "maskOutsideBoundary": false,
+      "gridSpacingIn": 4.5,
+      "strandHoleDiameterIn": 0.28,
+      "fastenerHoleDiameterIn": 0.48,
+      "dueDate": "2026-10-12",
+      "showPolarGuides": false,
+      "showSpiralGuides": false,
+      "spiralGuidePitch": 1,
+      "showAnchorDiameterGuides": false,
+      "previewDepth": {
+        "depthSpreadIn": 3,
+        "layerSpreadIn": 1,
+        "jitterIn": 0.25,
+        "perspectiveFactor": 0
+      },
+      "previewView": {
+        "rotationDeg": 0,
+        "rotationStrength": 1
+      },
+      "materials": {
+        "sphereDiameterIn": 5,
+        "sphereWeightLb": 1.5,
+        "sphereWeightLbByDiameter": {
+          "5": 1.5,
+          "9": 5,
+          "4.5": 1.5
+        },
+        "chainWeightLbPerFoot": 0.5,
+        "eyeScrewWeightLb": 0.005,
+        "claspWeightLb": 0.01,
+        "plateWeightLb": 0.02
+      },
+      "pricing": {
+        "sphereUnitCost": 115,
+        "claspUnitCost": 0.5,
+        "eyeScrewUnitCost": 3,
+        "fastenerUnitCost": 1.25,
+        "chainCostPerFoot": 12,
+        "decorativePlateCost": 2.5,
+        "laborCost": 15
+      },
+      "quote": {
+        "showroomMultiplier": 1.4,
+        "designerMultiplier": 1.2
+      }
+    },
+    "planTools": {
+      "mode": "select",
+      "draftStrand": {
+        "sphereCount": 12,
+        "sphereDiameterIn": 5,
+        "topChainLengthIn": 28,
+        "bottomChainLengthIn": 4,
+        "moundPreset": "none",
+        "colorId": "c0",
+        "layer": "front"
+      },
+      "draftStack": {
+        "sphereCount": 8,
+        "sphereDiameterIn": 5,
+        "topChainLengthIn": 32,
+        "bottomChainLengthIn": 8,
+        "moundPreset": "none",
+        "colorId": "c0",
+        "layer": "front"
+      },
+      "pileBuilder": {
+        "spheres": [],
+        "sphereCount": 12,
+        "radiusIn": 6,
+        "colorId": "c0",
+        "selectedIndex": null,
+        "showPreview": false,
+        "autoSettleZ": true
+      },
+      "clusterBuilder": {
+        "strands": [],
+        "topChainLengthIn": 12,
+        "sphereCount": 10,
+        "bottomSphereCount": 0,
+        "colorId": "c0",
+        "itemRadiusIn": 2.25,
+        "spreadIn": 10,
+        "selectedIndex": null,
+        "showPreview": false
+      },
+      "draftSwoop": {
+        "sphereCount": 6,
+        "chainAIn": 12,
+        "chainBIn": 12,
+        "sagIn": 4,
+        "colorId": "c0"
+      },
+      "customBuilder": {
+        "nodes": [
+          {
+            "type": "chain",
+            "lengthIn": 32
+          },
+          {
+            "type": "strand",
+            "sphereCount": 3,
+            "sphereDiameterIn": 5,
+            "colorId": "c0"
+          },
+          {
+            "type": "chain",
+            "lengthIn": 10
+          },
+          {
+            "type": "strand",
+            "sphereCount": 3,
+            "sphereDiameterIn": 5,
+            "colorId": "c0"
+          },
+          {
+            "type": "chain",
+            "lengthIn": 32
+          },
+          {
+            "type": "chain",
+            "lengthIn": 6
+          }
+        ],
+        "chainLengthIn": 6,
+        "strandSphereCount": 3,
+        "strandSphereDiameterIn": 5,
+        "stackSphereCount": 0,
+        "stackSphereDiameterIn": 5,
+        "strandColorId": "c0",
+        "stackColorId": "c0",
+        "layer": "front"
+      },
+      "pendingSwoopStartHoleId": null,
+      "pendingCopyAnchorId": null
+    },
+    "palette": [
+      {
+        "id": "c0",
+        "name": "White",
+        "hex": "#ffffff"
+      },
+      {
+        "id": "c0a",
+        "name": "Ultra Light",
+        "hex": "#f5f5f5"
+      },
+      {
+        "id": "c6",
+        "name": "Very Light",
+        "hex": "#bbbbbb"
+      },
+      {
+        "id": "c5",
+        "name": "Light Gray",
+        "hex": "#999999"
+      },
+      {
+        "id": "c4",
+        "name": "Mid Gray",
+        "hex": "#777777"
+      },
+      {
+        "id": "c3",
+        "name": "Gray",
+        "hex": "#555555"
+      },
+      {
+        "id": "c2",
+        "name": "Dark Gray",
+        "hex": "#333333"
+      },
+      {
+        "id": "c1",
+        "name": "Black",
+        "hex": "#111111"
+      },
+      {
+        "id": "c7",
+        "name": "Warm Gray",
+        "hex": "#7a6f66"
+      },
+      {
+        "id": "c8",
+        "name": "Neutral Brown",
+        "hex": "#6f5e4a"
+      }
+    ],
+    "anchors": [
+      {
+        "id": "a_7affd7e2082b48_1a0449dec2c",
+        "xIn": 1.75,
+        "yIn": 1.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 1,
+        "gridRow": 1
+      },
+      {
+        "id": "a_691049c5f81408_1a0449e91ce",
+        "xIn": 6.25,
+        "yIn": 1.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 2,
+        "gridRow": 1
+      },
+      {
+        "id": "a_4eb681f1689be8_1a044a10382",
+        "xIn": 10.75,
+        "yIn": 1.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 3,
+        "gridRow": 1
+      },
+      {
+        "id": "a_6e89c8ba5571_1a044a29da8",
+        "xIn": 15.25,
+        "yIn": 1.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 4,
+        "gridRow": 1
+      },
+      {
+        "id": "a_cc3d71504b0018_1a044a6516b",
+        "xIn": 24.25,
+        "yIn": 1.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 6,
+        "gridRow": 1
+      },
+      {
+        "id": "a_4b05f462d5eb4_1a044a66a48",
+        "xIn": 28.75,
+        "yIn": 1.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 7,
+        "gridRow": 1
+      },
+      {
+        "id": "a_ddf536c36d8d_1a044a67e98",
+        "xIn": 33.25,
+        "yIn": 1.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 8,
+        "gridRow": 1
+      },
+      {
+        "id": "a_ed087cd14599e_1a044a7a500",
+        "xIn": 37.75,
+        "yIn": 1.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 9,
+        "gridRow": 1
+      },
+      {
+        "id": "a_25e7f1522b0cc8_1a044a7ce03",
+        "xIn": 46.75,
+        "yIn": 1.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 11,
+        "gridRow": 1
+      },
+      {
+        "id": "a_e31a4d66a50f2_1a044a7ea13",
+        "xIn": 51.25,
+        "yIn": 1.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 12,
+        "gridRow": 1
+      },
+      {
+        "id": "a_e7b0eb4f6cac3_1a044a8d8cf",
+        "xIn": 42.25,
+        "yIn": 1.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 10,
+        "gridRow": 1
+      },
+      {
+        "id": "a_94fb275f09a728_1a044ade361",
+        "xIn": 51.25,
+        "yIn": 10.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 12,
+        "gridRow": 3
+      },
+      {
+        "id": "a_f1f16be95a0d58_1a044b147ee",
+        "xIn": 19.75,
+        "yIn": 1.5,
+        "type": "strand",
+        "holeType": "strand",
+        "gridCol": 5,
+        "gridRow": 1
+      }
+    ],
+    "strands": [
+      {
+        "id": "st_f3eb45b6cad278_1a0449dec2c",
+        "anchorId": "a_7affd7e2082b48_1a0449dec2c",
+        "spec": {
+          "sphereCount": 11,
+          "sphereDiameterIn": 5,
+          "topChainLengthIn": 24,
+          "bottomChainLengthIn": 16,
+          "moundPreset": "36",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_93c26bc1d8c9c_1a0449e91ce",
+        "anchorId": "a_691049c5f81408_1a0449e91ce",
+        "spec": {
+          "sphereCount": 10,
+          "sphereDiameterIn": 5,
+          "topChainLengthIn": 28,
+          "bottomChainLengthIn": 19,
+          "moundPreset": "24",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_b68d21a05ac2f8_1a044a10382",
+        "anchorId": "a_4eb681f1689be8_1a044a10382",
+        "spec": {
+          "sphereCount": 8,
+          "sphereDiameterIn": 5,
+          "topChainLengthIn": 32,
+          "bottomChainLengthIn": 30,
+          "moundPreset": "24",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_5a26036d0c4c3_1a044a29da8",
+        "anchorId": "a_6e89c8ba5571_1a044a29da8",
+        "spec": {
+          "sphereCount": 12,
+          "sphereDiameterIn": 5,
+          "topChainLengthIn": 28,
+          "bottomChainLengthIn": 4,
+          "moundPreset": "6",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_3f258b144f1d28_1a044a6516b",
+        "anchorId": "a_cc3d71504b0018_1a044a6516b",
+        "spec": {
+          "sphereCount": 12,
+          "sphereDiameterIn": 5,
+          "topChainLengthIn": 28,
+          "bottomChainLengthIn": 4,
+          "moundPreset": "36",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_7602e98b3b3c68_1a044a66a48",
+        "anchorId": "a_4b05f462d5eb4_1a044a66a48",
+        "spec": {
+          "sphereCount": 8,
+          "sphereDiameterIn": 5,
+          "topChainLengthIn": 32,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_ac4894c4806038_1a044a67e98",
+        "anchorId": "a_ddf536c36d8d_1a044a67e98",
+        "spec": {
+          "sphereCount": 11,
+          "sphereDiameterIn": 5,
+          "topChainLengthIn": 28,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "36",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_af5986b7f07e98_1a044a7ce03",
+        "anchorId": "a_25e7f1522b0cc8_1a044a7ce03",
+        "spec": {
+          "sphereCount": 10,
+          "sphereDiameterIn": 5,
+          "topChainLengthIn": 28,
+          "bottomChainLengthIn": 10,
+          "moundPreset": "none",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_11cdce43b2589_1a044a7ea14",
+        "anchorId": "a_e31a4d66a50f2_1a044a7ea13",
+        "spec": {
+          "sphereCount": 11,
+          "sphereDiameterIn": 5,
+          "topChainLengthIn": 24,
+          "bottomChainLengthIn": 16,
+          "moundPreset": "36",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_16d344a46d0cf8_1a044a8d8cf",
+        "anchorId": "a_e7b0eb4f6cac3_1a044a8d8cf",
+        "spec": {
+          "sphereCount": 11,
+          "sphereDiameterIn": 5,
+          "topChainLengthIn": 36,
+          "bottomChainLengthIn": 2,
+          "moundPreset": "36",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      },
+      {
+        "id": "st_4d46eb84f97fe_1a044ade361",
+        "anchorId": "a_94fb275f09a728_1a044ade361",
+        "spec": {
+          "sphereCount": 11,
+          "sphereDiameterIn": 5,
+          "topChainLengthIn": 24,
+          "bottomChainLengthIn": 16,
+          "moundPreset": "36",
+          "colorId": "c0",
+          "layer": "front"
+        }
+      }
+    ],
+    "stacks": [],
+    "piles": [],
+    "clusters": [],
+    "swoops": [],
+    "customStrands": [
+      {
+        "id": "cs_e07eebd8a5be6_1a044a7a503",
+        "anchorId": "a_ed087cd14599e_1a044a7a500",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 32
+            },
+            {
+              "type": "strand",
+              "sphereCount": 3,
+              "sphereDiameterIn": 5,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 10
+            },
+            {
+              "type": "strand",
+              "sphereCount": 3,
+              "sphereDiameterIn": 5,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 32
+            }
+          ],
+          "layer": "front"
+        }
+      },
+      {
+        "id": "cs_e2e2e4e21f451_1a044b147ee",
+        "anchorId": "a_f1f16be95a0d58_1a044b147ee",
+        "spec": {
+          "nodes": [
+            {
+              "type": "chain",
+              "lengthIn": 32
+            },
+            {
+              "type": "strand",
+              "sphereCount": 3,
+              "sphereDiameterIn": 5,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 10
+            },
+            {
+              "type": "strand",
+              "sphereCount": 3,
+              "sphereDiameterIn": 5,
+              "colorId": "c0"
+            },
+            {
+              "type": "chain",
+              "lengthIn": 32
+            },
+            {
+              "type": "chain",
+              "lengthIn": 6
+            }
+          ],
+          "layer": "front"
+        }
+      }
+    ],
+    "notes": {
+      "customerNotes": "The client is requesting additional strands to be added to an existing piece.  The canopy has pre-drilled holes.  The front of the canopy has 12 holes, and the back has one hole remaining to fill.  You need 13 additional strands to complete the piece. ",
+      "artistNotes": "The artist let the client know that it may take longer than the 3-month lead time to match the exciting colors in the existing piece.  The artist will add an additional chain on top that will need to be cut during installation to make adjustments and incorporate it into the composition.   The artist recommends installing the final piece on-site to handle the nuance of the arrangement. "
+    },
+    "showLabels": true,
+    "planView": {
+      "zoom": 1,
+      "panX": 0,
+      "panY": 0
+    },
+    "frontView": {
+      "zoom": 1,
+      "panX": 0,
+      "panY": 0
+    },
+    "views": {
+      "planView": {
+        "zoom": 1,
+        "panX": 0,
+        "panY": 0
+      },
+      "frontView": {
+        "zoom": 1,
+        "panX": 0,
+        "panY": 0
+      }
+    }
+  }
+}
