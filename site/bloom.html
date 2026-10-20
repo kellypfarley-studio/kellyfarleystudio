@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Explore Bloom, an interactive spatial study by ceramic artist Kelly Farley." />
+    <title>Bloom — Interactive Spatial Study | Kelly Farley Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600&family=Sora:wght@300;400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/site.css?v=9" />
+  </head>
+  <body class="interactive-project-page">
+    <header>
+      <div class="container nav">
+        <a class="brand" href="index.html" aria-label="Kelly Farley Studio home">
+          <span class="brand-name">Kelly Farley Studio</span>
+          <span class="brand-tag">Ceramic installations shaping volume, gravity, and architectural space.</span>
+        </a>
+        <button class="nav-toggle" type="button" data-nav-toggle aria-controls="site-nav" aria-expanded="false" aria-label="Toggle navigation">Menu</button>
+        <nav id="site-nav" class="nav-links">
+          <a href="index.html">Studio</a>
+          <a href="gallery.html">Gallery</a>
+          <a href="about.html">About the Artist</a>
+          <a href="process.html">Process</a>
+          <a href="contact.html">Start a Project</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="interactive-project-shell">
+      <iframe
+        class="interactive-project-frame"
+        src="interactive/bloom-room.html"
+        title="Bloom interactive three-dimensional spatial study"
+        allow="fullscreen"
+      ></iframe>
+    </main>
+    <script src="js/site.js?v=11"></script>
+  </body>
+</html>
